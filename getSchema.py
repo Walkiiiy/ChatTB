@@ -1,0 +1,137 @@
+import pandas as pd
+import numpy as np
+from dotenv import load_dotenv
+import os
+from io import StringIO
+import json
+
+
+load_dotenv()
+DATABASE=os.getenv("DEV_DATABASE")
+DESCRIPTION=os.getenv("DEV_DESCRIPTION")
+MAX_SAMPLE_NUM=5
+
+# return table_schema, list of column
+def table_sampler(csvFile,descFile):
+    print(f'processing {csvFile}')
+    res={"tableName":csvFile.split('/')[-1]}
+
+    # table=pd.read_csv(csvFile,encoding='latin1')
+    # description=pd.read_csv(descFile,encoding='latin1')
+    with open(descFile, 'r', encoding='utf-8', errors='replace') as f:
+        content = f.read()
+    description = pd.read_csv(StringIO(content))
+    with open(csvFile, 'r', encoding='utf-8', errors='replace') as f:
+        content = f.read()
+    table = pd.read_csv(StringIO(content))
+
+    if MAX_SAMPLE_NUM>table.shape[0]:
+        sampleNum=table.shape[0]
+    else:
+        sampleNum= MAX_SAMPLE_NUM
+    sampeIndexs=np.random.randint(0,table.shape[0],sampleNum)
+    
+    colNum=0
+
+    for col in table:
+        col_normalized = col.strip().lower()
+        description["original_column_name_normalized"] = description["original_column_name"].str.strip().str.lower()
+        filtered_description = description[description["original_column_name_normalized"] == col_normalized]
+        col_desc = column_sampler(table[col], sampeIndexs, filtered_description)
+        res[f'column{colNum}'] = col_desc
+        colNum += 1
+    return res
+
+# return column_description, dict
+def column_sampler(column,sampleIndexs,descDF):
+    col_desc={}
+
+    if descDF.empty:
+        return
+    if 'original_column_name' in descDF and not pd.isna(descDF.iloc[0]['original_column_name']):
+        col_desc['originColumnName'] = descDF.iloc[0]['original_column_name']
+    if 'column_name' in descDF and not pd.isna(descDF.iloc[0]['column_name']):
+        col_desc['fullColumnName'] = descDF.iloc[0]['column_name']
+    if 'column_description' in descDF and not pd.isna(descDF.iloc[0]['column_description']):
+        col_desc['columnDescription'] = descDF.iloc[0]['column_description']
+    if 'data_format' in descDF and not pd.isna(descDF.iloc[0]['data_format']):
+        col_desc['dataFormat'] = descDF.iloc[0]['data_format']
+    if 'value_description' in descDF and not pd.isna(descDF.iloc[0]['value_description']):
+        col_desc['valueDescription'] = descDF.iloc[0]['value_description']
+    
+    col_desc['size'] = column.size
+    col_desc['emptyValueCount'] = int(column.isna().sum())
+
+    non_null_column = column.dropna().reset_index(drop=True)
+
+    solidNum = len(non_null_column)  # Solid numbers are non-null values
+    unique_vals = set(non_null_column)
+    S = len(unique_vals)
+    L = solidNum
+    if L==0:
+        return col_desc
+    
+    if S/L>0.3:#continuous
+        col_desc['valType']='continuous'        
+        if column.dtype in [int,float,bool]:
+            col_desc['samples'] = [float(non_null_column.iloc[i]) for i in np.random.randint(0, solidNum, min(MAX_SAMPLE_NUM, solidNum))]
+            
+            col_desc['averageValue'] = round(float(column.mean()), 3)
+            col_desc['maximumValue'] = float(column.max())
+            col_desc['minimumValue'] = float(column.min())
+            col_desc['sampleVariance'] = round(float(column.var()), 2)
+        else:
+            col_desc['samples'] = [non_null_column.iloc[i] for i in np.random.randint(0, solidNum, min(MAX_SAMPLE_NUM, solidNum))]
+    else:# discrete
+        col_desc['valType']='discrete'
+        col_desc['typeNum']=S
+        if column.dtype in [int,float,bool]:
+            col_desc['samples'] = [float(i) for _,i in enumerate(unique_vals)][:20]
+            col_desc['averageValue'] = round(float(column.mean()), 3)
+            col_desc['maximumValue'] = float(column.max())
+            col_desc['minimumValue'] = float(column.min())
+            col_desc['sampleVariance'] = round(float(column.var()), 2)
+        else:
+            col_desc['samples'] = [i for i in enumerate(unique_vals)][:20]
+    return col_desc
+
+# take in a single database route, return lists of table and description file routes
+def getDatabaseCsvRoutes(databasePath):
+    table_routes=[]
+    desc_routes=[]
+    for root,dirs,files in os.walk(databasePath):
+        if root.split('/')[-1]=='database_description':#description dirs
+           for file in files:
+                if file.split('.')[-1]=='csv':
+                    desc_routes.append(os.path.join(root,file))
+        else:
+            for file in files:
+                if file.split('.')[-1]=='csv' and file!='sqlite_sequence.csv':# table csv
+                    table_routes.append(os.path.join(root,file))
+    return desc_routes,table_routes
+
+def getSchema(num):#get schema no_i
+    i=0
+    for dec_doc in os.listdir(DESCRIPTION):
+        if i==num:    
+            with open(os.path.join(DESCRIPTION,dec_doc),'r')as f:
+                res=json.load(f)
+                break
+        i+=1
+    return res
+
+if __name__=="__main__":
+    for database in os.listdir(DATABASE):
+        if database==".DS_Store" or database=="train_tables.json":
+            continue
+        # if os.path.exists(os.path.join(DESCRIPTION,f'{database}.json')):
+        #     print(database,'already described.')
+        #     continue
+        databasePath=os.path.join(DATABASE,database)    
+        desc_routes,table_routes=getDatabaseCsvRoutes(databasePath)
+        databaseDesc={"databaseName":database}
+        for i,_ in enumerate(table_routes):
+            databaseDesc[f'table{i}']=table_sampler(table_routes[i],desc_routes[i])
+        # print(databaseDesc)
+        with open(os.path.join(DESCRIPTION,f'{database}.json'),'w') as f:
+            json.dump(databaseDesc,f,indent=4)
