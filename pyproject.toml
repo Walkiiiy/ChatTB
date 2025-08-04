@@ -6,14 +6,20 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13.4",
+    "chromadb>=1.0.15",
     "dotenv>=0.9.9",
     "flask>=3.1.1",
+    "ipykernel>=6.30.0",
+    "ipynb>=0.5.1",
     "mcp[client]>=1.11.0",
     "numpy>=2.3.1",
     "openai>=1.96.1",
     "pandas>=2.3.1",
     "requests>=2.32.4",
     "scikit-learn>=1.7.1",
+    "selenium>=4.34.2",
+    "sentence-transformers>=5.0.0",
+    "webdriver-manager>=4.0.2",
     "wikipedia>=1.4.0",
     "wikipedia-api>=0.8.1",
 ]

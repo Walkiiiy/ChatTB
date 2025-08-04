@@ -7,8 +7,8 @@ import json
 
 
 load_dotenv()
-DATABASE=os.getenv("DEV_DATABASE")
-DESCRIPTION=os.getenv("DEV_DESCRIPTION")
+DATABASE=os.getenv("TRAIN_DATABASE")
+DESCRIPTION=os.getenv("TRAIN_DESCRIPTION")
 MAX_SAMPLE_NUM=5
 
 # return table_schema, list of column

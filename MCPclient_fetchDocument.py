@@ -12,7 +12,9 @@ from mcp.client.stdio import stdio_client
 
 load_dotenv()
 SERVER_FILE_PATH=os.getenv("SERVER_FILE_PATH")
-DESCRIPTION=os.getenv("DEV_DESCRIPTION")
+DESCRIPTION=os.getenv("TRAIN_DESCRIPTION")
+DOCUMENT_PATH=os.getenv("TRAIN_DOCUMENT")
+
 
 PromptFile='prompt_schemaAnalyze_V3_zeroShot.md'
 with open(PromptFile,'r') as f:
@@ -96,12 +98,12 @@ class MCPClient:
         return content
         
     async def process_loop(self):
-        # while True:
-        # query = input("\nQuery: ").strip()
-
-        # if query.lower() == 'quit':
-        #     break
+        processed=[i.split('.')[0] for i in os.listdir(DOCUMENT_PATH)]
         for schema_doc in os.listdir(DESCRIPTION):
+            if schema_doc.split('.')[0] in processed:
+                print(f'{schema_doc} processed,skip.')
+                continue
+            print(f"processing {schema_doc}")
             with open(os.path.join(DESCRIPTION,schema_doc),'r')as f:
                 schema=json.load(f)
             response = await self.process_schema(schema)
