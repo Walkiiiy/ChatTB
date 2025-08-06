@@ -1,0 +1,1618 @@
+[
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Are there more in-patient or outpatient who were male? What is the deviation in percentage?",
+    "evidence": "male refers to SEX = 'M'; in-patient refers to Admission = '+'; outpatient refers to Admission = '-'; percentage = DIVIDE(COUNT(ID) where SEX = 'M' and Admission = '+', COUNT(ID) where SEX\u00a0 = 'M' and Admission = '-')",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the percentage of female patient were born after 1930?",
+    "evidence": "female refers to Sex = 'F'; patient who were born after 1930 refers to year(Birthday) > '1930'; calculation = DIVIDE(COUNT(ID) where year(Birthday) > '1930' and SEX = 'F'), (COUNT(ID) where SEX = 'F')",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patient born between Year 1930 to 1940, how many percent of them were inpatient?",
+    "evidence": "patient born between Year 1930 to 1940 refers to year(Birthday) BETWEEN '1930-01-01' AND '1940-12-31'; inpatient refers to Admission = '+'",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the ratio of outpatient to inpatient followed up treatment among all the 'SLE' diagnosed patient?",
+    "evidence": "'SLE' diagnosed patient means Diagnosis = 'SLE'; inpatient refers to Admission = '+'; outpatient refers to Admission = '-'; calculation =  DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '+', COUNT(ID) where Diagnosis = 'SLE' and Admission = '-')",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      },
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the disease patient '30609' diagnosed with. List all the date of laboratory tests done for this patient.",
+    "evidence": "'30609' is the Patient ID; disease means Diagnosis",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "State the sex and birthday of patient ID '163109'. When was the examination taken and what symptom does the patient had.",
+    "evidence": "When was the examination taken refers to `Examination Date`",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List the patient ID, sex and birthday of patient with LDH beyond normal range.",
+    "evidence": "LDH beyond normal range refers to LDH > '500';",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "State the ID and age of patient with positive degree of coagulation.",
+    "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+';",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patients with severe degree of thrombosis, list their ID, sex and disease the patient is diagnosed with.",
+    "evidence": "severe degree of thrombosis refers to thrombosis = 2; disease refers to diagnosis;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List all patients who were born in 1937 whose total cholesterol was beyond the normal range.",
+    "evidence": "who were born in 1937 refers to year(birthday) = '1937'; total cholesterol was beyond the normal range refers to `T-CHO` > = '250'",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patient with albumin level lower than 3.5, list their ID, sex and diagnosis.",
+    "evidence": "albumin level lower than 3.5 refers to ALB < 3.5;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the percentage of female patient had total protein not within the normal range?",
+    "evidence": "female refers to sex = 'F'; total protein not within the normal range refers to TP < '6.0' or TP > '8.5'; calculation = DIVIDE((ID where sex = 'F' and TP < '6.0' or TP > '8.5'), COUNT(ID)) * 100",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For in-patient age 50 and above, what is their average anti-cardiolipin antibody (IgG) concentration?",
+    "evidence": "in-patient refers to Admission = '+'; age 50 and above refers to SUBTRACT(year(current_timestamp), year(Birthday)) >= '50'; average anti-cardiolipin antibody (IgG) concentration refers to AVG(aCL IgG)",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many female patients who came at the hospital in 1997 was immediately followed at the outpatient clinic?",
+    "evidence": "female refers to sex = 'F'; came at the hospital in 1997 refers to year(Description) = '1997'; immediately followed at the outpatient clinic refers to Admission = '-'",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What was the age of the youngest patient when they initially arrived at the hospital?",
+    "evidence": "age refers to SUBTRACT(YEAR(`First Date`),YEAR(Birthday))",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many of the patients with the most serious thrombosis cases examined in 1997 are women?",
+    "evidence": "the most serious thrombosis refers to Thrombosis = '1' (the most severe one); women refers to sex = 'F'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the age gap between the youngest and oldest patient with a normal triglyceride recorded?",
+    "evidence": "age gap refers to SUBTRACT(MAX(year(Birthday)) - MIN(year(Birthday))); normal triglyceride refers to tg > = 200",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/triglyceride-level",
+        "snippet": "Mount Sinai notes that normal fasting triglyceride levels are less than 150 mg/dL; borderline high levels are 150\u2013199 mg/dL, high levels are 200\u2013499 mg/dL, and very high levels are 500 mg/dL or higher\u3010627158856459049\u2020L234-L241\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What are the symptoms observed by the youngest patient to ever did a medical examination? Identify their diagnosis.",
+    "evidence": "The larger the birthday value, the younger the person is, and vice versa; symptoms observed refers to the symptoms is not NULL",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the year that concluded on December 31, 1998, how many male patients on average were tested in the lab each month?",
+    "evidence": "the year that concluded on December 31, 1998 refers to Date BETWEEN '1998-01-01' AND '1998-12-31'; male refers to SEX = 'M'; calculation = DIVIDE(COUNT(ID), 12)",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "The oldest SJS patient's medical laboratory work was completed on what date, and what age was the patient when they initially arrived at the hospital?",
+    "evidence": "The larger the birthday value, the younger the person is, and vice versa; 'SJS' refers to diagnosis; (SUBTRACT(year(`First Date`)), year(Birthday)); age of the patients when they initially arrived at the hospital refers to year(Birthday)",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the ratio of male to female patients among all those with abnormal uric acid counts?",
+    "evidence": "male refers to SEX = 'M'; female refers to SEX = 'F'; abnormal uric acid refers to UA < = '8.0' where SEX = 'M', UA < = '6.5' where SEX = 'F'; calculation = DIVIDE(SUM(UA <= '8.0' and SEX = 'M'), SUM(UA <= '6.5 and SEX = 'F'))",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients hadn't undergone a medical examination until at least a year following their initial hospital visit?",
+    "evidence": "hadn't undergone a medical examination until at least a year refers to SUBTRACT(year(`Examination Date`), year(`First Date`)) > = 1",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many underage patients were examined during the course of the three-year period from 1990 to 1993?",
+    "evidence": "underage patients refers to year(Birthday) < 18; three-year period from 1990 to 1993 refers to year(`Examination Date`) between '1990' and '1993'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many male patients have elevated total bilirubin count?",
+    "evidence": "male refers to SEX = 'M'; elevated means above the normal range; total bilirubin above the normal range refers to `T-BIL` >= '2.0'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the most common illness that doctors identified among the patients whose lab work was done between 1/1/1985, and 12/31/1995?",
+    "evidence": "the most common illness refers to MAX(COUNT(Diagnosis)); lab work between 1/1/1985 and 12/31/1995 refers to `Examination Date` between '1985-01-01' and '1995-12-31 '",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the average age of patients as of year 1999 examined in the laboratory for the October of the year 1991?",
+    "evidence": "average age of patients as of year 1999 refers to AVG(SUBTRACT('1999', year(Birthday))); October of 1991 refers to Date BETWEEN '1991-10-01' AND '1991-10-30'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How old was the patient who had the highest hemoglobin count at the time of the examination, and what is the doctor's diagnosis?",
+    "evidence": "How old the patient refers to SUBTRACT(year(`Examination Date`), year(Birthday)); the highest hemoglobin count refers to MAX(HGB)",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK482146/",
+        "snippet": "According to an NCBI book chapter on hemoglobin and hematocrit, normal hemoglobin levels are 14\u201318 g/dL for men and 12\u201316 g/dL for women\u3010838628646599400\u2020L96-L105\u3011. Levels below these ranges indicate anemia."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What was the anti-nucleus antibody concentration level for the patient id 3605340 on 1996/12/2?",
+    "evidence": "anti-nucleus antibody refers to ANA; 1996/12/2 refers to `Examination Date` = '1996-12-02'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Was the total cholesterol status for the patient id 2927464 on 1995-9-4 at the normal level?",
+    "evidence": "total cholesterol normal level refers to N < 250",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What was the gender of the first AORTITIS diagnosed patient?",
+    "evidence": "gender means SEX; 'AORTITIS' refers to Diagnosis;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/24264-aortitis",
+        "snippet": "Cleveland Clinic states that aortitis refers to inflammation of the aorta and is considered a form of vasculitis (blood vessel inflammation)\u3010286019676735771\u2020L41-L74\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who was diagnosed with SLE on 1994/2/19, what was his/her anti-Cardiolipin antibody concentration status on 1993/11/12?",
+    "evidence": "diagnosed with SLE refers to Diagnosis = 'SLE'; 1994/2/19 refers to Description = '1994-02-19'; anti-Cardiolipin refers to aCL IgM; 1993/11/12 refers to Examination Date = '1993/11/12'",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Was the patient a man or a women whose ALT glutamic pylvic transaminase status got 9 on 1992-6-12?",
+    "evidence": "man refers to SEX = 'M'; women refers to SEX = 'F'; ALT glutamic pylvic transaminase status got 9 GPT = '9'; 1992/6/12 refers to Date = '1992-06-12'",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17367-alt-blood-test",
+        "snippet": "Cleveland Clinic explains that the reference range for alanine transaminase (ALT) is roughly 7 to 56 U/L; values higher than this range may signal liver damage\u3010588248013464035\u2020L266-L268\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who got the laboratory test of uric acid level as 8.4 on 1991-10-21, how old was he/she at that time?",
+    "evidence": "how old at that time refers to SUBTRACT(year(test date), year(Birthday)); uric acid level as 8.4 refers to UA = '8.4'; 1991/10/21 refers to Date = '1991-10-21'",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who first came to the hospital on 1991/6/13 who was diagnosed with SJS, what is the total number of his/her Laboratory tests in 1995?",
+    "evidence": "1991/6/13 refers to `First Date` = '1991-06-13'; 'SJS' refers to Diagnosis; total number of his/her Laboratory tests refers to COUNT(ID); 1995 refers to Date",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who was diagnosed SLE on 1997/1/27, what was his/her original diagnose when he/she came to the hospital for the first time?",
+    "evidence": "'SLE' AND original diagnose refers to diagnosis; 1997/1/27 refer to `Examination Date` = '1997-01-27'; first came to the hospital refers to patient.`First Date`",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient whose birthday was 1959/3/1, what symptoms did he/she have during the examination on 1993/9/27?",
+    "evidence": "",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who was born on 1959/2/18, what is the decrease rate for his/her total cholesterol from November to December in 1981?",
+    "evidence": "born on 1959/2/18 refers to Birthday = '1959-02-18'; calculation = SUBTRACT(SUM(Birthday = '1959-02-18' and Date like '1981-11-%' THEN `T-CHO`), SUM(Birthday = '1959-02-18' and Date like '1981-12-%' THEN `T-CHO`))",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Lists all patients by ID who were diagnosed with Behcet's and had their exams between 01/01/197 and 12/31/1997.",
+    "evidence": "'Behcet' refers to diagnosis; exam between 01/01/1997 and 12/31/1997 refers to YEAR(Description) > = '1997-1-1' AND YEAR(Description) < '1998-1-1'",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK470257/",
+        "snippet": "The StatPearls article explains that Beh\u00e7et disease is an auto\u2011inflammatory systemic vasculitis characterized by recurrent oral and genital ulcers, uveitis, and systemic vasculitis involving arteries and veins of all sizes\u3010966213732409513\u2020L103-L108\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients who were examined between 1987/7/6 and 1996/1/31 had a GPT level greater than 30 and an ALB level less than 4? List them by their ID.",
+    "evidence": "examined between 1987/7/6 and 1996/1/31 refers to Date BETWEEN '1987-07-06' AND '1996-01-31'; GPT level greater than 30 refers to GPT > 30; ALB level less than 4 ALB < 4",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17367-alt-blood-test",
+        "snippet": "Cleveland Clinic explains that the reference range for alanine transaminase (ALT) is roughly 7 to 56 U/L; values higher than this range may signal liver damage\u3010588248013464035\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many female patients born in 1964 were admitted to the hospital? List them by ID.",
+    "evidence": "female refers to SEX = 'F'; born in 1964 refers to YEAR(Birthday) = 1964; admitted to the hospital refers to Admission = '+'",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What number of patients with a degree of thrombosis level 2 and ANA pattern of only S, have a level of anti-Cardiolip in antibody (IgM) 20% higher than average?",
+    "evidence": "thrombosis level 2 refers to Thrombosis = 2; ANA pattern of only S refers to ANA = 'S'; average anti-Cardiolip in antibody (IgM) refers to AVG(`aCL IgM`); calculation = MULTIPLY(AVG + AVG, 0.2)",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What percentage of patients with a proteinuria level within the normal range have a uric acid level below the normal range?",
+    "evidence": "proteinuria level within the normal range refers to `U-PRO` > 0 AND `U-PRO` < 30; uric acid level below the normal range refers to UA < = 6.5; calculation = MULTIPLY(DIVIDE(UA < = 6.5, `U-PRO` > 0 AND `U-PRO` < 30)\uff0c100)",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What percentage of male patients who first presented to the hospital in 1981 were diagnosed with BEHCET?",
+    "evidence": "male refers to SEX = 'M'; first presented to the hospital in 1981 refers to YEAR(`FIRST DATE`) = '1981'; BEHCET refers to diagnosis; calculation = DIVIDE(SUM(DIAGNOSIS = 'BEHCET') where YEAR(`FIRST DATE`) = '1981', MULTIPLY(COUNT(YEAR(`FIRST DATE`) = '1981')), 100)",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK470257/",
+        "snippet": "The StatPearls article explains that Beh\u00e7et disease is an auto\u2011inflammatory systemic vasculitis characterized by recurrent oral and genital ulcers, uveitis, and systemic vasculitis involving arteries and veins of all sizes\u3010966213732409513\u2020L103-L108\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List all patients who were followed up at the outpatient clinic who underwent a laboratory test in October 1991 and had a total blood bilirubin level within the normal range.",
+    "evidence": "followed up at the outpatient clinic refers to Admission = '-'; laboratory test in April 1981 refers to Date like '1991-10%'; blood bilirubin level within the normal range refers to T-BIL < 2.0; ",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Excluding all P only ANA Pattern patients, how many of the remainder are women born between 1980 and 1989?",
+    "evidence": "Excluding all P only ANA Pattern refers to `ANA Pattern`! = 'P'; women refers to SEX = 'F'; born between 1980 and 1989 refers to BIRTHDAY",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What sex is the patient who in a medical examination was diagnosed with PSS and in a laboratory examination had a blood level of C-reactive protein de 2+, createnine 1 and LDH 123?",
+    "evidence": "PSS' refers to diagnosis; blood level of C-reactive protein de 2+refers to CRP > 2; createnine 1 refers to CRE = 1; LDH 123 refers to LDH = 123",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21462-c-reactive-protein-crp-test",
+        "snippet": "Cleveland Clinic reports that a normal C-reactive protein (CRP) level is less than 0.9 mg/dL; levels between 1.0 and 10 mg/dL are moderately elevated, and levels greater than 10 mg/dL (especially above 50 mg/dL) indicate significant inflammation\u3010750565776378367\u2020L204-L258\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the average blood albumin level for female patients with a PLT greater than 400 who have been diagnosed with SLE?",
+    "evidence": "average blood albumin level refers to AVG(ALB); female refers to SEX = 'F'; PLT greater than 400 refers to PLT > 400; diagnosed with SLE refers to Diagnosis= 'SLE'",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17619-platelet-count",
+        "snippet": "Cleveland Clinic notes that a normal platelet count ranges from 150,000 to 400,000 platelets per microliter; counts below 150,000 (thrombocytopenia) or above 450,000 (thrombocytosis) are abnormal\u3010804631860124814\u2020L168-L180\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      },
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the most common sign of patients with SLE disease?",
+    "evidence": "the most common sign refers to MAX(symptoms); 'SLE' refers to diagnosis",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "When was the medical information on patient number 48473 first documented, and what disease did she have?",
+    "evidence": "medical information first documented refers to Description; disease refers to diagnosis; patient number refers to id",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many female patients were given an APS diagnosis?",
+    "evidence": "female refers to SEX = 'F'; APS diagnosis refers to Diagnosis='APS'",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/21685-antiphospholipid-syndrome",
+        "snippet": "Cleveland Clinic explains that antiphospholipid syndrome (APS) is an autoimmune disease that increases the risk of blood clots and pregnancy complications\u3010993229394129950\u2020L41-L88\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients who underwent testing in 1997 had protein levels outside the normal range?",
+    "evidence": "underwent testing in 1997 refers to YEAR(DATE) = '1997'; protein levels within the normal range refers to tp > 6 and tp < 8.5",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What proportion of patients who had signs of thrombocytopenia had SLE diagnosed?",
+    "evidence": "thrombocytopenia' refers to symptoms; 'SLE' refers to diagnosis; calculation =  DIVIDE(SUM(DIAGNOSIS LIKE '%ITP%'), SUM(DIAGNOSIS LIKE '%SLE%')) MULTIPLY 100",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What percentage of patients who were born in 1980 and were diagnosed with RA are women?",
+    "evidence": "born in 1980 refers to YEAR(BIRTHDAY) = '1980'; 'RA' refers to Diagnosis='RA' ; women refers to SEX = 'F'; calculation = DIVIDE(SUM(SEX = 'F'), COUNT(SEX)) * 100",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/4924-rheumatoid-arthritis",
+        "snippet": "Cleveland Clinic notes that rheumatoid arthritis (RA) is a chronic autoimmune disease that causes pain, swelling, and stiffness in the lining of joints\u3010422730116239302\u2020L71-L76\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many male patients who underwent testing between 1995 and 1997 and were subsequently diagnosed with Behcet disease did not stay in the hospital for treatment?",
+    "evidence": "male refers to SEX = 'M'; underwent testing between 1995 and 1997 refers to `Examination Date` between '1995' and '1997'; Behcet refers to diagnosis; did not stay in the hospital refers to Admission = '-'",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK470257/",
+        "snippet": "The StatPearls article explains that Beh\u00e7et disease is an auto\u2011inflammatory systemic vasculitis characterized by recurrent oral and genital ulcers, uveitis, and systemic vasculitis involving arteries and veins of all sizes\u3010966213732409513\u2020L103-L108\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients who were female got white blood cells that were below 3.5?",
+    "evidence": "female refers to SEX = 'F'; white blood cells that were below 3.5 refers to WBC < 3.5",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/white-blood-cell-count",
+        "snippet": "Mount Sinai explains that a normal white blood cell (WBC) count is between 4,500 and 11,000 cells per microliter; counts below 4,500 indicate leukopenia and counts above 11,000 indicate leukocytosis\u3010869522379864548\u2020L180-L195\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How long did it take after patient number 821298 arrived at the hospital for the first time before her evaluation began?",
+    "evidence": "DATEDIFF(`Examination Date`, `First Date`)",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Was the patient with the number 57266's uric acid within a normal range?",
+    "evidence": "uric acid within a normal range refers to UA > 8.0 and SEX = 'M'OR UA > 6.5 and SEX = 'F'",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "When is the laboratory examination of patient '48473' where his/her AST glutamic oxaloacetic transaminase (GOT) index is above the normal range.",
+    "evidence": "AST glutamic oxaloacetic transaminase (GOT) index is above the normal range refers to GOT > = 60; when refers to DATE",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List all patients with their sex and date of birthday, whose AST glutamic oxaloacetic transaminase (GOT) index is within normal range for loboratory examination in 1994.",
+    "evidence": "AST glutamic oxaloacetic transaminase (GOT) index is within normal range refers to GOT < 60; examination in 1994 refers to year(Date) = 1994",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide IDs for male patients with ALT glutamic pylvic transaminase (GPT) that have history of ALT glutamic pylvic transaminase (GPT) exceed the normal range.",
+    "evidence": "male refers to SEX = 'M'; ALT glutamic pylvic transaminase (GPT) exceed the normal range refers to GPT > = 60",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17367-alt-blood-test",
+        "snippet": "Cleveland Clinic explains that the reference range for alanine transaminase (ALT) is roughly 7 to 56 U/L; values higher than this range may signal liver damage\u3010588248013464035\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please provide the diagnosis of patients with ALT glutamic pylvic transaminase beyond the normal range by ascending order of their date of birth.",
+    "evidence": "ALT glutamic pylvic transaminase beyond the normal range refers to GPT > 60; The larger the birthday value, the younger the person is, and vice versa; ",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17367-alt-blood-test",
+        "snippet": "Cleveland Clinic explains that the reference range for alanine transaminase (ALT) is roughly 7 to 56 U/L; values higher than this range may signal liver damage\u3010588248013464035\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the average index of the lactate dehydrogenase (LDH) for all patients with lactate dehydrogenase (LDH) within the normal range.",
+    "evidence": "average index of the lactate dehydrogenase (LDH) refers to AVG(LDH); (LDH) within the normal range refers to LDH < 500",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide the ID and age of patient with lactate dehydrogenase (LDH) between 100-300 index above the normal range.",
+    "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); lactate dehydrogenase (LDH) between 100-300 index above the normal range refers to LDH between 600 and 800;",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patients with alkaliphophatase (ALP) within normal range, were they treated as inpatient or outpatient?",
+    "evidence": "alkaliphophatase (ALP) within normal range refers to ALP < 300; inpatient refers to admission = '+'; outpatient refers to admission = '-'",
+    "sources": [
+      {
+        "url": "https://siphoxhealth.com/alkaline-phosphatase/",
+        "snippet": "Siphox Health notes that for adults, alkaline phosphatase (ALP) levels outside 44\u2013147 U/L (below 44 or above 147) may indicate serious liver, bone, or bile duct disorders\u3010781644898084890\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Name the ID of the patient who is born on the April 1st, 1982. Is his/her alkaliphophatase (ALP) within normal range?",
+    "evidence": "alkaliphophatase (ALP) within normal range refers to ALP < 300",
+    "sources": [
+      {
+        "url": "https://siphoxhealth.com/alkaline-phosphatase/",
+        "snippet": "Siphox Health notes that for adults, alkaline phosphatase (ALP) levels outside 44\u2013147 U/L (below 44 or above 147) may indicate serious liver, bone, or bile duct disorders\u3010781644898084890\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List ID, sex and date of birth of patient whose total protein (TP) below the lower range of the normal index.",
+    "evidence": "total protein (TP) below the lower range of the normal index refers to TP < 6.0",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all female patient with total protein (TP) beyond the normal index, what is the deviation of their TP idex from the normal.",
+    "evidence": "female refers to SEX = 'F'; total protein (TP) beyond the normal index refers to TP > 8.5; deviation of TP index from normal refers to SUBTRACT(TP, 8.5)",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Sort in descending order all patients by birthday for male patient with albumin not within range.",
+    "evidence": "male = SEX = 'M'; albumin not within range refers to ALB < = 3.5 or ALB > = 5.5",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all patient born in 1982, state if their albumin is within normal range.",
+    "evidence": "Year(Birthday) = '1982'; albumin is within normal range refers to ALB between 3.5 and 5.5",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the percentage of the female patient whose uric acid (UA) beyond the normal range?",
+    "evidence": "uric acid (UA) beyond the normal range refers to UA > 8.0 and SEX = 'M' or UA > 6.5 and SEX = 'F'; female refers to Sex = 'F'",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all patients with normal uric acid (UA), what is the average UA index based on their latest laboratory examination result?",
+    "evidence": "uric acid (UA) with normal range refers to UA < 8.0 and SEX = 'M' or UA < 6.5 and SEX = 'F'; average UA index refers to AVG(UA)",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide all ID, sex and birthday of patients whose urea nitrogen (UN) just within the borderline of passing?",
+    "evidence": "urea nitrogen (UN) just within the borderline of passing refers to UN = 29; ",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17321-blood-urea-nitrogen-bun-test",
+        "snippet": "Cleveland Clinic\u2019s BUN test page notes that normal blood urea nitrogen levels range from 7\u201320 mg/dL for children, 6\u201321 mg/dL for adult females, and 8\u201324 mg/dL for adult males\u3010216508570668773\u2020L115-L132\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide the ID, sex, birthday of all patients diagnosed with 'RA' that are within the UN normal index.",
+    "evidence": "within the UN normal index refers to UN < 30; Diagnosis = 'RA'",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/4924-rheumatoid-arthritis",
+        "snippet": "Cleveland Clinic notes that rheumatoid arthritis (RA) is a chronic autoimmune disease that causes pain, swelling, and stiffness in the lining of joints\u3010422730116239302\u2020L71-L76\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many male patients are are with creatinine index out of the normal range?",
+    "evidence": "creatinine (CRE) out of the normal range refers to CRE > = 1.5; Male refers to Sex = 'M'",
+    "sources": [
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Are there more male patients with creatinine not within the normal range than female? True or False?",
+    "evidence": "creatinine (CRE) not within the normal range refers to CRE > = 1.5; male refers to Sex = 'M'; female refers to Sex = 'F'; calculation = (SUM(SEX = 'M') > SUM(SEX = 'F')) where CRE > = 1.5",
+    "sources": [
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the highest total bilirubin level recorded? List out the patient details with ID, sex and birthday with that index.",
+    "evidence": "the highest total bilirubin refers to MAX(T-BIL)",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List and group all patients by sex for total bilirubin (T-BIL) level not within the normal range.",
+    "evidence": "List refers to GROUP_CONCAT(DISTINCT ID); total bilirubin (T-BIL) not within normal range refers to T-BIL > = 2.0",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Who is the oldest patient with the highest total cholesterol (T-CHO). State the patient ID and T-CHO index.",
+    "evidence": "oldest patient refers to MIN(birthday); highest total cholesterol refers to MAX(T-CHO);",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the average age of the male patient with high cholesterol?",
+    "evidence": "average age = DIVIDE(SUM(SUBTRACT(YEAR(NOW()), YEAR(birthday))), COUNT(ID)); male patient refers to sex = 'M'; high cholesterol refers to `T-CHO` > = 250;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide list of patients and their diagnosis with triglyceride (TG) index greater than 100 of the normal range?",
+    "evidence": "triglyceride (TG) index greater than 100 of the normal range refers to TG > 300;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/triglyceride-level",
+        "snippet": "Mount Sinai notes that normal fasting triglyceride levels are less than 150 mg/dL; borderline high levels are 150\u2013199 mg/dL, high levels are 200\u2013499 mg/dL, and very high levels are 500 mg/dL or higher\u3010627158856459049\u2020L234-L241\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all patients with triglyceride (TG) level beyond the normal range, how many are age more than 50 years?",
+    "evidence": "triglyceride (TG) level beyond the normal range refers to TG > = 200; more than 50 years of age = SUBTRACT(year(current_timestamp), year(Birthday)) > 50; Should consider DISTINCT in the final result;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/triglyceride-level",
+        "snippet": "Mount Sinai notes that normal fasting triglyceride levels are less than 150 mg/dL; borderline high levels are 150\u2013199 mg/dL, high levels are 200\u2013499 mg/dL, and very high levels are 500 mg/dL or higher\u3010627158856459049\u2020L234-L241\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List all outpatient within normal range of creatinine phosphokinase. Give me the distinct ids.",
+    "evidence": "outpatient refers to Admission = '-'; normal range of creatinine phosphokinase refers to CPK < 250;",
+    "sources": [
+      {
+        "url": "https://www.verywellhealth.com/creatine-kinase-cpk-test-4689882",
+        "snippet": "Verywell Health states that the normal creatine kinase (CK) range for adults is typically 22\u2013198 U/L; higher levels can indicate muscle damage or other conditions\u3010315884960657296\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patient born between 1936-1956, how many male patients have creatinine phosphokinase beyond the normal range?",
+    "evidence": "born between 1936-1956 refers to year(Birthday) BETWEEN '1936' AND '1956'; male patients refers to sex = 'M'; creatinine phosphokinase beyond the normal range refers to CPK > = 250; Should consider DISTINCT in the final result;",
+    "sources": [
+      {
+        "url": "https://www.verywellhealth.com/creatine-kinase-cpk-test-4689882",
+        "snippet": "Verywell Health states that the normal creatine kinase (CK) range for adults is typically 22\u2013198 U/L; higher levels can indicate muscle damage or other conditions\u3010315884960657296\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Provide ID, sex and age of patient who has blood glucose (GLU) not within normal range but with total cholesterol(T-CHO) within normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); blood glucose (GLU) not within normal range refers to GLU > = 180; total cholesterol(T-CHO) within normal range refers to `T-CHO` < 250; ",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List each patient's ID and blood glucose (GLU) index that were within normal range for patient's whose data was first recorded in 1991.",
+    "evidence": "blood glucose (GLU) index that were within normal range refers to GLU < 180; data that was first recorded in 1991 refers to year(Description) = 1991;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List the patient ID, sex and birthday who has abnormal white blood cell count. Group them by sex and list the patient by age in ascending order.",
+    "evidence": "abnormal white blood cell count refers to WBC < = 3.5 or WBC > = 9.0;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/white-blood-cell-count",
+        "snippet": "Mount Sinai explains that a normal white blood cell (WBC) count is between 4,500 and 11,000 cells per microliter; counts below 4,500 indicate leukopenia and counts above 11,000 indicate leukocytosis\u3010869522379864548\u2020L180-L195\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What are the patient's diagnosis for those who has lower red blood blood cell? State their ID and age.",
+    "evidence": "patient's diagnosis refers to Diagnosis; lower red blood cell refers to RBC < 3.5; age = SUBTRACT(year(current_timestamp), year(Birthday)); ",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/003644.htm",
+        "snippet": "MedlinePlus states that normal red blood cell (RBC) counts are 4.7\u20136.1 million cells per microliter for males and 4.2\u20135.4 million cells per microliter for females\u3010918130049597698\u2020L125-L129\u3011. Values below this range are considered low and values above the upper range are considered high."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all the female patient age 50 and above, who has abnormal red blood cell count. State if they were admitted to hospital.",
+    "evidence": "female patient refers to Sex = 'F'; age 50 and above = SUBTRACT(year(current_timestamp), year(Birthday)) > = 50; abnormal red blood cell count refers to RBC < = 3.5 or RBC > = 6.0; Admission = '+' means the patient was admitted to the hospital; Admission = '-' means the patient was not admitted to the hospital;",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/003644.htm",
+        "snippet": "MedlinePlus states that normal red blood cell (RBC) counts are 4.7\u20136.1 million cells per microliter for males and 4.2\u20135.4 million cells per microliter for females\u3010918130049597698\u2020L125-L129\u3011. Values below this range are considered low and values above the upper range are considered high."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among all outpatients, list out those have low hemoglobin level. State the different IDs and their sex.",
+    "evidence": "outpatients refers to Admission = '-'; low hemoglobin level refers to HBG < 10;",
+    "sources": [
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients who were diagnosed with SLE, who is the oldest with normal hemoglobin level. Provide the ID and sex.",
+    "evidence": "diagnosed with SLE refers to Diagnosis = 'SLE'; The larger the birthday value, the younger the person is, and vice versa; normal hemoglobin level refers to 10 < HGB < 17;",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK482146/",
+        "snippet": "According to an NCBI book chapter on hemoglobin and hematocrit, normal hemoglobin levels are 14\u201318 g/dL for men and 12\u201316 g/dL for women\u3010838628646599400\u2020L96-L105\u3011. Levels below these ranges indicate anemia."
+      },
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Name the ID and age of patient with two or more laboratory examinations which show their hematoclit level exceeded the normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); patient with two or more laboratory examinations refers to COUNT(ID) > 2; hematoclit level exceeded the normal range refers to HCT > = 52;",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK482146/",
+        "snippet": "The same NCBI chapter lists normal hematocrit values of 40\u201354% for men and 36\u201348% for women\u3010838628646599400\u2020L96-L105\u3011. Values outside these ranges suggest abnormal red blood cell mass."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "From laboratory examinations in 1991, what is the average hematoclit level that is lower than the normal range.",
+    "evidence": "laboratory examinations in 1991 refers to Date like '1991%'; average hematoclit level = AVG(HCT); hematoclit level that is lower than the normal range refers to HCT < 29;",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK482146/",
+        "snippet": "The same NCBI chapter lists normal hematocrit values of 40\u201354% for men and 36\u201348% for women\u3010838628646599400\u2020L96-L105\u3011. Values outside these ranges suggest abnormal red blood cell mass."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For patients with abnormal platelet level, state the number of patients with lower than normal range. How is it compare to the number of patients with higher than normal range?",
+    "evidence": "abnormal platelet level refers to PLT <= 100 or PLT >= 400; platelet level lower than normal range refers to PLT < 100; calculation = SUBTRACT(SUM(PLT < 100), SUM(PLT > 400)); platelet level higher than normal range refers to PLT > 400;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17619-platelet-count",
+        "snippet": "Cleveland Clinic notes that a normal platelet count ranges from 150,000 to 400,000 platelets per microliter; counts below 150,000 (thrombocytopenia) or above 450,000 (thrombocytosis) are abnormal\u3010804631860124814\u2020L168-L180\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For laboratory examinations take in 1984, list all patients below 50 years old with normal platelet level.",
+    "evidence": "laboratory examinations take in 1984 refers to YEAR(Date) = '1984'; below 50 years old = SUBTRACT(year(current_timestamp), year(Birthday)) < 50; normal platelet level refers to PLT between 100 and 400; ",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17619-platelet-count",
+        "snippet": "Cleveland Clinic notes that a normal platelet count ranges from 150,000 to 400,000 platelets per microliter; counts below 150,000 (thrombocytopenia) or above 450,000 (thrombocytosis) are abnormal\u3010804631860124814\u2020L168-L180\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
+    "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; abnormal prothrombin time (PT) refers to PT > = 14; percentage = DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)) * 100; female refers to sex = 'F'; ",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17650-prothrombin-time-inr-test",
+        "snippet": "Cleveland Clinic states that normal prothrombin time (PT) results are 11\u201313.5 seconds and the normal international normalized ratio (INR) is between 0.8 and 1.1\u3010145503106838653\u2020L167-L176\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "List all patients who first came to the hospital after year 1992 with prothrombin time (PT) level that are normal.",
+    "evidence": "first came to the hospital after year 1992 refers to year(`First Date`) > 1992; prothrombin time (PT) level that are normal refers to PT < 14;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17650-prothrombin-time-inr-test",
+        "snippet": "Cleveland Clinic states that normal prothrombin time (PT) results are 11\u201313.5 seconds and the normal international normalized ratio (INR) is between 0.8 and 1.1\u3010145503106838653\u2020L167-L176\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the examinations done after 1997/1/1, how many of them have the result of an inactivated partial prothrom bin time?",
+    "evidence": "examinations done after 1997/1/1 refers to `Examination Date` > '1997-01-01'; normal activated partial prothrom bin time refesr to APTT < 45;",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/books/NBK470414/",
+        "snippet": "A StatPearls article explains that normal erythrocyte sedimentation rate (ESR) values by the Westergren method are: males <50 years \u226415 mm/hr, females <50 years \u226420 mm/hr, males >50 years \u226420 mm/hr, females >50 years \u226430 mm/hr, and children \u226410 mm/hr\u3010102614571769652\u2020L320-L334\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17285-ptt-test",
+        "snippet": "The Cleveland Clinic notes that a partial thromboplastin time (aPTT) between 25 and 35 seconds is considered within the normal range\u3010546801088391708\u2020L188-L190\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients with an abnormal activated partial prothrom bin time, how many of them does not have thrombosis?",
+    "evidence": "abnormal activated partial prothrom bin time refers to APTT > 45; does not have thrombosis refers to Thrombosis = 0; Only count ones without repetitive.",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17285-ptt-test",
+        "snippet": "The Cleveland Clinic notes that a partial thromboplastin time (aPTT) between 25 and 35 seconds is considered within the normal range\u3010546801088391708\u2020L188-L190\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the male patients who have a normal level of white blood cells, how many of them have an abnormal fibrinogen level?",
+    "evidence": "male patients refers to Sex = 'M'; normal level of white blood cells refers to WBC > 3.5 and WBC <9.0; abnormal fibrinogen level refers to FG < = 150 or FG > = 450; Don't compute repetitive ones.",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/white-blood-cell-count",
+        "snippet": "Mount Sinai explains that a normal white blood cell (WBC) count is between 4,500 and 11,000 cells per microliter; counts below 4,500 indicate leukopenia and counts above 11,000 indicate leukocytosis\u3010869522379864548\u2020L180-L195\u3011."
+      },
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4613632/",
+        "snippet": "A review in Frontiers in Pediatrics explains that adult fibrinogen levels measured by the Clauss assay typically range from 150 to 450 mg/dL; levels below 150 mg/dL indicate hypofibrinogenemia and levels above 450 mg/dL suggest hyperfibrinogenemia\u301095100636112027\u2020L260-L263\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients born after 1980/1/1 have an abnormal fibrinogen level?",
+    "evidence": "born after 1980/1/1 refers to Birthday > '1980-01-01'; normal fibrinogen level refers to FG between 150 and 450; Should return the number of distinct patients.",
+    "sources": [
+      {
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4613632/",
+        "snippet": "A review in Frontiers in Pediatrics explains that adult fibrinogen levels measured by the Clauss assay typically range from 150 to 450 mg/dL; levels below 150 mg/dL indicate hypofibrinogenemia and levels above 450 mg/dL suggest hyperfibrinogenemia\u301095100636112027\u2020L260-L263\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the disease names of the patients that have a proteinuria level higher than normal.",
+    "evidence": "disease names refers to Diagnosis; proteinuria level higher than normal refers to `U-PRO` > = 30;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Which patient has a normal proteinuria level and is diagnosed with SLE? Please give his or her patient ID.",
+    "evidence": "normal proteinuria level refers to 0 < `U-PRO` < 30; diagnosed with SLE refers to Diagnosis = 'SLE';",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with an Ig G higher than normal?",
+    "evidence": "Ig G higher than normal refers to IGG >= 2000; Should consider DISTINCT in the final result;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients with a normal Ig G level, how many of them have symptoms?",
+    "evidence": "normal Ig G level refers to IGG > 900 and IGG < 2000; have symptoms refers to Symptoms IS NOT NULL;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient who has the highest Ig A within the normal range, what is his or her diagnosis?",
+    "evidence": "highest Ig A within the normal range refers to MAX(IGA BETWEEN 80 AND 500);",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a normal Ig A level came to the hospital after 1990/1/1?",
+    "evidence": "normal Ig A level refers to IGA > 80 AND IGA < 500; came to the hospital after 1990/1/1 refers to YEAR(`First Date`) > = 1990;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients with an abnormal Ig M level, what is the most common disease they are diagnosed with?",
+    "evidence": "abnormal Ig M level refers to IGM <=40 OR IGM >= 400; most common disease refers to MAX(COUNT(Diagnosis));",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a abnormal C-reactive protein don't have their data recorded?",
+    "evidence": "abnormal C-reactive protein refers to CRP ='+'; don't have data recorded refers to Description IS NULL;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21462-c-reactive-protein-crp-test",
+        "snippet": "Cleveland Clinic reports that a normal C-reactive protein (CRP) level is less than 0.9 mg/dL; levels between 1.0 and 10 mg/dL are moderately elevated, and levels greater than 10 mg/dL (especially above 50 mg/dL) indicate significant inflammation\u3010750565776378367\u2020L204-L258\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients whose creatinine level is abnormal, how many of them aren't 70 yet?",
+    "evidence": "creatinine level is abnormal refers to CRE >= 1.5; aren't 70 yet refers to SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 70; ",
+    "sources": [
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a normal Rhuematoid Factor has a positive measure of degree of coagulation?",
+    "evidence": "normal Rhuematoid Factor refers TO RA IN('-', '+-'); positive measure of degree of coagulation refers to KCT = '+'; Should compute the number of distinct ones",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/4924-rheumatoid-arthritis",
+        "snippet": "Cleveland Clinic notes that rheumatoid arthritis (RA) is a chronic autoimmune disease that causes pain, swelling, and stiffness in the lining of joints\u3010422730116239302\u2020L71-L76\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the diseases of the patients born after 1985-1-1 and have a normal Rhuematoid Factor.",
+    "evidence": "diseases refers to Diagnosis; born after 1985/1/1 refers to YEAR(Birthday) > = 1985; normal Rhuematoid Factor refers to RA IN('-', '+-');",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/4924-rheumatoid-arthritis",
+        "snippet": "Cleveland Clinic notes that rheumatoid arthritis (RA) is a chronic autoimmune disease that causes pain, swelling, and stiffness in the lining of joints\u3010422730116239302\u2020L71-L76\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the ID of the patient whose RF is normal and who is older than 60.",
+    "evidence": "RF is normal refers to RF < 20; older than 60 = SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) > 60;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a normal RF don't have thrombosis?",
+    "evidence": "normal RF refers to RF < 20; don't have thrombosis refers to Thrombosis = '0';",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a normal level of complement 3 have a P pattern observed in the sheet of ANA examination?",
+    "evidence": "normal level of complement 3 refers to C3 > 35; have a P pattern observed in the sheet of ANA examination refers to ANA Pattern = 'P'; Should compute the number of distinct ones",
+    "sources": [
+      {
+        "url": "https://southtees.nhs.uk/services/pathology/haematology/complement-c3-c4/",
+        "snippet": "The South Tees Hospitals NHS Trust page states that normal adult complement C3 levels are between 90 and 180 mg/dL and complement C4 levels are between 20 and 50 mg/dL\u3010990689791988974\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients whose level of Hematoclit isn't normal, which patient has the highest anti-Cardiolipin antibody concentration? Please list his or her ID.",
+    "evidence": "Hematoclit is normal refers to 29 < N < 52; highest anti-Cardiolipin antibody concentration refers to MAX(`aCL IgA`);",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients have blood clots in veins, how many of them have a normal level of complement 4?",
+    "evidence": "APS will result in Blood Clots in veins; normal level of complement 4 refers to C4 > 10; Should compute the number of different ones",
+    "sources": [
+      {
+        "url": "https://southtees.nhs.uk/services/pathology/haematology/complement-c3-c4/",
+        "snippet": "Complement C4 normal range 20\u201350 mg/dL and C3 normal range 90\u2013180 mg/dL\u3010990689791988974\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/21685-antiphospholipid-syndrome",
+        "snippet": "Cleveland Clinic explains that antiphospholipid syndrome (APS) is an autoimmune disease that increases the risk of blood clots and pregnancy complications\u3010993229394129950\u2020L41-L88\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients have a normal level of anti-ribonuclear protein and have been admitted to the hospital?",
+    "evidence": "normal level of anti-ribonuclear protein refers to RNP = '-', '+-'; And'-' means 'negative'; '+-' refers to '0'; admitted to the hospital refers to Admission = '+'; Should consider DISTINCT in the final result;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Which is the youngest patient with an abnormal anti-ribonuclear protein level? Please list his or her date of birth.",
+    "evidence": "youngest patient refers to MAX(Birthday); abnormal anti-ribonuclear protein level refers to RNP NOT IN('-', '+-'); date of birth refers to Birthday;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients with normal anti-SM, how many of them does not have thrombosis?",
+    "evidence": "normal anti-SM refers to SM IN('-', '+-'); SM = 'negative' means '-'; SM = '0' means '+-'; SM = '1' means '+'; does not have thrombosis refers to Thrombosis = 0;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients with an abnormal anti-SM, please list the IDs of the three youngest ones.",
+    "evidence": "abnormal anti-SM refers to SM NOT IN ('negative', '0'); youngest refers to MAX(Birthday);",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the IDs of the patients who had the examination done after 1997/1/1 and had a normal anti-scl70.",
+    "evidence": "examination done after 1997/1/1 refers to `Examination Date` >  1997-01-01; normal anti-scl70 refers to SC170 IN('negative','0');",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients who has a normal anti-scl70, how many of them are female and does not have any symptom?",
+    "evidence": "normal anti-scl70 refers to SC170 IN('negative', '0'); female refers to Sex = 'F'; does not have any symptom refers to symptoms IS NULL; Should consider DISTINCT in the final result;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with a normal anti-SSA came to the hospital before 2000?",
+    "evidence": "normal anti-SSA refers to SSA IN('-','+-'); came to the hospital before 2000 refers to YEAR(`First Date`) < 2000; Should compute the number of distinct ones",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Which patient is the first patient with an abnormal anti-SSA to come to the hospital? Please give his or her ID.",
+    "evidence": "first patient refers to ID with MIN(`First Date`); abnormal anti-SSA refers to SSA NOT IN('negative', '0');",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients have a normal anti-SSB and are diagnosed with SLE in the examination?",
+    "evidence": "normal anti-SSB refers to SSB IN('-', '+-'); '-' is expressed as 'negative' and '+-' is expressed as '0' in the database ; diagnosed with SLE refers to Diagnosis = 'SLE'; Should compute the number of distinct ones",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients whose anti-SSB are normal, how many of them have other symptoms observed in their examination?",
+    "evidence": "anti-SSB are normal refers to SSB IN ('negative', '0'); have other symptoms refers to Symptoms IS NOT NULL; Should compute the number of distinct ones",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients who has a normal level of anti-centromere and a normal level of anti-SSB, how many of them are male?",
+    "evidence": "normal level of anti-centromere refers to CENTROMEA IN('-', '+-'); normal level of anti-SSB refers to SSB IN('-', '+-'); male refers to Sex = 'M'; Should consider DISTINCT in the final result;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients who have an abnormal level of anti-DNA, please list the diseases they are diagnosed with.",
+    "evidence": "abnormal level of anti-DNA refers to DNA > = 8; diseases refers to Diagnosis;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients have a normal anti-DNA level, yet their data are not recorded.",
+    "evidence": "normal anti-DNA level refers to DNA < 8; data are not recorded refers to Description IS NULL; Should compute the number of unique ones",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Of the patients with an normal level of IGG, how many of them admitted to the hospital?",
+    "evidence": "normal level of IGG refers to 900 < IGG < 2000; admitted to the hospital refers to Admission = '+';",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the percentage of patient who has a abnormal level of glutamic oxaloacetic transaminase level, yet he or she is diagnosed with SLE?",
+    "evidence": "abnormal level of glutamic oxaloacetic transaminase refers to GOT > = 60; percentage = MULTIPLY(DIVIDE(COUNT(ID WHERE GOT > = 60 AND Diagnosis = 'SLE'), COUNT(ID WHERE GOT > = 60)), 1.0);",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      },
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many male patients have their glutamic oxaloacetic transaminase in the normal range?",
+    "evidence": "male refers to Sex = 'M'; glutamic oxaloacetic transaminase in the normal range refers to GOT < 60;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients who have an abnormal level of glutamic oxaloacetic transaminase, when was the youngest of them born?",
+    "evidence": "abnormal level of glutamic oxaloacetic transaminase refers to GOT > = 60; The larger the birthday value, the younger the person is, and vice versa;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the top three patients' birthdays with the highest glutamic pylvic transaminase in the normal range.",
+    "evidence": "highest glutamic pylvic transaminase in the normal range refers to MAX(GPT < 60);",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients with the normal glutamic pylvic transaminase level, how many of them are male?",
+    "evidence": "normal glutamic pylvic transaminase level refers to GOT < 60; male refers to Sex = 'M';",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17368-ast-blood-test",
+        "snippet": "The Cleveland Clinic AST test page lists a normal aspartate transaminase (AST) range of about 8 to 33 U/L; elevated AST levels suggest liver or muscle damage\u3010709245084308350\u2020L266-L268\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient with the highest lactate dehydrogenase in the normal range, when was his or her data first recorded?",
+    "evidence": "highest lactate dehydrogenase in the normal range refers to MAX(LDH < 500); when the data first recorded refers to MIN(First Date);",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "When is the latest patient's medical data recorded? This patient should have an abnormal level of lactate dehydrogenase.",
+    "evidence": "latest patient refers to ID with MAX('First Date'); abnormal level of lactate dehydrogenase refers to LDH > = 500;",
+    "sources": [
+      {
+        "url": "https://www.nwlaboratory.com/reference-range-ldh",
+        "snippet": "The North West London Pathology reference ranges list normal lactate dehydrogenase (LDH) values of 125\u2013243 IU/L for adults; levels around or above 500 IU/L are considered markedly elevated\u3010680331734840643\u2020L88-L93\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patient with an abnormal alkaliphophatase level, how many of them are admitted to the hospital?",
+    "evidence": "abnormal alkaliphophatase level refers to ALP > = 300; admitted to the hospital refers to Admission = '+';",
+    "sources": [
+      {
+        "url": "https://siphoxhealth.com/alkaline-phosphatase/",
+        "snippet": "Siphox Health notes that for adults, alkaline phosphatase (ALP) levels outside 44\u2013147 U/L (below 44 or above 147) may indicate serious liver, bone, or bile duct disorders\u3010781644898084890\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients followed at the outpatient clinic, how many of them have a normal level of alkaliphophatase?",
+    "evidence": "followed at the outpatient clinic refers to Admission = '-'; normal level of alkaliphophatase refers to ALP < 300;",
+    "sources": [
+      {
+        "url": "https://siphoxhealth.com/alkaline-phosphatase/",
+        "snippet": "Siphox Health notes that for adults, alkaline phosphatase (ALP) levels outside 44\u2013147 U/L (below 44 or above 147) may indicate serious liver, bone, or bile duct disorders\u3010781644898084890\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the diagnosis of the patients whose total protein is lower than normal.",
+    "evidence": "total protein is lower than normal refers to TP < 6.0;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients who are diagnosed with SJS, how many of them have a normal level of total protein?",
+    "evidence": "diagnosed with SJS refers to Diagnosis = 'SJS'; normal level of total protein refers to TP > 6.0 and TP < 8.5;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the examination date of the patient whose albumin is the highest in the normal range?",
+    "evidence": "examination date refers to Date; albumin is the highest in the normal range refers to MAX(ALB > 3.5 and ALB < 5.5);",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many male patients have a normal level of both albumin and total protein?",
+    "evidence": "male refers to Sex = 'M'; normal level of both albumin and total protein refers to ALB > 3.5 and ALB < 5.5 AND TP between 6.0 and 8.5;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/21536-albumin-blood-test",
+        "snippet": "Cleveland Clinic states that normal serum albumin levels are 3.5\u20135.5 g/dL; levels below 3.5 g/dL are considered low and may indicate liver or kidney disease or poor nutrition\u3010565320228401395\u2020L147-L152\u3011."
+      },
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/total-protein",
+        "snippet": "Mount Sinai\u2019s total protein test page lists a normal range of 6.0\u20138.3 g/dL; values outside this range (below 6.0 or above 8.3) may point to liver or kidney disorders or other conditions\u3010754272483862447\u2020L148-L152\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the anti Cardiolipin antibody concentration of the female patient with the highest uric acid level in the normal range?",
+    "evidence": "anti Cardiolipin antibody concentration refers to `aCL IgG`, `aCL IgM`, `aCL IgA`; female patient refers to Sex = F'; highest uric acid level in the normal range refers to MAX(UA > 6.50);",
+    "sources": [
+      {
+        "url": "https://labpedia.net/uric-acid-blood-uric-acid",
+        "snippet": "Labpedia summarizes that normal serum uric acid levels are 3.4\u20137.0 mg/dL for men and 2.4\u20136.0 mg/dL for women; values above 7 mg/dL (men) or 6 mg/dL (women) indicate hyperuricemia\u3010497706190991432\u2020L163-L186\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the highest anti-nucleus antibody concentration level of a patient with a normal creatinine level?",
+    "evidence": "highest anti-nucleus antibody concentration level refers to MAX(ANA); normal creatinine level refers to CRE < 1.5;",
+    "sources": [
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the patient's ID whose creatinine level is normal and whose anti Cardiolipin antibody concentration level is the highest.",
+    "evidence": "creatinine level is normal refers to CRE < 1.5; anti Cardiolipin antibody concentration level is the highest refers to MAX(aCL IgA);",
+    "sources": [
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients whose total bilirubin is over the normal range, how many of them have a peripheral pattern observed in the sheet of ANA examination?",
+    "evidence": "total bilirubin is over the normal range refers to `T-BIL` > = 2.0; peripheral pattern is observed in the sheet of ANA examination refers to that ANA Pattern contains 'P';",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the anti-nucleus antibody concentration of the patient whose total bilirubin is the highest in the normal range?",
+    "evidence": "anti-nucleus antibody concentration refers to ANA; total bilirubin is the highest in the normal range refers to MAX(`T-BIL` < 2.0);",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients whose total cholesterol is higher than normal, how many of them have a negative measure of degree of coagulation?",
+    "evidence": "total cholesterol is higher than normal refers to `T-CHO` > = 250; negative measure of degree of coagulation refers to KCT = '-' ;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients whose total cholesterol is within the normal range, how many of them have a P pattern observed in the sheet of ANA examination?",
+    "evidence": "total cholesterol is within the normal range refers to `T-CHO` < 250; P pattern observed in the sheet of ANA examination refers to ANA Pattern = 'P';",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/articles/11920-cholesterol-numbers-what-do-they-mean",
+        "snippet": "Cleveland Clinic\u2019s cholesterol numbers article states that your total cholesterol should be below 200 mg/dL; levels above 240 mg/dL are considered high and increase cardiovascular risk\u3010812155677146679\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients with the normal level of triglyceride, how many of them have other symptoms observed?",
+    "evidence": "normal level of triglyceride refers to TG < 200; have other symptoms refers to Symptoms is not null;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/triglyceride-level",
+        "snippet": "Mount Sinai notes that normal fasting triglyceride levels are less than 150 mg/dL; borderline high levels are 150\u2013199 mg/dL, high levels are 200\u2013499 mg/dL, and very high levels are 500 mg/dL or higher\u3010627158856459049\u2020L234-L241\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "What is the disease name of the patient who has the highest level of triglyceride within the normal range?",
+    "evidence": "disease name referse to Diagnosis; highest level of triglyceride within the normal range refers to MAX(TG < 200);",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/triglyceride-level",
+        "snippet": "Mount Sinai notes that normal fasting triglyceride levels are less than 150 mg/dL; borderline high levels are 150\u2013199 mg/dL, high levels are 200\u2013499 mg/dL, and very high levels are 500 mg/dL or higher\u3010627158856459049\u2020L234-L241\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the IDs of the patients with no thrombosis and an abnormal level of creatinine phosphokinase.",
+    "evidence": "no thrombosis refers to Thrombosis = 0 ; abnormal level of creatinine phosphokinase refers to CPK < 250;",
+    "sources": [
+      {
+        "url": "https://www.verywellhealth.com/creatine-kinase-cpk-test-4689882",
+        "snippet": "Verywell Health states that the normal creatine kinase (CK) range for adults is typically 22\u2013198 U/L; higher levels can indicate muscle damage or other conditions\u3010315884960657296\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the patients with a normal range of creatinine phosphokinase, how many of them have a positive measure of degree of coagulation?",
+    "evidence": "normal range of creatinine phosphokinase refers to CPK < 250; positive measure of degree of coagulation refers to KCT = '+' or RVVT = '+' or LAC = '+' ;",
+    "sources": [
+      {
+        "url": "https://www.verywellhealth.com/creatine-kinase-cpk-test-4689882",
+        "snippet": "Verywell Health states that the normal creatine kinase (CK) range for adults is typically 22\u2013198 U/L; higher levels can indicate muscle damage or other conditions\u3010315884960657296\u2020screenshot\u3011."
+      },
+      {
+        "url": "https://emedicine.medscape.com/article/2074001-overview",
+        "snippet": "Medscape provides serum creatinine reference ranges: adult females 0.5\u20131.1 mg/dL and adult males 0.6\u20131.2 mg/dL; values above these thresholds can indicate impaired kidney function\u3010135952070412559\u2020screenshot\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "When is the birthday of the oldest patient whose blood glucose is abnormal?",
+    "evidence": "oldest patient refers to MIN(Birthday); blood glucose is abnormal refers to GLU > 180;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients with a normal blood glucose, how many of them don't have thrombosis?",
+    "evidence": "normal blood glucose refers to GLU < 180; don't have thrombosis refers to Thrombosis = 0;",
+    "sources": []
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients accepted to the hospital have a normal level of white blood cells?",
+    "evidence": "accepted to the hospital refers to Admission = '+'; normal level of white blood cells refers to WBC between 3.5 and 9.0;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/white-blood-cell-count",
+        "snippet": "Mount Sinai explains that a normal white blood cell (WBC) count is between 4,500 and 11,000 cells per microliter; counts below 4,500 indicate leukopenia and counts above 11,000 indicate leukocytosis\u3010869522379864548\u2020L180-L195\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients diagnosed with SLE have a normal white blood cell level?",
+    "evidence": "diagnosed with SLE refers to Diagnosis = 'SLE'; normal white blood cell level refers to WBC between 3.5 and 9.0;",
+    "sources": [
+      {
+        "url": "https://www.mountsinai.org/health-library/tests/white-blood-cell-count",
+        "snippet": "Mount Sinai explains that a normal white blood cell (WBC) count is between 4,500 and 11,000 cells per microliter; counts below 4,500 indicate leukopenia and counts above 11,000 indicate leukocytosis\u3010869522379864548\u2020L180-L195\u3011."
+      },
+      {
+        "url": "https://medlineplus.gov/ency/article/000435.htm",
+        "snippet": "MedlinePlus describes systemic lupus erythematosus (SLE) as an autoimmune disease in which the immune system mistakenly attacks healthy tissue, affecting the skin, joints, kidneys, brain, and other organs\u3010962614264216152\u2020L74-L77\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list the patient's ID if he or she has an abnormal level of red blood cell and is followed at the outpatient clinic.",
+    "evidence": "RBC < = 3.5 or RBC > = 6.0 means the patient has an abnormal level of red blood cell; 3.5 < RBC < 6.0 means the patient has a normal level of red blood cell; followed at the outpatient clinic refers to Admission = '-';",
+    "sources": [
+      {
+        "url": "https://medlineplus.gov/ency/article/003644.htm",
+        "snippet": "MedlinePlus states that normal red blood cell (RBC) counts are 4.7\u20136.1 million cells per microliter for males and 4.2\u20135.4 million cells per microliter for females\u3010918130049597698\u2020L125-L129\u3011. Values below this range are considered low and values above the upper range are considered high."
+      },
+      {
+        "url": "https://www.cigna.com/knowledge-center/what-is-inpatient-vs-outpatient-care",
+        "snippet": "Cigna\u2019s guide to inpatient and outpatient care states that generally inpatient care requires you to stay in a hospital, while outpatient care does not; the key difference is whether you need to be hospitalized\u3010913705055569173\u2020L79-L81\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients who have a normal platelet level, how many of them have other symptoms observed?",
+    "evidence": "normal platelet level refers to PLT > 100 and PLT < 400; have other symptoms refers to Diagnosis is not null;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17619-platelet-count",
+        "snippet": "Cleveland Clinic notes that a normal platelet count ranges from 150,000 to 400,000 platelets per microliter; counts below 150,000 (thrombocytopenia) or above 450,000 (thrombocytosis) are abnormal\u3010804631860124814\u2020L168-L180\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "Please list a patient's platelet level if it is within the normal range and if he or she is diagnosed with MCTD.",
+    "evidence": "PLT > 100 and PLT < 400 means platelet level is within the normal range; PLT < 100 and PLT > 400 means platelet level is not within the normal range; diagnosed with MCTD refers to Diagnosis = 'MCTD';",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17619-platelet-count",
+        "snippet": "Cleveland Clinic notes that a normal platelet count ranges from 150,000 to 400,000 platelets per microliter; counts below 150,000 (thrombocytopenia) or above 450,000 (thrombocytosis) are abnormal\u3010804631860124814\u2020L168-L180\u3011."
+      },
+      {
+        "url": "https://my.clevelandclinic.org/health/diseases/15039-mixed-connective-tissue-disease",
+        "snippet": "Cleveland Clinic describes mixed connective tissue disease (MCTD) as a rare inflammatory autoimmune disorder that has features of lupus, scleroderma, and polymyositis\u3010340777411170113\u2020L41-L45\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "For the male patients that have a normal prothrombin time, what is their average prothrombin time?",
+    "evidence": "male refers to Sex = 'M'; normal prothrombin time refer to PT < 14; average prothrombin time = AVG(PT);",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17650-prothrombin-time-inr-test",
+        "snippet": "Cleveland Clinic states that normal prothrombin time (PT) results are 11\u201313.5 seconds and the normal international normalized ratio (INR) is between 0.8 and 1.1\u3010145503106838653\u2020L167-L176\u3011."
+      }
+    ]
+  },
+  {
+    "db_id": "thrombosis_prediction",
+    "question": "How many patients with severe thrombosis have a normal prothrombin time?",
+    "evidence": "severe thrombosis refers to Thrombosis = 2 or 1; normal prothrombin time refers to PT < 14;",
+    "sources": [
+      {
+        "url": "https://my.clevelandclinic.org/health/diagnostics/17650-prothrombin-time-inr-test",
+        "snippet": "Cleveland Clinic states that normal prothrombin time (PT) results are 11\u201313.5 seconds and the normal international normalized ratio (INR) is between 0.8 and 1.1\u3010145503106838653\u2020L167-L176\u3011."
+      }
+    ]
+  }
+]

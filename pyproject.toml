@@ -9,6 +9,7 @@ dependencies = [
     "chromadb>=1.0.15",
     "dotenv>=0.9.9",
     "flask>=3.1.1",
+    "func-timeout>=4.3.5",
     "ipykernel>=6.30.0",
     "ipynb>=0.5.1",
     "mcp[client]>=1.11.0",

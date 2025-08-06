@@ -1,0 +1,519 @@
+{
+  "document": "The thrombosis_prediction database contains three tables—Laboratory.csv, Patient.csv and Examination.csv—that collectively record clinical information about patients with autoimmune disorders who may develop thrombosis.  \n• The database appears to come from a Japanese rheumatology cohort focusing on antiphospholipid syndrome (APS) and related autoimmune diseases.  APS is a systemic autoimmune disorder characterized by persistent antiphospholipid antibodies (lupus anticoagulant, anticardiolipin and anti‑β2‑glycoprotein I antibodies) that predispose patients to vascular thrombosis and pregnancy morbidity【463883795593023†L95-L103】.  Patients with APS often have overlapping diseases such as systemic lupus erythematosus (SLE), mixed connective tissue disease (MCTD), Sjögren’s syndrome (SJS) and systemic sclerosis.  \n• The Laboratory table stores chronological blood and urine test results (e.g., liver enzymes, kidney function, blood counts, coagulation factors, thrombosis markers, complement levels and autoantibody titers) for each patient visit.  These measurements include aspartate transaminase (GOT/AST), alanine aminotransferase (GPT/ALT), lactate dehydrogenase (LDH), alkaline phosphatase (ALP), total protein and albumin, uric acid, urea nitrogen, creatinine, total bilirubin, cholesterol and triglycerides, creatine phosphokinase (CPK), blood glucose, white/red blood cell counts, hemoglobin, hematocrit, platelet counts, prothrombin time (PT), activated partial thromboplastin time (APTT), fibrinogen (FG), plasmin‑α2‑antiplasmin inhibitor complex (PIC) and thrombin–antithrombin complex (TAT), immunoglobulin levels (IgG, IgA, IgM), C‑reactive protein (CRP), rheumatoid factor (RA and RF), complement components C3/C4, and a panel of extractable nuclear antigens (anti‑RNP, anti‑SM, anti‑Scl‑70/SC170, anti‑SSA/Ro, anti‑SSB/La, anti‑centromere) and anti‑DNA antibodies.  \n• The Patient table records demographic information (ID, sex, birthdate) and diagnostic labels.  Diagnoses include hypergammaglobulinemia (polyclonal gammopathy—a state where white blood cells produce excessive immunoglobulins【381624033923008†L41-L44】, often associated with infection or autoimmune disease【381624033923008†L88-L92】), MCTD (mixed connective tissue disease characterized by anti‑U1‑RNP antibodies and overlapping features of lupus, systemic sclerosis and myositis), autoimmune leukopenia (low leukocyte count due to immune‑mediated destruction of white blood cells【790424262088281†L185-L190】), SLE and APS suspicion, Sjögren’s syndrome (autoimmune destruction of salivary and lacrimal glands causing dry eyes and dry mouth【188665771501971†L159-L168】), progressive systemic sclerosis (systemic scleroderma—a fibrosing autoimmune disease with excess collagen affecting skin and internal organs【971055777559727†L157-L166】), polymyositis (chronic inflammatory myopathy causing muscle weakness【768301945346488†L156-L170】), ulcerative colitis (an inflammatory bowel disease affecting the colon and rectum【572860270908966†L83-L87】【572860270908966†L109-L121】) and seronegative rheumatoid arthritis (patients have RA symptoms but lack rheumatoid factor and anti‑CCP antibodies【652077013928385†L142-L160】).  \n• The Examination table contains values of antiphospholipid antibodies (anticardiolipin IgG/IgM/IgA), antinuclear antibody (ANA) titers and patterns, results of lupus anticoagulant tests (kaolin clotting time [KCT], dilute Russell’s viper venom time [dRVVT] and lupus anticoagulant [LAC]) and a thrombosis severity score.  ANA pattern codes (P=peripheral, D=diffuse/homogeneous, S=speckled, N=nucleolar) help clinicians decide which autoantibody tests to perform【729433811950850†L388-L397】.  KCT is a sensitive clotting test for lupus anticoagulant【243067386400291†L123-L130】, dRVVT uses snake venom to detect lupus anticoagulant【834496446144828†L122-L176】, and TAT and PIC indicate coagulation and fibrinolysis activation【218076285194957†L115-L125】【229300190390687†L292-L297】.  The thrombosis field encodes categories (0–3); grade‑1 thrombosis corresponds to venous thrombosis, grade‑2 denotes deep venous thrombosis requiring intervention, and grade‑3 indicates more serious events such as pulmonary embolism or arterial thrombosis, with grade‑0 signifying no thrombosis【408973477631262†L2-L10】.  Symptoms recorded include venous leg ulcers (wounds near the ankle due to venous insufficiency【79371501122168†L65-L87】), renal artery thrombosis (rare but serious obstruction of renal artery causing renal infarction【631764142013844†L127-L133】), cerebral (brain) infarction (ischemic stroke due to thrombotic or embolic occlusion of cerebral vessels【956058483496076†L155-L162】), pregnancy loss (abortion—induced termination or spontaneous miscarriage【58167333794246†L84-L93】) and multiple thrombosis events.  \nTogether, these tables provide a comprehensive view of autoimmune patients’ lab profiles, diagnoses and outcomes, enabling researchers to study how various biomarkers and autoantibody patterns relate to thrombosis risk and to develop predictive models.",
+  "searches": [
+    {
+      "query": "renal artery thrombosis brain infarction definition",
+      "reason": "The Examination symptoms column contains ‘renal artery thrombosis’ and ‘brain infarction’.  Understanding these terms helps to interpret the symptoms field and the severity of events.",
+      "document": "Renal artery thrombosis is a rare but serious condition in which a blood clot obstructs the renal artery, leading to kidney (renal) infarction and flank pain【631764142013844†L127-L133】.  Brain (cerebral) infarction, also known as an ischemic stroke, is a pathological process where a disruption of blood supply leads to necrotic tissue in the brain, usually because of thrombotic or embolic occlusion【956058483496076†L155-L162】."
+    },
+    {
+      "query": "autoimmune leukopenia definition",
+      "reason": "Autoimmune leukopenia appears in the diagnosis column and needs clarification.",
+      "document": "Leukopenia is a condition where the body has too few disease‑fighting leukocytes (white blood cells) in the blood【790424262088281†L185-L190】.  Autoimmune leukopenia occurs when autoimmune disorders like lupus or rheumatoid arthritis cause the immune system to destroy white blood cells, leading to a low white blood cell count【790424262088281†L191-L201】."
+    },
+    {
+      "query": "aortitis definition",
+      "reason": "‘Aortitis’ is listed in some diagnoses and must be explained.",
+      "document": "Aortitis is inflammation of the aorta, the body’s largest artery, and is considered a form of vasculitis.  It may result from infections or rheumatologic conditions (e.g., Takayasu arteritis, giant cell arteritis) and can lead to aneurysm or stenosis.  Because the aorta supplies oxygenated blood to all organs, aortitis is potentially life‑threatening and requires early diagnosis【473814613331381†L34-L39】."
+    },
+    {
+      "query": "hypergammaglobulinemia definition",
+      "reason": "The Patient table includes ‘Hypergammaglobulinemia’ as a diagnosis, so it’s necessary to know what it means.",
+      "document": "Hypergammaglobulinemia (polyclonal gammopathy) is a condition in which white blood cells (B cells and plasma cells) produce too many immunoglobulin proteins (antibodies)【381624033923008†L41-L44】.  This immune overactivation often occurs in infections or autoimmune diseases【381624033923008†L88-L92】."
+    },
+    {
+      "query": "mixed connective tissue disease U1 RNP definition",
+      "reason": "MCTD is mentioned in the diagnosis column; understanding its features and antibodies is critical.",
+      "document": "Mixed connective tissue disease (MCTD) is an autoimmune disorder characterized by high titers of anti‑U1‑ribonucleoprotein antibodies and overlapping clinical features of lupus, systemic sclerosis and myositis.  Diagnosis requires anti‑U1‑RNP along with Raynaud phenomenon or puffy hands and at least two other features such as synovitis or myositis【422044161368592†L136-L160】."
+    },
+    {
+      "query": "polymyositis definition chronic inflammatory myopathy",
+      "reason": "Polymyositis (‘PM’) appears in diagnoses and requires definition.",
+      "document": "Polymyositis is a chronic inflammatory myopathy in which immune‑mediated inflammation affects the endomysial layer of skeletal muscle, leading to muscle weakness, particularly of the proximal muscles【768301945346488†L156-L170】.  Patients may have difficulty climbing stairs, rising from a seated position or swallowing."
+    },
+    {
+      "query": "progressive systemic sclerosis systemic scleroderma definition",
+      "reason": "The dataset uses the abbreviation ‘PSS’ (progressive systemic sclerosis).  Background information is needed to interpret this condition.",
+      "document": "Systemic scleroderma, also called systemic sclerosis or progressive systemic sclerosis (PSS), is an autoimmune rheumatic disease characterized by excessive production and accumulation of collagen that causes fibrosis in the skin and internal organs.  Two forms exist—limited and diffuse—with the diffuse form involving skin above the elbows and knees and a higher risk of organ involvement【971055777559727†L157-L166】."
+    },
+    {
+      "query": "ulcerative colitis inflammatory bowel disease definition",
+      "reason": "Ulcerative colitis (UC) appears in diagnoses; we need to understand its clinical context.",
+      "document": "Ulcerative colitis is the most common form of inflammatory bowel disease.  It causes inflammation of the inner lining of the colon and rectum and spreads upward from the rectum, leaving no healthy tissue along the affected area.  Symptoms include blood or mucus in the stool and urgency to defecate【572860270908966†L83-L87】【572860270908966†L109-L121】."
+    },
+    {
+      "query": "sjogrens syndrome dry eyes dry mouth autoimmune",
+      "reason": "‘SJS’ in the diagnosis column likely refers to Sjögren’s syndrome; understanding the disease helps interpret associated laboratory patterns (SSA/SSB antibodies).",
+      "document": "Sjögren’s syndrome is a systemic autoimmune disorder in which the body’s immune system attacks moisture‑producing glands.  It is characterised by chronic dry eyes and dry mouth and often accompanies other autoimmune diseases such as rheumatoid arthritis and lupus【188665771501971†L159-L168】.  The condition is more common in women and treatment focuses on symptom relief【188665771501971†L167-L170】."
+    },
+    {
+      "query": "seronegative rheumatoid arthritis meaning",
+      "reason": "The Patient table lists ‘RA (seronegative)’, so we need a succinct definition.",
+      "document": "Rheumatoid arthritis (RA) is an autoimmune disease that causes chronic inflammation of the joints.  Most people with RA (60–80%) have autoantibodies such as rheumatoid factor (RF) and anti‑cyclic citrullinated peptide antibodies, but people with seronegative RA do not.  In seronegative RA, blood tests fail to detect these antibodies, so diagnosis relies on clinical symptoms; antibody levels may become detectable later【652077013928385†L142-L160】."
+    },
+    {
+      "query": "thrombosis grading 0 1 2 3 ctcae",
+      "reason": "The ‘Thrombosis’ column uses values 0–3; understanding this grading helps interpret outcomes.",
+      "document": "The Common Terminology Criteria for Adverse Events (CTCAE) grades thromboembolic events.  Grade 1 refers to venous thrombosis (e.g., superficial thrombosis), Grade 2 to venous thrombosis requiring medical intervention (e.g., uncomplicated deep vein thrombosis), and Grade 3 to more serious thrombosis such as pulmonary embolism or arterial thrombus【408973477631262†L2-L10】.  Grade 0 indicates absence of thrombosis."
+    }
+  ],
+  "table_documents": [
+    {
+      "document": "The Laboratory table stores longitudinal laboratory test results for each patient.  Each record is tagged with an ID and date and contains results from routine blood tests (liver enzymes, kidney function tests, lipid and glucose panels), complete blood count, coagulation assays, immunoglobulin levels, acute‑phase reactants, complement proteins and specific autoantibody titers.  These measurements monitor organ function and immune status in autoimmune diseases and help identify risk factors for thrombosis.",
+      "searches": [],
+      "column_documents": [
+        {
+          "document": "Unique identifier linking laboratory records to a patient.  Discrete numeric values.",
+          "searches": []
+        },
+        {
+          "document": "Date when the laboratory tests were performed.",
+          "searches": []
+        },
+        {
+          "document": "Aspartate transaminase (also called AST or serum glutamic‑oxaloacetic transaminase) is a transaminase enzyme found in the liver, heart, skeletal muscle and other tissues.  Serum AST, together with alanine aminotransferase, is used as a biomarker of liver health【301852575226055†L176-L186】.",
+          "searches": []
+        },
+        {
+          "document": "Alanine aminotransferase (ALT) is an enzyme found predominantly in the liver; increased ALT levels indicate hepatocellular injury【286980964380078†L101-L107】.  It is part of a liver panel.",
+          "searches": []
+        },
+        {
+          "document": "Lactate dehydrogenase is an enzyme involved in anaerobic respiration.  It is present in many tissues and its blood level rises when tissues are damaged【445775890942266†L63-L100】.",
+          "searches": []
+        },
+        {
+          "document": "Alkaline phosphatase is an enzyme concentrated in the liver, bile ducts and bones; abnormal levels may indicate liver disease or bone disorders【112160710276615†L72-L85】.",
+          "searches": []
+        },
+        {
+          "document": "Total protein measures the sum of albumin and globulin in blood; abnormal levels may indicate liver or kidney disease or malnutrition【290539303932680†L73-L98】.",
+          "searches": []
+        },
+        {
+          "document": "Albumin is a plasma protein made by the liver that maintains oncotic pressure and transports hormones and vitamins【738190096505467†L64-L74】.",
+          "searches": []
+        },
+        {
+          "document": "Uric acid is a waste product of purine metabolism; high uric acid levels can indicate gout or kidney dysfunction【705313739025646†L179-L217】.",
+          "searches": []
+        },
+        {
+          "document": "Blood urea nitrogen (BUN) measures the amount of urea nitrogen; elevated BUN suggests impaired renal filtration【128481645704076†L77-L87】.",
+          "searches": []
+        },
+        {
+          "document": "Creatinine is a waste product of muscle metabolism filtered by the kidneys.  Elevated creatinine indicates reduced kidney function【384538189973820†L72-L81】.",
+          "searches": []
+        },
+        {
+          "document": "Total bilirubin measures bilirubin in blood; high levels indicate liver disease or bile duct obstruction and cause jaundice【598968116649472†L72-L85】.",
+          "searches": []
+        },
+        {
+          "document": "Total cholesterol measures the sum of HDL and LDL cholesterol.  High cholesterol increases risk of coronary artery disease【863555539718719†L73-L98】.",
+          "searches": []
+        },
+        {
+          "document": "Triglycerides are a type of fat measured as part of a lipid panel; elevated levels raise the risk of heart disease【863555539718719†L73-L98】.",
+          "searches": []
+        },
+        {
+          "document": "Creatine phosphokinase (CK or CPK) is an enzyme present in heart and skeletal muscles.  Elevated CPK indicates muscle injury or disease【744440653027383†L70-L92】.",
+          "searches": []
+        },
+        {
+          "document": "Blood glucose concentration.  Maintains energy metabolism; used to diagnose diabetes.",
+          "searches": []
+        },
+        {
+          "document": "White blood cell count measures leukocytes, key components of the immune system.  High counts occur with infection; low counts occur with certain cancers or autoimmune diseases【718311388061862†L74-L101】.",
+          "searches": []
+        },
+        {
+          "document": "Red blood cell count measures the number of erythrocytes, which carry oxygen via hemoglobin.  Abnormal counts can signal illness【309400259425459†L74-L90】.",
+          "searches": []
+        },
+        {
+          "document": "Hemoglobin is the iron‑rich protein in red blood cells that transports oxygen; measuring hemoglobin helps diagnose anemia【235472852779683†L74-L79】.",
+          "searches": []
+        },
+        {
+          "document": "Hematocrit measures the percentage of blood composed of red blood cells; high levels indicate erythrocytosis and low levels indicate anemia【741204236878315†L41-L45】.",
+          "searches": []
+        },
+        {
+          "document": "Platelet count measures the number of platelets (thrombocytes), which help blood clot.  Low platelet counts cause bleeding, whereas high counts increase risk of clots【942682333126784†L74-L90】.",
+          "searches": []
+        },
+        {
+          "document": "Prothrombin time measures the time for blood to clot via the extrinsic pathway.  Prothrombin is a liver‑produced clotting factor; the test diagnoses bleeding/clotting disorders and monitors anticoagulant therapy【444109250502040†L73-L90】.",
+          "searches": []
+        },
+        {
+          "document": "Activated partial thromboplastin time measures the intrinsic and common coagulation pathways.  Prolonged aPTT indicates bleeding disorders; shortened aPTT may signal increased clotting and is used to monitor heparin therapy【478607135298381†L75-L112】.",
+          "searches": []
+        },
+        {
+          "document": "Fibrinogen (Factor I) is a plasma protein produced by the liver and essential to clot formation; fibrinogen tests assess bleeding or clotting disorders【241768726313844†L180-L184】.",
+          "searches": []
+        },
+        {
+          "document": "The plasmin–α2‑antiplasmin complex (PIC) forms when plasmin is inhibited by α2‑antiplasmin; it indicates activation of fibrinolysis and increases during thrombosis【229300190390687†L292-L297】.",
+          "searches": []
+        },
+        {
+          "document": "The thrombin–antithrombin complex (TAT) reflects net activation of coagulation; thrombin quickly binds antithrombin, so TAT levels are used to assess thrombin generation【218076285194957†L115-L125】.  TAT2 is a second measurement of the same marker.",
+          "searches": []
+        },
+        {
+          "document": "Urine protein measurements assess how much protein is excreted in urine.  Healthy kidneys normally prevent significant protein loss; proteinuria (>150 mg/day) can indicate kidney disease【379583197742339†L41-L83】.  Sample values such as ‘TR’ (trace), ‘1’ or ‘2’ (semi‑quantitative scores), numeric concentrations (e.g., 30 or 300 mg/dL) and descriptors like ‘+1(30)’ or ‘+2(100)’ represent increasing levels of proteinuria.  ‘-’ indicates no detectable protein.",
+          "searches": [],
+          "values": [
+            {
+              "value": "TR",
+              "document": "‘TR’ stands for trace protein, meaning a small amount of protein detected in urine.",
+              "searches": []
+            },
+            {
+              "value": "-",
+              "document": "Dash indicates no detectable protein in urine.",
+              "searches": []
+            },
+            {
+              "value": "+1(30)",
+              "document": "‘+1(30)’ means about 1+ proteinuria, corresponding to roughly 30 mg/dL of protein.",
+              "searches": []
+            },
+            {
+              "value": "+2(100)",
+              "document": "‘+2(100)’ denotes moderate proteinuria, roughly 100 mg/dL.",
+              "searches": []
+            },
+            {
+              "value": ">=1000",
+              "document": "Protein excretion ≥1000 mg/dL indicates severe proteinuria.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Immunoglobulin G is the most abundant antibody in blood.  IgG antibodies provide long‑term immunity and respond to specific antigens【989610489931882†L72-L96】.",
+          "searches": []
+        },
+        {
+          "document": "Immunoglobulin A protects mucous membranes of the respiratory and digestive tracts and is present in blood and secretions【989610489931882†L100-L111】.",
+          "searches": []
+        },
+        {
+          "document": "Immunoglobulin M is the first antibody produced after exposure to an antigen and provides short‑term protection【989610489931882†L72-L96】.",
+          "searches": []
+        },
+        {
+          "document": "C‑reactive protein is an acute‑phase reactant made by the liver.  High CRP levels indicate inflammation or infection【445107782537714†L73-L97】.  Values are sometimes reported as strings because of decimal points.",
+          "searches": []
+        },
+        {
+          "document": "Rheumatoid factor test result recorded semi‑quantitatively.  ‘-’ indicates negative; ‘+’ or ‘2+’ indicate increasing titers of rheumatoid factor, an autoantibody produced by the immune system that may be elevated in rheumatoid arthritis【115004317405225†L72-L86】.  ‘+-’ or ‘7-’ represent borderline or weakly positive results.  Clinicians interpret these semi‑quantitative values based on laboratory standards.",
+          "searches": [],
+          "values": [
+            {
+              "value": "-",
+              "document": "Rheumatoid factor not detected (negative).",
+              "searches": []
+            },
+            {
+              "value": "+-",
+              "document": "Borderline or weakly positive rheumatoid factor.",
+              "searches": []
+            },
+            {
+              "value": "+",
+              "document": "Positive rheumatoid factor suggesting elevated autoantibody levels.",
+              "searches": []
+            },
+            {
+              "value": "2+",
+              "document": "Moderately positive rheumatoid factor indicating higher titers.",
+              "searches": []
+            },
+            {
+              "value": "7-",
+              "document": "Notation likely representing very weak or inconsistent positivity; interpretation depends on laboratory; considered near‑negative.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Rheumatoid factor measured quantitatively in IU/mL (RAHA).  High values suggest rheumatoid arthritis or other autoimmune diseases【115004317405225†L72-L86】.",
+          "searches": []
+        },
+        {
+          "document": "Complement component C3 is part of the complement system; low C3 indicates activation of complement as seen in lupus and other autoimmune diseases【856891127460724†L92-L110】.",
+          "searches": []
+        },
+        {
+          "document": "Complement component C4 is another complement protein; decreased C4 suggests consumption due to immune complex disease【856891127460724†L92-L110】.",
+          "searches": []
+        },
+        {
+          "document": "Anti‑U1 ribonucleoprotein (RNP) antibodies.  High titers in the absence of other autoantibodies suggest mixed connective tissue disease【960079211644249†L124-L130】.  Numeric values denote titers (e.g., 0=negative, 1–256 positive).",
+          "searches": [],
+          "values": [
+            {
+              "value": "negative",
+              "document": "No anti‑RNP antibodies detected.",
+              "searches": []
+            },
+            {
+              "value": "256",
+              "document": "High anti‑RNP titer, strongly suggestive of mixed connective tissue disease.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Anti‑Smith (Sm) antibodies bind to small nuclear ribonucleoproteins.  They are present in patients with lupus who do not have anti‑DNA antibodies and their titers do not correlate with disease activity【960079211644249†L116-L120】.",
+          "searches": []
+        },
+        {
+          "document": "Anti‑Scl‑70 (topoisomerase I) antibodies.  Present in about 15–20 % of systemic sclerosis patients, particularly those with diffuse cutaneous disease【442479795707150†L260-L288】.  Positive results predict progressive skin and lung involvement.",
+          "searches": []
+        },
+        {
+          "document": "Anti‑SSA (Ro) antibodies target Ro proteins (60 kDa and 52 kDa).  They occur in Sjögren’s syndrome and lupus and can cause photosensitive rashes and congenital heart block【960079211644249†L145-L170】.  Numeric values denote titers; ‘negative’ means absent.",
+          "searches": []
+        },
+        {
+          "document": "Anti‑SSB (La) antibodies target La proteins.  They are associated with Sjögren’s syndrome and lupus【960079211644249†L145-L170】.  Numeric values denote titers; ‘negative’ means absent.",
+          "searches": []
+        },
+        {
+          "document": "Anti‑centromere antibodies target centromere proteins (CENP‑A/B/C).  They occur in ~70–80 % of patients with limited cutaneous systemic sclerosis (CREST syndrome) and predict a relatively benign course but increased risk of pulmonary arterial hypertension【945699321323929†screenshot】.",
+          "searches": [],
+          "values": [
+            {
+              "value": "negative",
+              "document": "No anti‑centromere antibodies detected.",
+              "searches": []
+            },
+            {
+              "value": "0",
+              "document": "No antibody detected (same as negative).",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Anti‑double‑stranded DNA (anti‑dsDNA) antibodies are highly specific for systemic lupus erythematosus.  High titers indicate active disease whereas low titers suggest remission【868104137650700†L15-L26】【868104137650700†L43-L57】.",
+          "searches": []
+        },
+        {
+          "document": "Second anti‑DNA result.  The column lacks sample values; based on description it corresponds to anti‑DNA IgG and shares the same interpretation as DNA.",
+          "searches": []
+        }
+      ]
+    },
+    {
+      "document": "The Patient table contains demographic and diagnostic information for each individual.  It links to the Laboratory and Examination tables via the ID.  Besides sex and birthdate, it records the date of first visit, admission status and a composite diagnosis string that lists autoimmune diseases or conditions observed or suspected.",
+      "searches": [],
+      "column_documents": [
+        {
+          "document": "Unique numeric identifier for each patient.",
+          "searches": []
+        },
+        {
+          "document": "Patient’s date of birth.",
+          "searches": []
+        },
+        {
+          "document": "The date of the patient’s first clinic visit.",
+          "searches": []
+        },
+        {
+          "document": "Patient’s biological sex, coded as ‘M’ for male and ‘F’ for female.",
+          "searches": [],
+          "values": [
+            {
+              "value": "M",
+              "document": "Male sex.",
+              "searches": []
+            },
+            {
+              "value": "F",
+              "document": "Female sex.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "A secondary date field—possibly the date when initial tests were performed.",
+          "searches": []
+        },
+        {
+          "document": "Indicates whether the patient was admitted to the hospital.  ‘-’ means no admission; ‘+’ means admitted; ‘+(’ may denote admission with complications.",
+          "searches": [],
+          "values": [
+            {
+              "value": "-",
+              "document": "Outpatient; not admitted.",
+              "searches": []
+            },
+            {
+              "value": "+",
+              "document": "Patient admitted.",
+              "searches": []
+            },
+            {
+              "value": "+(",
+              "document": "Admission with an unspecified note; likely admitted with complications.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "A comma‑separated list of diseases or suspected conditions.  Key abbreviations include:\n• Hypergammaglobulinemia – polyclonal overproduction of immunoglobulins associated with infections or autoimmune diseases【381624033923008†L41-L44】【381624033923008†L88-L92】.\n• MCTD susp – suspicion of mixed connective tissue disease, characterised by high anti‑U1‑RNP titers and overlapping features of lupus, systemic sclerosis and myositis【422044161368592†L136-L160】.\n• Autoimmune leukopenia – low white blood cell count caused by immune‑mediated destruction of leukocytes【790424262088281†L185-L190】.\n• SLE – systemic lupus erythematosus, a chronic autoimmune disease where the immune system attacks various tissues (not explicitly cited but implied in the dataset).  Associated autoantibodies include anti‑dsDNA, anti‑Sm and hypocomplementemia【868104137650700†L15-L26】【960079211644249†L116-L120】.\n• APS susp – suspicion of antiphospholipid syndrome, a disorder marked by antiphospholipid antibodies and risk of thrombosis and pregnancy loss【463883795593023†L95-L103】.\n• SJS – Sjögren’s syndrome, causing dry eyes and dry mouth【188665771501971†L159-L168】.\n• PSS – progressive systemic sclerosis (systemic scleroderma) characterised by excessive collagen deposition and fibrosis【971055777559727†L157-L166】.\n• PM – polymyositis, an inflammatory muscle disease【768301945346488†L156-L170】.\n• UC – ulcerative colitis, an inflammatory bowel disease affecting the colon and rectum【572860270908966†L83-L87】【572860270908966†L109-L121】.\n• RA (seronegative) – rheumatoid arthritis without detectable rheumatoid factor or anti‑CCP antibodies【652077013928385†L142-L160】.\n• Infectious mononucleosis – viral infection causing fever, sore throat and lymphadenopathy (not cited but common knowledge).\n• Aortitis – inflammation of the aorta【473814613331381†L34-L39】.",
+          "searches": []
+        }
+      ]
+    },
+    {
+      "document": "The Examination table contains antiphospholipid antibody measurements, antinuclear antibody titers and patterns, lupus anticoagulant assays and clinician‑recorded symptoms and thrombosis outcomes for each patient visit.  These variables are used to diagnose antiphospholipid syndrome and evaluate thrombosis risk.",
+      "searches": [],
+      "column_documents": [
+        {
+          "document": "Patient identifier linking to the Patient table.",
+          "searches": []
+        },
+        {
+          "document": "Date of the antiphospholipid antibody test.",
+          "searches": []
+        },
+        {
+          "document": "The clinician’s impression for that visit, often repeating the primary diagnosis from the Patient table.",
+          "searches": []
+        },
+        {
+          "document": "Anticardiolipin (aCL) IgG antibody titer.  High aCL IgG levels are part of the laboratory criteria for antiphospholipid syndrome and are associated with increased thrombosis risk【960079211644249†L173-L206】.",
+          "searches": []
+        },
+        {
+          "document": "Anticardiolipin IgM antibody titer.  Persistent positivity contributes to APS diagnosis【960079211644249†L173-L206】.",
+          "searches": []
+        },
+        {
+          "document": "Anticardiolipin IgA antibody titer.  IgA is less commonly used but may be measured in APS.",
+          "searches": []
+        },
+        {
+          "document": "Antinuclear antibody (ANA) titer measured via indirect immunofluorescence.  ANA positivity is common in autoimmune diseases including lupus and Sjögren’s syndrome【960079211644249†L231-L257】.",
+          "searches": []
+        },
+        {
+          "document": "Pattern of fluorescence in the ANA test, coded as combinations of P (peripheral/homogeneous), D (diffuse), S (speckled) and N (nucleolar).  Peripheral/homogeneous patterns correlate with antibodies to native DNA and suggest systemic lupus erythematosus; speckled patterns correlate with antibodies to extractable nuclear antigens; nucleolar patterns indicate systemic sclerosis; centromere pattern suggests CREST syndrome【729433811950850†L388-L397】【729433811950850†L462-L472】.",
+          "searches": [],
+          "values": [
+            {
+              "value": "P",
+              "document": "Peripheral or homogeneous pattern indicating antibodies to native DNA; seen in lupus【729433811950850†L388-L397】.",
+              "searches": []
+            },
+            {
+              "value": "D",
+              "document": "Diffuse (homogeneous) pattern; often grouped with P.",
+              "searches": []
+            },
+            {
+              "value": "S",
+              "document": "Speckled pattern associated with extractable nuclear antigens such as anti‑RNP and anti‑Sm【729433811950850†L388-L397】.",
+              "searches": []
+            },
+            {
+              "value": "N",
+              "document": "Nucleolar pattern associated with systemic sclerosis and Sjögren’s syndrome【729433811950850†L388-L397】.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Kaolin clotting time test result (‘+’ or ‘-’).  KCT is a sensitive test for lupus anticoagulant; a positive result indicates presence of lupus anticoagulant【243067386400291†L123-L130】.",
+          "searches": [],
+          "values": [
+            {
+              "value": "+",
+              "document": "Positive kaolin clotting time – lupus anticoagulant detected.",
+              "searches": []
+            },
+            {
+              "value": "-",
+              "document": "Negative kaolin clotting time – no lupus anticoagulant detected.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Dilute Russell’s viper venom time test result (‘+’ or ‘-’).  dRVVT uses snake venom to activate factor X and detect lupus anticoagulant; a positive result indicates lupus anticoagulant【834496446144828†L122-L176】.",
+          "searches": [],
+          "values": [
+            {
+              "value": "+",
+              "document": "Positive dRVVT – lupus anticoagulant present.",
+              "searches": []
+            },
+            {
+              "value": "-",
+              "document": "Negative dRVVT – no lupus anticoagulant.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Lupus anticoagulant test result (‘+’ or ‘-’).  LAC is the most important antiphospholipid antibody; positivity confers highest thrombosis risk【960079211644249†L173-L206】.",
+          "searches": [],
+          "values": [
+            {
+              "value": "+",
+              "document": "Lupus anticoagulant detected.",
+              "searches": []
+            },
+            {
+              "value": "-",
+              "document": "No lupus anticoagulant detected.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "Free‑text description of clinical manifestations.  Examples include:\n• Leg ulcer – a venous ulcer caused by poor blood flow; such ulcers take weeks or months to heal and occur near the ankle【79371501122168†L65-L87】.\n• Renal artery thrombosis – a rare but serious condition where a clot obstructs the renal artery, leading to renal infarction【631764142013844†L127-L133】.\n• Brain infarction – cerebral (ischemic) stroke caused by thrombotic or embolic occlusion of cerebral vessels leading to necrotic brain tissue【956058483496076†L155-L162】.\n• Abortion – termination or loss of pregnancy; spontaneous loss before 20 weeks is called miscarriage【58167333794246†L84-L93】.\n• Multiple thrombosis – indicates multiple thrombotic events in the patient.",
+          "searches": []
+        },
+        {
+          "document": "Outcome category describing the severity of thrombosis.  Values range from 0 to 3: 0 = no thrombosis; 1 = venous thrombosis (e.g., superficial thrombosis); 2 = venous thrombosis requiring medical intervention (e.g., uncomplicated deep vein thrombosis); 3 = severe thrombosis such as pulmonary embolism or arterial thrombus【408973477631262†L2-L10】.",
+          "searches": [],
+          "values": [
+            {
+              "value": 0,
+              "document": "No thrombosis event.",
+              "searches": []
+            },
+            {
+              "value": 1,
+              "document": "Grade‑1 thrombosis: venous thrombosis (superficial).",
+              "searches": []
+            },
+            {
+              "value": 2,
+              "document": "Grade‑2 thrombosis: uncomplicated deep vein thrombosis requiring intervention.",
+              "searches": []
+            },
+            {
+              "value": 3,
+              "document": "Grade‑3 thrombosis: serious event such as pulmonary embolism or arterial thrombosis.",
+              "searches": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

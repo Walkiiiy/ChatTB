@@ -1,0 +1,22 @@
+[
+    {
+        "originColumnName": "LinkTypeId",
+        "fullColumnName": "Link Type Id",
+        "originTable": "postLinks.csv"
+    },
+    {
+        "originColumnName": "PostTypeId",
+        "fullColumnName": "Post Type Id",
+        "originTable": "posts.csv"
+    },
+    {
+        "originColumnName": "VoteTypeId",
+        "fullColumnName": "Vote Type Id",
+        "originTable": "votes.csv"
+    },
+    {
+        "originColumnName": "PostHistoryTypeId",
+        "fullColumnName": "Post History Type Id",
+        "originTable": "postHistory.csv"
+    }
+]

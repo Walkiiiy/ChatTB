@@ -1,0 +1,737 @@
+{
+  "document": "The provided database is derived from a Czech bank and is known as the PKDD’99 Discovery Challenge (Berka) dataset.  It contains financial records of about 5,300 clients, roughly one million transactions, around 700 approved loans and approximately 900 credit cards【570489046690532†L31-L55】.  These tables capture different facets of the bank’s operations: clients and their accounts, the dispositions connecting clients to accounts, approved loans, credit cards, payment orders, individual transactions and demographic data for each district.  Each account has static characteristics stored in the account table and dynamic information recorded in orders and transactions, while the client table identifies people who may own or use accounts.  The disposition table links clients to accounts and indicates whether a person is an owner or only an authorised user (disponent)【570489046690532†L42-L56】.  Loan and card tables describe banking services offered, and the district table contains publicly available demographic information such as number of inhabitants, municipalities, unemployment rates and crime counts【650276726694361†L26-L42】.  Understanding this schema requires translating the coded values (e.g., transaction types, operation modes, k_symbol codes, account frequency codes, loan status codes and regional names) from Czech to English, hence the background research recorded below.",
+  "searches": [
+    {
+      "query": "PKDD Berka dataset description 5300 clients 1 million transactions",
+      "reason": "Determine the origin and general purpose of the dataset and obtain overall statistics such as number of clients and transactions",
+      "document": "The dataset is part of the PKDD’99 Discovery Challenge and originates from a Czech bank.  It contains information about more than 5,300 clients and around one million transactions, with approximately 700 loans and about 900 credit cards【570489046690532†L31-L55】.  Each account has associated transactions and orders, and the data also include loans, credit cards and demographic attributes for districts【570489046690532†L42-L56】."
+    },
+    {
+      "query": "POPLATEK MESICNE POPLATEK TYDNE POPLATEK PO OBRATU translation",
+      "reason": "Translate account frequency codes to understand how often account statements or fees are generated",
+      "document": "In the account table, the frequency field records how often account statements or fees are generated.  The code ‘POPLATEK MESICNE’ means a monthly statement or fee, ‘POPLATEK TYDNE’ denotes a weekly statement, and ‘POPLATEK PO OBRATU’ means the fee is issued after each transaction【906822312557547†L220-L226】."
+    },
+    {
+      "query": "Czech transaction type PRIJEM VYDAJ VYBER translation credit withdrawal",
+      "reason": "Interpret transaction type codes in the transaction table",
+      "document": "The transaction table uses the code ‘PRIJEM’ to indicate a credit (incoming money) and ‘VYDAJ’ to denote a withdrawal (outgoing payment)【776582851793863†L33-L39】.  The term ‘VYBER’ is the Czech word for withdrawal and is used interchangeably with ‘VYDAJ’ to represent money taken out of the account."
+    },
+    {
+      "query": "Czech bank operation codes VYBER KARTOU VKLAD PREVOD Z UCTU VYBER PREVOD NA UCET",
+      "reason": "Decode the operation field in the transaction table, which records how the money was moved",
+      "document": "The operation field describes the mode of transaction: ‘VYBER KARTOU’ means a credit card withdrawal, ‘VKLAD’ represents a cash deposit, ‘PREVOD Z UCTU’ indicates a collection from another bank account, ‘VYBER’ denotes a cash withdrawal and ‘PREVOD NA UCET’ is a remittance to another bank account【776582851793863†L42-L49】."
+    },
+    {
+      "query": "k_symbol POJISTNE SLUZBY UROK SANKC UROK SIPO DUCHOD UVER translation",
+      "reason": "Explain the purpose of payments coded in the k_symbol field of the transaction and order tables",
+      "document": "The k_symbol field categorises the purpose of a payment.  ‘POJISTNE’ refers to an insurance payment, ‘SLUZBY’ refers to payment for services such as account statements, ‘UROK’ means interest credited to the account, ‘SANKC. UROK’ is a sanction interest charged for a negative balance, ‘SIPO’ denotes a household payment (such as utilities), ‘DUCHOD’ indicates an old‑age pension and ‘UVER’ stands for a loan payment【776582851793863†L58-L70】.  The Czech word ‘důchod’ translates to pension or old‑age pension【772291994869798†L140-L149】, and ‘úrok’ translates to interest【809149362469166†L28-L33】."
+    },
+    {
+      "query": "disponent meaning bank account authorized user",
+      "reason": "Understand the term ‘disponent’ used in the disposition table to indicate an authorised user of an account",
+      "document": "A disponent (sometimes translated as ‘user’) is a person authorised by the account owner to operate the account.  In the disposition table the type ‘OWNER’ refers to the account holder, and ‘DISPONENT’ refers to an authorised user who can perform transactions but is not the owner【586313430852004†L30-L31】.  Outside of this dataset, the term disponent is used in banking and legal contexts to denote a person who has power of attorney or authorisation to use another person’s account【829318235658811†L48-L72】."
+    },
+    {
+      "query": "Bohemia region central Bohemia west Bohemia north Bohemia east Bohemia south Bohemia explanation",
+      "reason": "Interpret region names used in the district table",
+      "document": "The district table’s region field contains names of Czech regions.  Bohemia is the western part of the Czech Republic and is subdivided into Central, West, North, South and East Bohemia.  Central Bohemia surrounds Prague, West Bohemia includes spa towns like Karlovy Vary and Plzeň, North Bohemia is known for castles and picturesque landscapes, East Bohemia contains the country’s highest mountains, and South Bohemia features historic towns and a national park【941328227847933†L168-L179】."
+    },
+    {
+      "query": "South Moravia region description",
+      "reason": "Provide context for the region value ‘south Moravia’ in the district table",
+      "document": "South Moravia is an administrative region in the south‑eastern part of the Czech Republic with the capital Brno.  It is famous for wine production and shares borders with Austria and Slovakia【127872365342144†L35-L44】."
+    },
+    {
+      "query": "Moravian-Silesian region north Moravia description",
+      "reason": "Provide context for the region value ‘north Moravia’ in the district table",
+      "document": "The Moravian‑Silesian Region corresponds to North Moravia; it is in the north‑eastern part of the Czech Republic with its capital at Ostrava.  The region is diverse and features both industrial areas and mountainous landscapes【712745124368843†L35-L43】."
+    },
+    {
+      "query": "Prague is capital city Czech Republic",
+      "reason": "Explain the region value ‘Prague’ appearing in the district table",
+      "document": "Prague (Praha) is the capital and largest city of the Czech Republic.  It sits within the historical region of Bohemia and is the country’s political and economic centre【608774420102314†L26-L31】."
+    },
+    {
+      "query": "leasing payment meaning finance",
+      "reason": "Clarify the term ‘LEASING’ used as a payment purpose in the order table",
+      "document": "Leasing is a financial agreement in which one party (the lessee) pays the other (the lessor) for the right to use an asset over a specified period.  Payments under a lease are commonly known as leasing fees or lease payments【170711767918915†L245-L267】.  Thus the k_symbol value ‘LEASING’ in the order table indicates a payment related to a leasing agreement."
+    }
+  ],
+  "table_documents": [
+    {
+      "document": "The trans.csv table records every transaction that occurs on an account.  It includes a unique transaction identifier, the account on which the operation occurred, the date, the transaction type (credit or withdrawal), the operation mode (e.g., cash deposit, card withdrawal), the amount and resulting balance in US dollars, a k_symbol identifying the purpose of the payment, the partner bank code and the partner’s account number.  Understanding this table requires decoding Czech terms such as the transaction type and operation codes and interpreting the k_symbol categories【776582851793863†L33-L70】.",
+      "searches": [
+        {
+          "query": "transaction type PRIJEM VYDAJ translation",
+          "reason": "Find translations for transaction type codes in the transaction table",
+          "document": "PRIJEM means credit and VYDAJ means withdrawal【776582851793863†L33-L39】.  The word VYBER is also Czech for withdrawal."
+        },
+        {
+          "query": "operation codes VYBER KARTOU VKLAD PREVOD Z UCTU VYBER PREVOD NA UCET",
+          "reason": "Translate operation codes describing how the transaction was executed",
+          "document": "Operation codes are translated as follows: VYBER KARTOU (credit card withdrawal), VKLAD (cash deposit), PREVOD Z UCTU (collection from another account), VYBER (cash withdrawal) and PREVOD NA UCET (remittance to another bank account)【776582851793863†L42-L49】."
+        },
+        {
+          "query": "k_symbol purpose codes transaction table",
+          "reason": "Decode the k_symbol field that characterises the purpose of the transaction",
+          "document": "k_symbol values include POJISTNE (insurance payment), SLUZBY (payment for services), UROK (interest credited), SANKC. UROK (sanction interest for negative balance), SIPO (household payment), DUCHOD (pension), UVER (loan payment) and a blank value for unspecified purpose【776582851793863†L58-L70】.  The Czech words důchod and úrok translate to pension【772291994869798†L140-L149】 and interest【809149362469166†L28-L33】 respectively."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "trans_id is a unique numeric identifier assigned to each transaction.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account_id links the transaction to the account on which it occurred.  It matches the primary key in the account table.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "date records the calendar date when the transaction was executed.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "type indicates whether the transaction is a credit (PRIJEM) or withdrawal (VYDAJ or VYBER).",
+          "searches": [
+            {
+              "query": "PRIJEM VYDAJ VYBER translation",
+              "reason": "Translate the transaction type codes from Czech to English",
+              "document": "PRIJEM means credit; VYDAJ and VYBER mean withdrawal【776582851793863†L33-L39】."
+            }
+          ],
+          "values": [
+            {
+              "value": "PRIJEM",
+              "document": "Czech for ‘receipt’ or ‘credit’, indicating money deposited into the account【776582851793863†L33-L39】.",
+              "searches": []
+            },
+            {
+              "value": "VYDAJ",
+              "document": "Czech for ‘withdrawal’ or ‘expenditure’, indicating money debited from the account【776582851793863†L33-L39】.",
+              "searches": []
+            },
+            {
+              "value": "VYBER",
+              "document": "Czech for ‘withdrawal’.  Although the dataset lists VYBER as a type, it has the same meaning as VYDAJ—money taken out of the account.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "operation describes how the transaction was executed (e.g., card withdrawal, cash deposit or transfer).",
+          "searches": [
+            {
+              "query": "VYBER KARTOU VKLAD PREVOD Z UCTU VYBER PREVOD NA UCET translation",
+              "reason": "Translate operation codes to clarify the mode of transaction",
+              "document": "VYBER KARTOU (credit card withdrawal), VKLAD (cash deposit), PREVOD Z UCTU (collection from another account), VYBER (cash withdrawal) and PREVOD NA UCET (remittance to another bank)【776582851793863†L42-L49】."
+            }
+          ],
+          "values": [
+            {
+              "value": "VYBER KARTOU",
+              "document": "Credit card withdrawal【776582851793863†L42-L49】.",
+              "searches": []
+            },
+            {
+              "value": "VKLAD",
+              "document": "Cash deposit【776582851793863†L42-L49】.",
+              "searches": []
+            },
+            {
+              "value": "PREVOD Z UCTU",
+              "document": "Collection from another bank account【776582851793863†L42-L49】.",
+              "searches": []
+            },
+            {
+              "value": "VYBER",
+              "document": "Withdrawal in cash【776582851793863†L42-L49】.",
+              "searches": []
+            },
+            {
+              "value": "PREVOD NA UCET",
+              "document": "Remittance to another bank account【776582851793863†L42-L49】.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "amount is the value of the transaction in US dollars.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "balance records the account balance after the transaction in US dollars.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "k_symbol categorises the purpose of the transaction (e.g., insurance, interest, loan payment).",
+          "searches": [
+            {
+              "query": "k_symbol POJISTNE SLUZBY UROK SANKC UROK SIPO DUCHOD UVER meaning",
+              "reason": "Decode k_symbol codes to understand transaction purposes",
+              "document": "k_symbol values map to payment purposes: POJISTNE (insurance payment), SLUZBY (payment for services), UROK (interest credited), SANKC. UROK (sanction interest for negative balance), SIPO (household payment), DUCHOD (pension) and UVER (loan payment)【776582851793863†L58-L70】.  The Czech words důchod and úrok translate to pension【772291994869798†L140-L149】 and interest【809149362469166†L28-L33】 respectively."
+            }
+          ],
+          "values": [
+            {
+              "value": "POJISTNE",
+              "document": "Insurance payment【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "SLUZBY",
+              "document": "Payment for services or statements【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "UROK",
+              "document": "Interest credited to the account; the Czech word úrok means interest【776582851793863†L58-L70】【809149362469166†L28-L33】.",
+              "searches": []
+            },
+            {
+              "value": "SANKC. UROK",
+              "document": "Sanction interest charged when the account balance is negative【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "SIPO",
+              "document": "Household payment for utilities and domestic expenses【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "DUCHOD",
+              "document": "Old‑age pension; the Czech word důchod means pension【776582851793863†L58-L70】【772291994869798†L140-L149】.",
+              "searches": []
+            },
+            {
+              "value": "UVER",
+              "document": "Loan payment【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": " ",
+              "document": "Blank value indicating no specific purpose recorded.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "bank is the two‑letter code of the partner bank receiving or sending funds.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account records the partner’s account number involved in the transaction.",
+          "searches": [],
+          "values": []
+        }
+      ]
+    },
+    {
+      "document": "The disp.csv table links clients to accounts by specifying the disposition (role) of a client with respect to an account.  Each record has a unique disposition identifier, the client’s id, the account id and a type indicating whether the client is the account owner or just an authorised user (disponent).  Only owners can issue standing orders or apply for loans【586313430852004†L30-L31】, so distinguishing the type is important.",
+      "searches": [
+        {
+          "query": "disponent meaning authorised user",
+          "reason": "Clarify the term ‘DISPONENT’ used to describe a client’s role",
+          "document": "A disponent is an authorised user who can operate a bank account but does not own it; the disposition table uses the type OWNER for the actual account owner and DISPONENT for authorised users【586313430852004†L30-L31】【829318235658811†L48-L72】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "disp_id is a unique identifier for the disposition record.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "client_id identifies the client associated with the account.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account_id identifies the bank account associated with the disposition.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "type indicates the role of the client: OWNER or DISPONENT (authorised user).",
+          "searches": [
+            {
+              "query": "disponent definition banking",
+              "reason": "Define the role of disponent in a banking context",
+              "document": "In banking, a disponent is a person authorised to use another person’s account; they can make transactions but are not the legal owner【829318235658811†L48-L72】."
+            }
+          ],
+          "values": [
+            {
+              "value": "OWNER",
+              "document": "The client is the legal owner of the account and can perform all banking operations, including applying for loans and issuing standing orders【586313430852004†L30-L31】.",
+              "searches": []
+            },
+            {
+              "value": "DISPONENT",
+              "document": "The client is an authorised user of the account (disponent) and can conduct transactions but does not own the account【586313430852004†L30-L31】【829318235658811†L48-L72】.",
+              "searches": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "document": "The loan.csv table records loans granted by the bank.  Each row contains a loan identifier, the associated account id, the approval date, the approved amount, the loan duration in months, the monthly payment and a status code indicating whether the loan is finished or still running and whether repayment was satisfactory【388546836714865†L34-L41】.",
+      "searches": [
+        {
+          "query": "loan status codes A B C D meaning",
+          "reason": "Explain the codes used in the loan status field",
+          "document": "Loan status is coded as follows: A – contract finished with no problems; B – contract finished but the loan was not repaid; C – running contract with no problems; D – running contract where the client is in debt【388546836714865†L34-L41】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "loan_id uniquely identifies each loan.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account_id identifies the account that received the loan.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "date is the date on which the loan was approved.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "amount is the principal amount of the loan in US dollars.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "duration is the length of the loan in months.",
+          "searches": [],
+          "values": [
+            {
+              "value": "12",
+              "document": "Loan to be repaid over 12 months.",
+              "searches": []
+            },
+            {
+              "value": "24",
+              "document": "Loan duration of 24 months.",
+              "searches": []
+            },
+            {
+              "value": "36",
+              "document": "Loan duration of 36 months.",
+              "searches": []
+            },
+            {
+              "value": "48",
+              "document": "Loan duration of 48 months.",
+              "searches": []
+            },
+            {
+              "value": "60",
+              "document": "Loan duration of 60 months (five years).",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "payments represents the monthly payment to repay the loan.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "status indicates whether the loan is finished or still running and the repayment performance.",
+          "searches": [
+            {
+              "query": "loan status A B C D Berka dataset",
+              "reason": "Translate the loan status codes",
+              "document": "A – contract finished and repaid; B – contract finished but the loan was not repaid; C – running loan with no problems; D – running loan where the client is in debt【388546836714865†L34-L41】."
+            }
+          ],
+          "values": [
+            {
+              "value": "A",
+              "document": "Contract finished, no problems【388546836714865†L34-L41】.",
+              "searches": []
+            },
+            {
+              "value": "B",
+              "document": "Contract finished, loan not paid【388546836714865†L34-L41】.",
+              "searches": []
+            },
+            {
+              "value": "C",
+              "document": "Running contract, payments are up to date【388546836714865†L34-L41】.",
+              "searches": []
+            },
+            {
+              "value": "D",
+              "document": "Running contract, client is in debt【388546836714865†L34-L41】.",
+              "searches": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "document": "The card.csv table records credit cards issued by the bank.  Each card has an identifier and is linked to a disposition (and therefore to a client and account).  The table also records the card type—junior, classic or gold—and the date the card was issued【639564192063376†L170-L175】.  These types correspond to increasing levels of service and spending limits.",
+      "searches": [
+        {
+          "query": "credit card types junior classic gold Berka dataset",
+          "reason": "Understand the meaning of card type codes",
+          "document": "The card type field can be ‘junior’, ‘classic’ or ‘gold’.  In the Berka dataset these represent levels of credit card service: junior is a basic card for younger clients, classic is a standard card, and gold is a high‑level card with higher limits【639564192063376†L170-L175】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "card_id uniquely identifies a credit card.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "disp_id links the credit card to the disposition (and ultimately to the client and account).",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "type indicates the class of the credit card (junior, classic or gold).",
+          "searches": [
+            {
+              "query": "junior classic gold credit card meaning",
+              "reason": "Interpret the card type values",
+              "document": "junior is a basic card, classic is a standard card and gold is a high‑level card【639564192063376†L170-L175】."
+            }
+          ],
+          "values": [
+            {
+              "value": "junior",
+              "document": "Junior card – a basic credit card for younger or entry‑level clients【639564192063376†L170-L175】.",
+              "searches": []
+            },
+            {
+              "value": "classic",
+              "document": "Classic card – a standard credit card offered to most clients【639564192063376†L170-L175】.",
+              "searches": []
+            },
+            {
+              "value": "gold",
+              "document": "Gold card – a high‑level credit card with a higher spending limit and additional benefits【639564192063376†L170-L175】.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "issued records the date the credit card was issued, in YYYY‑MM‑DD format.",
+          "searches": [],
+          "values": []
+        }
+      ]
+    },
+    {
+      "document": "The client.csv table contains demographic details about each client.  Each client has a unique identifier, a recorded gender (F or M), a birth date and the district identifier of the branch where their account is held.  The district_id links clients to the district table, which provides additional socio‑economic information.",
+      "searches": [],
+      "column_documents": [
+        {
+          "document": "client_id uniquely identifies each client.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "gender records the client’s gender as F (female) or M (male).",
+          "searches": [],
+          "values": [
+            {
+              "value": "F",
+              "document": "Female.",
+              "searches": []
+            },
+            {
+              "value": "M",
+              "document": "Male.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "birth_date records the client’s date of birth.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "district_id links the client to the district where their bank branch is located.",
+          "searches": [],
+          "values": []
+        }
+      ]
+    },
+    {
+      "document": "The account.csv table contains the static characteristics of bank accounts.  Each account has a unique identifier, is associated with a district, records the frequency with which statements or fees are generated and has a creation date.  The frequency field uses Czech phrases to indicate whether statements are issued monthly, weekly or after each transaction【906822312557547†L220-L226】.",
+      "searches": [
+        {
+          "query": "account frequency POPLATEK MESICNE POPLATEK TYDNE POPLATEK PO OBRATU meaning",
+          "reason": "Decode frequency codes used in the account table",
+          "document": "POPLATEK MESICNE means monthly statement or fee, POPLATEK TYDNE means weekly statement and POPLATEK PO OBRATU means the fee is issued after each transaction【906822312557547†L220-L226】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "account_id uniquely identifies each bank account.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "district_id identifies the district where the branch servicing the account is located.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "frequency indicates how often account statements or fees are generated.",
+          "searches": [
+            {
+              "query": "POPLATEK MESICNE POPLATEK TYDNE POPLATEK PO OBRATU translation",
+              "reason": "Translate frequency codes",
+              "document": "POPLATEK MESICNE – monthly statement/fee; POPLATEK TYDNE – weekly; POPLATEK PO OBRATU – after transaction【906822312557547†L220-L226】."
+            }
+          ],
+          "values": [
+            {
+              "value": "POPLATEK MESICNE",
+              "document": "Monthly statement or fee【906822312557547†L220-L226】.",
+              "searches": []
+            },
+            {
+              "value": "POPLATEK TYDNE",
+              "document": "Weekly statement or fee【906822312557547†L220-L226】.",
+              "searches": []
+            },
+            {
+              "value": "POPLATEK PO OBRATU",
+              "document": "Statement or fee issued after each transaction【906822312557547†L220-L226】.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "date records the date the account was opened.",
+          "searches": [],
+          "values": []
+        }
+      ]
+    },
+    {
+      "document": "The order.csv table stores payment orders initiated from accounts.  Each order has a unique identifier, the account id from which the payment is made, the recipient bank code and account number, the amount to be transferred and a k_symbol describing the payment purpose.",
+      "searches": [
+        {
+          "query": "k_symbol leasing Berka order table",
+          "reason": "Interpret the LEASING value of k_symbol used in the order table",
+          "document": "LEASING refers to lease payments – periodic payments made to use an asset under a leasing agreement【170711767918915†L245-L267】.  Other k_symbol values in the order table match those in the transaction table, such as POJISTNE (insurance payment), SIPO (household payment) and UVER (loan payment)【776582851793863†L58-L70】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "order_id uniquely identifies a payment order.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account_id identifies the account from which the payment is made.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "bank_to is the two‑letter code of the recipient’s bank.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "account_to is the account number of the recipient.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "amount records the value to be transferred in the order.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "k_symbol categorises the purpose of the payment order.",
+          "searches": [
+            {
+              "query": "order k_symbol LEASING meaning",
+              "reason": "Explain k_symbol values in the order table",
+              "document": "LEASING refers to lease payments【170711767918915†L245-L267】; other codes mirror those in the transaction table: POJISTNE (insurance), SIPO (household), UVER (loan repayment)【776582851793863†L58-L70】."
+            }
+          ],
+          "values": [
+            {
+              "value": "POJISTNE",
+              "document": "Insurance payment【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "SIPO",
+              "document": "Household payment (utilities, domestic services)【776582851793863†L58-L70】.",
+              "searches": []
+            },
+            {
+              "value": "LEASING",
+              "document": "Lease payment made under a leasing contract【170711767918915†L245-L267】.",
+              "searches": []
+            },
+            {
+              "value": "UVER",
+              "document": "Loan repayment【776582851793863†L58-L70】.",
+              "searches": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "document": "The district.csv table provides socio‑economic and demographic information about the 77 districts in the Czech Republic.  Each row corresponds to a district and includes the district name, its region, population size, counts of municipalities by size, the ratio of urban inhabitants, average salary, unemployment rates for 1995 and 1996, the number of entrepreneurs per 1,000 inhabitants and crime statistics for 1995 and 1996【650276726694361†L26-L42】.  This table supplies external information to characterise clients and accounts based on where they are located.",
+      "searches": [
+        {
+          "query": "Czech regions central Bohemia west Bohemia south Moravia north Moravia east Bohemia description",
+          "reason": "Provide context for the region field in the district table",
+          "document": "Bohemia is divided into Central, West, North, South and East Bohemia.  Central Bohemia surrounds Prague; West Bohemia is known for spa towns like Karlovy Vary and Plzeň; North Bohemia features castles and nature; East Bohemia contains the highest mountains; South Bohemia has historic towns and a national park【941328227847933†L168-L179】.  South Moravia, with capital Brno, is a wine‑producing region in south‑eastern Czechia【127872365342144†L35-L44】.  North Moravia refers to the Moravian‑Silesian Region, an industrial yet mountainous area with capital Ostrava【712745124368843†L35-L43】.  Prague is the capital city of the Czech Republic【608774420102314†L26-L31】."
+        }
+      ],
+      "column_documents": [
+        {
+          "document": "district_id is the unique identifier of the district.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "district_name (A2) specifies the name of the district.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "region (A3) names the broader region to which the district belongs (e.g., Prague, central Bohemia, south Moravia).",
+          "searches": [
+            {
+              "query": "Czech region names central Bohemia south Moravia north Moravia east Bohemia west Bohemia",
+              "reason": "Interpret the region names used in the district table",
+              "document": "The region field uses names of Czech regions: central Bohemia (around Prague), west Bohemia (Karlovy Vary and Plzeň area), north Bohemia (noted for castles and landscapes), east Bohemia (mountainous area), south Bohemia (historic towns), Prague (capital), south Moravia (wine region with capital Brno) and north Moravia (Moravian‑Silesian Region with capital Ostrava)【941328227847933†L168-L179】【127872365342144†L35-L44】【712745124368843†L35-L43】【608774420102314†L26-L31】."
+            }
+          ],
+          "values": [
+            {
+              "value": "Prague",
+              "document": "The capital city of the Czech Republic, located in Central Bohemia【608774420102314†L26-L31】.",
+              "searches": []
+            },
+            {
+              "value": "central Bohemia",
+              "document": "Region surrounding Prague in the western part of the Czech Republic【941328227847933†L168-L179】.",
+              "searches": []
+            },
+            {
+              "value": "north Bohemia",
+              "document": "Region in northern Bohemia known for castles and landscapes【941328227847933†L168-L179】.",
+              "searches": []
+            },
+            {
+              "value": "west Bohemia",
+              "document": "Region with spa towns like Karlovy Vary and Plzeň【941328227847933†L168-L179】.",
+              "searches": []
+            },
+            {
+              "value": "south Moravia",
+              "document": "South‑eastern region of Czechia famous for wine production and capital Brno【127872365342144†L35-L44】.",
+              "searches": []
+            },
+            {
+              "value": "east Bohemia",
+              "document": "Region containing the country’s highest mountains【941328227847933†L168-L179】.",
+              "searches": []
+            },
+            {
+              "value": "north Moravia",
+              "document": "Moravian‑Silesian Region in north‑eastern Czechia, a mixed industrial and mountain area with capital Ostrava【712745124368843†L35-L43】.",
+              "searches": []
+            },
+            {
+              "value": "south Bohemia",
+              "document": "Region in south‑western Czechia known for historic towns and a national park【941328227847933†L168-L179】.",
+              "searches": []
+            }
+          ]
+        },
+        {
+          "document": "number of inhabitants (A4) records the total population of the district.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of municipalities with inhabitants < 499 (A5) counts the municipalities in the district with fewer than 499 inhabitants.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of municipalities with inhabitants 500–1999 (A6) counts municipalities with populations between 500 and 1,999.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of municipalities with inhabitants 2000–9999 (A7) counts mid‑sized municipalities (2,000 to 9,999 inhabitants).",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of municipalities with inhabitants > 10000 (A8) counts municipalities with more than 10,000 inhabitants.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "A9 is an identifier field described as not useful in the source documentation.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "ratio of urban inhabitants (A10) records the percentage of the population living in urban areas.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "average salary (A11) records the average gross monthly salary in the district.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "unemployment rate 1995 (A12) gives the unemployment rate in 1995.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "unemployment rate 1996 (A13) gives the unemployment rate in 1996.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of entrepreneurs per 1000 inhabitants (A14) counts registered entrepreneurs per thousand inhabitants.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of committed crimes 1995 (A15) counts reported crimes in the district in 1995.",
+          "searches": [],
+          "values": []
+        },
+        {
+          "document": "no. of committed crimes 1996 (A16) counts reported crimes in the district in 1996.",
+          "searches": [],
+          "values": []
+        }
+      ]
+    }
+  ]
+}

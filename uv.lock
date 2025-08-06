@@ -246,6 +246,7 @@ dependencies = [
     { name = "chromadb" },
     { name = "dotenv" },
     { name = "flask" },
+    { name = "func-timeout" },
     { name = "ipykernel" },
     { name = "ipynb" },
     { name = "mcp" },
@@ -267,6 +268,7 @@ requires-dist = [
     { name = "chromadb", specifier = ">=1.0.15" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "flask", specifier = ">=3.1.1" },
+    { name = "func-timeout", specifier = ">=4.3.5" },
     { name = "ipykernel", specifier = ">=6.30.0" },
     { name = "ipynb", specifier = ">=0.5.1" },
     { name = "mcp", extras = ["client"], specifier = ">=1.11.0" },
@@ -473,6 +475,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/8b/02/0835e6ab9cfc03916
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/e0/014d5d9d7a4564cf1c40b5039bc882db69fd881111e03ab3657ac0b218e2/fsspec-2025.7.0-py3-none-any.whl", hash = "sha256:8b012e39f63c7d5f10474de957f3ab793b47b45ae7d39f2fb735f8bbe25c0e21", size = 199597, upload-time = "2025-07-15T16:05:19.529Z" },
 ]
+
+[[package]]
+name = "func-timeout"
+version = "4.3.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/0d/bf0567477f7281d9a3926c582bfef21bff7498fc0ffd3e9de21811896a0b/func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd", size = 44264, upload-time = "2019-08-19T21:32:07.43Z" }
 
 [[package]]
 name = "google-auth"
