@@ -20,6 +20,7 @@ dependencies = [
     "scikit-learn>=1.7.1",
     "selenium>=4.34.2",
     "sentence-transformers>=5.0.0",
+    "sqlparse>=0.5.3",
     "webdriver-manager>=4.0.2",
     "wikipedia>=1.4.0",
     "wikipedia-api>=0.8.1",
