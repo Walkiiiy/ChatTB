@@ -64,7 +64,7 @@ def peocess_predic_dev():
 
 def evalres(testRange):
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/dev_eval_looped150.json')
-    f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/evidence_loop_res.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev_res.json')
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/test_looped_150.json')
     j=json.load(f)
     succeed=0
@@ -112,7 +112,9 @@ def shuffle_and_split_json(input_file, output_dir):
 
         print(f"已生成: {output_file} ({len(chunk_dict)} 条记录)")
         start = end
-
+shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V11/dev_reason_res.json',
+                       '/home/walkiiiy/ChatTB/Process_document/V11/'
+                       )
 import json
 import os
 from typing import List, Union
@@ -174,10 +176,40 @@ def merge_and_sort_json_files(
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
 # merge_and_sort_json_files(
 #     [
-#         '/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/part_1.json',
-#         '/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/part_2.json',
-#         '/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/part_3.json',
-#         '/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/part_4.json'
-#     ],
-#     '/home/walkiiiy/ChatTB/Evaluation/exp_result/v10_output/evidence_loop_res.json'
+#         '/home/walkiiiy/ChatTB/Process_document/V11/part_1.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V11/part_2.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V11/part_3.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V11/part_4.json'    ],
+#             '/home/walkiiiy/ChatTB/Process_document/V11/dev_res.json'
 # )
+
+
+def  clear_reasons():
+    f=open('/home/walkiiiy/ChatTB/Process_document/exp_result/v11_output/self_evidence_processed.json')
+    j=json.load(f)
+    for obj in j:
+        j[obj]['reason']=[]
+    f=open('/home/walkiiiy/ChatTB/Process_document/exp_result/v11_output/self_evidence_processed.json',"w")
+    json.dump(j,f,indent=4)
+
+def delete_reasons():
+    # 删除所有的reason
+    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json')
+    j=json.load(f)
+    for obj in j:
+        if 'reason' in j[obj]:
+            del j[obj]['reason']
+    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json',"w")
+    json.dump(j,f,indent=4)
+    print("All reasons deleted.")
+
+
+def change_evidence_to_reason():
+    # 将所有的evidence改为reason
+    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json')
+    j=json.load(f)
+    for obj in j:
+        if j[obj]['reason'][0]=='':
+            j[obj]['reason']=[]
+    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json',"w")
+    json.dump(j,f,indent=4)

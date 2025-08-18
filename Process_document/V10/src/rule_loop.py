@@ -172,44 +172,8 @@ class EvidenceProcesser:
             self.evalRes[str(self.evalID)]=copy.deepcopy(evalObj)
             json.dump(self.evalRes,open(self.res_path,'w'),indent=4)
 
-    def process_strong_evidence_loop(self,maxRefineloop=3):
-        totalCount=0
-        correctCount=0
-        for self.evalID, originObj in tqdm(self.evalRes.items(),total=len(self.evalRes),desc="Processing"):
-            totalCount+=1
-            evalObj=copy.deepcopy(originObj)
-            if evalObj['res']==1:
-                print(f'question{self.evalID} has been refined, skip.')
-                correctCount+=1
-                continue
-            if len(evalObj['evidence'])>=maxRefineloop:
-                print(f'question{self.evalID} has failed before,skip.')
-                continue
-            # evalObj['evidence']=evalObj['evidence'][:1]## prevent similar hitorical evidence rolling
-            print("processing question: ",self.evalID,' ',evalObj['question'])
-            loop_count=0
-            while evalObj['res']==0:
-                print('round',loop_count+1)
-                if len(evalObj['evidence'])>1 and evalObj['evidence'][-1]==evalObj['evidence'][-2]:# if identical evidence was generated, probably fail.
-                    print(f"identical evidence generated, giving up.")
-                    break
-                self.gpt_request_getEvidence(evalObj)
-                self.gpt_request_testEvidence(evalObj)
-                self.evaluate_res(evalObj)
-                loop_count+=1
-                if evalObj['res']==1:
-                    print(f"refined within {loop_count} loops")
-                    correctCount+=1
-                if evalObj['res']==0 and loop_count>=maxRefineloop:
-                    print(f"could not refine evidence of object in {maxRefineloop} loops, giving up.")
-                    break
-            self.evalRes[self.evalID]=copy.deepcopy(evalObj)
-            json.dump(self.evalRes,open(self.res_path,'w'),indent=4)
-            
-            print('ex: ',correctCount/totalCount,'\n----------------------------\n')
 
-
-    def process_evidence_loop(self,maxRefineloop=3):
+    def reason_loop(self,maxRefineloop=3):
         totalCount=0
         correctCount=0
         for self.evalID, originObj in tqdm(self.evalRes.items(),total=len(self.evalRes),desc="Processing"):
