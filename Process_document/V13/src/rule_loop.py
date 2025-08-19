@@ -49,7 +49,7 @@ class RuleProcesser:
     def generate_comment_prompt_testSolution(self, question,solution):
         base = ""
         base += " using the given solution" 
-        base += ", solve the following question by generating SQLite query for the tables provided above."
+        base += ", solve the following question by generating SQLite query."
         prompt = f"\n{base}\n-- question:\n{question} \n-- solution:\n{solution}"
         return prompt
 
@@ -117,59 +117,44 @@ class RuleProcesser:
     def getPrompt_testSolution(self,evalObj):
         systemPrompt='''
             You are a helpful assistant that writes valid SQLite queries based on provided schema and solution.
-            you will be given a database's schema and a question and text solution of the question.
+            '''
+        schema_prompt=self.generate_schema_prompt(os.path.join(self.db_root_path, evalObj['db_id'], evalObj['db_id'] + '.sqlite'))
+        comment_prompt=self.generate_comment_prompt_testSolution(evalObj['question'], {evalObj['solution'][-1] if len(evalObj['solution'])>0 else ''})
+        Prompt=f'''
+            you will be given a question related to a database and text solution of the question.
             the solution solves the question perfectly, all you need is to convert the solution into a valid SQLite query.
             you should generate a SQLite query that solve the question according to the given text solution.
             you have one function, you have to call it.
             function SQLite_receiver takes the final SQLite query you generate.
-            '''
-        schema_prompt=self.generate_schema_prompt(os.path.join(self.db_root_path, evalObj['db_id'], evalObj['db_id'] + '.sqlite'))
-        comment_prompt=self.generate_comment_prompt_testSolution(evalObj['question'], evalObj['solution'][-1])
-        Prompt=f'''the database schema is:{schema_prompt}\n
             \n{comment_prompt}, 
-            \nplease generate the sqlite query, you have to call a function `SQLite_receiver` to return the SQL you generate'''
+            \nyou have to call a function `SQLite_receiver` to return the SQL you generate'''
         return systemPrompt,Prompt
     
     def getPrompt_getSolution(self,evalObj):#actually a sql2text job
         systemPrompt='''
             - You are a helpful database assistant that convert the given sql to text operations of the database.
             '''
-        # if not evalObj['solution']:
         prompt='''
-        - you will be given and a question and the target right sql that can solve the question perfectly, 
-        - you should translate the sql into text operations, which are also solutions to the question.
-        - please make sure solution could be able to convert back to the sql, dont change any information of the origin sql.
-        - function solution_receiver takes the text solution you generate.
-        '''
-        # else:
-        #     prompt='''
-        #     - You are a helpful database assistant that rewrites natural language solution based on a sql and a question related to a certain database.
-        #     - you will be given and a question, the not detailed and explicit enough text solution and the target right sql that can solve the question perfectly, 
-        #     - Your job: **translate the SQL into a even more richly detailed, well-structured natural-language solution** that matches the SQL’s logic better(no speculation, no added logic).
-        #     **Hard requirements**
-        #     * You must call function `solution_receiver` to return your solution.
-        #     * The solution must follow the section structure below, even if a section is brief.
-        #     * Do **not** include or alter the SQL; describe it.
-        #     * Do **not** change meanings, filters, joins, or aggregations.
-        #     * Do **not** invent columns, tables, or values not present in the SQL.
-        #     - the solution you generate should be as detailed as possible, and the information it contains should be more than the previous solution.
-        #     - function solution_receiver takes the solution you generate.
-        #     '''
-        # example='''
-        # \nfor example, 
-        # \nthe given question:List the top five schools, by descending order, from the highest to the lowest, the most number of Enrollment (Ages 5-17). Please give their NCES school identification number.
-        # \nthe given sql:SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.`Enrollment (Ages 5-17)` DESC LIMIT 5
-        # \nthe ideal solution you generate could be:
-        # \n1. **Joining the schools and enrollment data:**  \n   The query uses an `INNER JOIN` between two tables: `schools` (aliased as T1) and `frpm` (aliased as T2). These two tables are linked together using a common key, the `CDSCode`. This ensures that each school record is matched with its corresponding enrollment data.\n\n2. **Selecting the relevant identifier:**  \n   From the `schools` table (T1), the query specifically selects the column `NCESSchool`. This is the unique identifier assigned by NCES to each school, which the question explicitly requests.\n\n3. **Ordering by enrollment:**  \n   The results are ordered based on the column `Enrollment (Ages 5-17)` from the `frpm` table. The sorting is in descending order (`DESC`), so that schools with the largest number of students enrolled in the 5–17 age group appear at the top.\n\n4. **Limiting to the top five:**  \n   Finally, the query applies a `LIMIT 5`, which restricts the output to only the first five records. These will be the five schools with the highest student enrollments in the specified age range.\n\n
-        # '''
-        # prompt+=example
-        # no schmea input while generating solution
-        # schema_prompt=self.generate_schema_prompt(os.path.join(self.db_root_path, evalObj['db_id'], evalObj['db_id'] + '.sqlite'))
+            Describe how the given query operates as numbered steps **in one paragraph**. Follow these hard constraints:
+
+            * **No SQL operation words** (e.g., select, where, group, count, order, limit, join).
+            * Use the **exact table and column names** and **literal values** as written.
+            * Write **step-by-step** using `1)... 2)... 3)...` within a single paragraph.
+            * For **every derived value**, immediately append a **scope tag** in square brackets chosen from exactly these:
+
+            * `[per-record]` (one row at a time)
+            * `[per-bucket by <columns>]` (computed over records sharing the listed columns)
+            * `[dataset after step N]` (computed over all records that remain after a specific earlier step)
+            * `[entire table]` (ignores earlier narrowing steps)
+            * Explicitly distinguish between values that are **shown in the final output** and values **used only to arrange the rows**.
+            * Add a final step that **lists the output columns in order**, stating for each whether it is raw or derived and whether it is **the same for every output row**.
+            * If only a subset of rows is kept, state **how many** and describe **tie behavior** (e.g., “if several have the same top value, keep any one of them”).
+            * Do **not** invent columns or values; do **not** omit any value that appears in the final output.
+
+            Example structure to follow (fill with the query’s concrete details):
+            `1) Identify the source table(s) … 2) Keep only records where <column>=<value> … 3) Treat records with identical <columns> as one bucket … 4) Compute <measure A> [per-bucket by <columns>] … 5) Also compute <measure B> [dataset after step 2] … 6) Arrange buckets by <measure A> from largest to smallest (used only to arrange) … 7) Keep the first <K> buckets; if tied, keep any one … 8) Output columns: <col1/raw>, <col2/derived, same for every row>, …`        
+            '''
         prompt+=f'''
-        \nthe question\n:
-        {evalObj['question']}'\n'
-        {'the previous solution that not detailed enough:\n'
-         +evalObj['solution'][-1] if evalObj['solution'] else ''}
         the sql\n:
         {evalObj['ground_truth']}
         '''
@@ -195,7 +180,7 @@ class RuleProcesser:
         return res
 
 
-    def solution_loop(self,maxRefineloop=3):
+    def solution_loop(self,maxRefineloop=5):
         totalCount=0
         correctCount=0
         for self.evalID, originObj in tqdm(self.evalRes.items(),total=len(self.evalRes),desc="Processing"):
@@ -216,20 +201,21 @@ class RuleProcesser:
                 if len(evalObj['solution'])>1 and evalObj['solution'][-1]==evalObj['solution'][-2]:# if identical Reason was generated, probably fail.
                     print(f"identical result generated, giving up.")
                     break
-                self.getSolution(evalObj)
+                res=self.getSolution(evalObj)
                 self.testSolution(evalObj)
                 self.evaluate_res(evalObj)
                 loop_count+=1
                 if evalObj['res']==1:
                     print(f"{GREEN}Success!{RESET}corrected within {loop_count} loop")
                     correctCount+=1
+                    print('ex: ',correctCount/totalCount,'\n----------------------------\n')
                 if evalObj['res']==0 and loop_count>=maxRefineloop:
                     print(f"{RED}fail:{RESET}could not refine Reason of object in {maxRefineloop} loops, giving up.")
+                    print('ex: ',correctCount/totalCount,'\n----------------------------\n')
                     break
             self.evalRes[self.evalID]=copy.deepcopy(evalObj)
             json.dump(self.evalRes,open(self.dump_path,'w'),indent=4)
             
-            print('ex: ',correctCount/totalCount,'\n----------------------------\n')
 
 
 class MCPClient:
@@ -304,11 +290,11 @@ class MCPClient:
         return {"error": "something went wrong, tool did not call."}
 
 
-load_path='/home/walkiiiy/ChatTB/Process_document/V12/part_2.json'
-dump_path='/home/walkiiiy/ChatTB/Process_document/V12/part_2.json'
+load_path='/home/walkiiiy/ChatTB/Process_document/V13/part_3.json'
+dump_path='/home/walkiiiy/ChatTB/Process_document/V13/part_3.json'
 db_root_path='/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
-getSolutionMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V12/src/MCPserver_getSolution.py'
-testMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V12/src/MCPserver_testSql.py'
+getSolutionMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V13/src/MCPserver_getSolution.py'
+testMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V13/src/MCPserver_testSql.py'
 
 Processer=RuleProcesser(load_path=load_path,
                             dump_path=dump_path,
@@ -318,18 +304,5 @@ Processer=RuleProcesser(load_path=load_path,
                             )
 
 # Processer.solution_loop(maxRefineloop=2)
+# print(Processer.generate_schema_prompt(os.path.join(Processer.db_root_path, Processer.evalRes['0']['db_id'], Processer.evalRes['0']['db_id'] + '.sqlite')))
 
-
-sql1='''
-SELECT DISTINCT T1.client_id
-FROM client T1
-JOIN disp T2 ON T1.client_id = T2.client_id
-JOIN account T5 ON T2.account_id = T5.account_id
-JOIN loan T3 ON T5.account_id = T3.account_id
-JOIN card T4 ON T2.disp_id = T4.disp_id
-WHERE T1.gender = 'F';
-'''
-sql2='''SELECT T1.client_id FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T5 ON T2.account_id = T5.account_id INNER JOIN loan AS T3 ON T5.account_id = T3.account_id INNER JOIN card AS T4 ON T2.disp_id = T4.disp_id WHERE T1.gender = 'F'
-'''
-res=Processer.execute_sql(sql1,sql2,'/home/walkiiiy/ChatTB/Bird_dev/dev_databases/financial/financial.sqlite')
-print(res)

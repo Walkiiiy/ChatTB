@@ -9,14 +9,14 @@ GAODE_KEY = os.getenv("GAODE_KEY")
 CITY_CODE_FILE = os.getenv("CITY_CODE_FILE")
 GOOGLE_API = os.getenv("GOOGLE_API")
 DOCUMENT_PATH=os.getenv("TRAIN_DOCUMENT")
-app = FastMCP("Precessor")
+app = FastMCP("SolutionProcessor")
 
 @app.tool()
-def reason_receiver(reason:list[str]):
+def solution_receiver(solution:str):
     """
-    take in natural reasoning process to solve the question. 
+    take in detailed text solution of the given correct sql of the question. 
     Parameters:
-     - reason (list[str]): the new reasons of the SQL failure. 
+     - solution (str): the solution of the question. 
     """
     pass
 

@@ -3,68 +3,9 @@ from typing import List, Dict, Any
 import os
 import json
 
-AllQueriesPath="/home/walkiiiy/ChatTB/Bird_dev/dev.json"
-QueriesPath='/home/walkiiiy/ChatTB/Bird_dev/dev_queries'
-
-def split_questions_by_db_id(data: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, str]]]:
-    """
-    Splits input data by 'db_id', keeping only 'question' and 'evidence' fields.
-
-    Args:
-        data (List[Dict[str, Any]]): List of JSON-like dictionaries with at least 'db_id', 'question', and 'evidence'.
-
-    Returns:
-        Dict[str, List[Dict[str, str]]]: A dictionary where each key is a db_id and each value is a list of
-                                         dicts with only 'question' and 'evidence'.
-    """
-    db_map = defaultdict(list)
-    for entry in data:
-        # if entry['difficulty']=='simple':
-        #     continue
-        db_id = entry.get("db_id")
-        if db_id and "question" in entry and "evidence" in entry:
-            db_map[db_id].append({
-                "question": entry["question"],
-                "evidence": entry["evidence"],
-                "difficulty":entry['difficulty']
-            })
-    return dict(db_map)
-
-def split_queries():
-    with open(AllQueriesPath) as f:
-        all_queries=json.load(f)
-    res=split_questions_by_db_id(all_queries)
-    for key in res:
-        with open(os.path.join(QueriesPath,key+'.json'),'w')as f:
-            json.dump(res[key],f,indent=4)
-
-def fetch_prompts():
-    res=[]
-    breifDescLis=[]
-    with open('/home/walkiiiy/ChatTB/prompt_fetchCleanDocument.md')as f:
-        prompt=f.read()
-    for descfile in os.listdir('/home/walkiiiy/ChatTB/Bird_dev/dev_documentsNLdesc'):
-        with open(os.path.join('/home/walkiiiy/ChatTB/Bird_dev/dev_documentsNLdesc',descfile))as f:
-            fulldesc=f.read()
-        breifDescLis.append(fulldesc.split('\n')[0])
-    print(breifDescLis)
-        
-# split_queries()
-def peocess_predic_dev():
-    f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/predict_dev_eval.json')
-    j=json.load(f)
-    for entry in j:
-        # print(j[en])
-        temp=j[entry]["ground_truth"].split('\t')[0]
-        print(temp)
-        j[entry]["ground_truth"]=temp
-    f=open("/home/walkiiiy/ChatTB/predict_dev.json",'w')
-    json.dump(j,f,indent=4)
-# peocess_predic_dev()
-
 def evalres(testRange):
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/dev_eval_looped150.json')
-    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev_res.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json')
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/test_looped_150.json')
     j=json.load(f)
     succeed=0
@@ -75,7 +16,7 @@ def evalres(testRange):
             succeed+=1
     rate=succeed/testRange
     print('total test: ',testRange,'\ntotal ac: ',succeed,'\nex: ',rate)
-evalres(1533)
+# evalres(1533)
 import json
 import random
 import os
@@ -112,9 +53,9 @@ def shuffle_and_split_json(input_file, output_dir):
 
         print(f"已生成: {output_file} ({len(chunk_dict)} 条记录)")
         start = end
-shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V11/dev_reason_res.json',
-                       '/home/walkiiiy/ChatTB/Process_document/V11/'
-                       )
+# shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V13/dev.json',
+#                        '/home/walkiiiy/ChatTB/Process_document/V13/'
+#                        )
 import json
 import os
 from typing import List, Union
@@ -176,11 +117,11 @@ def merge_and_sort_json_files(
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
 # merge_and_sort_json_files(
 #     [
-#         '/home/walkiiiy/ChatTB/Process_document/V11/part_1.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V11/part_2.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V11/part_3.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V11/part_4.json'    ],
-#             '/home/walkiiiy/ChatTB/Process_document/V11/dev_res.json'
+#         '/home/walkiiiy/ChatTB/Process_document/V13/part_1.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V13/part_2.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V13/part_3.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V13/part_4.json'    ],
+#         '/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json'
 # )
 
 
@@ -206,10 +147,19 @@ def delete_reasons():
 
 def change_evidence_to_reason():
     # 将所有的evidence改为reason
-    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json')
     j=json.load(f)
     for obj in j:
-        if j[obj]['reason'][0]=='':
-            j[obj]['reason']=[]
-    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json',"w")
+        j[obj]['solution'] = []
+    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json',"w")
+    json.dump(j,f,indent=4)
+# change_evidence_to_reason()
+def solution_extract():
+    f=open('/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json')
+    j=json.load(f)
+    for obj in j:
+        if 'solution' in j[obj]:
+            j[obj]['reason'] = j[obj]['solution']
+            del j[obj]['solution']
+    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json',"w")
     json.dump(j,f,indent=4)

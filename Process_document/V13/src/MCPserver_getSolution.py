@@ -9,16 +9,16 @@ GAODE_KEY = os.getenv("GAODE_KEY")
 CITY_CODE_FILE = os.getenv("CITY_CODE_FILE")
 GOOGLE_API = os.getenv("GOOGLE_API")
 DOCUMENT_PATH=os.getenv("TRAIN_DOCUMENT")
-app = FastMCP("SqlProcessor")
-
+app = FastMCP("SolutionProcessor")
 
 @app.tool()
-def SQLite_receiver(sql:str):
+def solution_receiver(solution:str):
     """
-    take in the final SQLite query you generate based on the question, solution and schema. 
+    take in detailed text solution of the given correct sql of the question. 
     Parameters:
-     - sql (str): the SQLite query
+     - solution (str): the solution of the question. 
     """
     pass
+
 if __name__=="__main__":
     app.run(transport='stdio')
