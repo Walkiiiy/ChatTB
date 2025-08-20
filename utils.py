@@ -5,7 +5,7 @@ import json
 
 def evalres(testRange):
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/dev_eval_looped150.json')
-    f=open('/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json')
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/test_looped_150.json')
     j=json.load(f)
     succeed=0
@@ -16,7 +16,7 @@ def evalres(testRange):
             succeed+=1
     rate=succeed/testRange
     print('total test: ',testRange,'\ntotal ac: ',succeed,'\nex: ',rate)
-# evalres(1533)
+evalres(1533)
 import json
 import random
 import os
@@ -36,11 +36,11 @@ def shuffle_and_split_json(input_file, output_dir):
 
     # 计算每个文件的大小
     total = len(items)
-    chunk_size = total // 4
-    remainder = total % 4
+    chunk_size = total // 6
+    remainder = total % 6
 
     start = 0
-    for i in range(4):
+    for i in range(6):
         end = start + chunk_size + (1 if i < remainder else 0)
         chunk_items = items[start:end]
 
@@ -53,8 +53,8 @@ def shuffle_and_split_json(input_file, output_dir):
 
         print(f"已生成: {output_file} ({len(chunk_dict)} 条记录)")
         start = end
-# shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V13/dev.json',
-#                        '/home/walkiiiy/ChatTB/Process_document/V13/'
+# shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V14/dev.json',
+#                        '/home/walkiiiy/ChatTB/Process_document/V14/'
 #                        )
 import json
 import os
@@ -117,11 +117,13 @@ def merge_and_sort_json_files(
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
 # merge_and_sort_json_files(
 #     [
-#         '/home/walkiiiy/ChatTB/Process_document/V13/part_1.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V13/part_2.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V13/part_3.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V13/part_4.json'    ],
-#         '/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json'
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_1.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_2.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_3.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_4.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_5.json',
+#         '/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'    ],
+#         '/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json'
 # )
 
 
@@ -155,11 +157,10 @@ def change_evidence_to_reason():
     json.dump(j,f,indent=4)
 # change_evidence_to_reason()
 def solution_extract():
-    f=open('/home/walkiiiy/ChatTB/Process_document/V13/dev_res.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/dev.json')
     j=json.load(f)
     for obj in j:
-        if 'solution' in j[obj]:
-            j[obj]['reason'] = j[obj]['solution']
-            del j[obj]['solution']
-    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json',"w")
+        j[obj]['sql'] =[j[obj]['sql']]
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/dev.json',"w")
     json.dump(j,f,indent=4)
+# solution_extract()
