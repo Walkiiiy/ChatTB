@@ -1,0 +1,320 @@
+import os
+import sqlite3
+
+from dotenv import load_dotenv
+
+from tqdm import tqdm
+
+from openai import OpenAI
+
+from mcp.client.stdio import stdio_client
+
+import asyncio
+
+import json
+
+import copy
+
+import warnings
+load_dotenv()
+
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+class RuleProcesser:
+    def __init__(self,
+                 load_path,
+                 dump_path,
+                 db_root_path,
+                 amendMCPserver_path,
+                 testMCPserver_path,
+                 ):
+        
+        self.load_path=load_path
+        self.dump_path=dump_path
+        self.db_root_path=db_root_path
+        
+        with open(self.load_path)as f:
+            self.evalRes=json.load(f)
+
+        self.testClient=MCPClient(testMCPserver_path)
+        self.amendClient=MCPClient(amendMCPserver_path)
+        
+        self.evalID="0"
+
+    def generate_comment_prompt_testAmends(self, question,amends):
+        base = "the database's schema is shown above, now you are required to "
+        base += "solve the following question related to the database by generating SQLite query."
+        base += "the amends contains the latent mistakes you may make, only by avoiding these mistakes can you generate the correct SQLite query." 
+        prompt = f"\n{base}\n-- question:\n{question} \n-- amends:\n{amends}"
+        return prompt
+
+    def generate_schema_prompt(self,db_path, num_rows=None):
+        full_schema_prompt_list = []
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = cursor.fetchall()
+        schemas = {}
+        for table in tables:
+            if table[0] == 'sqlite_sequence':
+                continue
+            cursor.execute(f"SELECT sql FROM sqlite_master WHERE type='table' AND name='{table[0]}';")
+            create_prompt = cursor.fetchone()[0]
+            schemas[table[0]] = create_prompt
+            if num_rows:
+                cur_table = f"`{table[0]}`" if table[0] in ['order', 'by', 'group'] else table[0]
+                cursor.execute(f"SELECT * FROM {cur_table} LIMIT {num_rows}")
+                column_names = [description[0] for description in cursor.description]
+                values = cursor.fetchall()
+                rows_prompt = self.nice_look_table(column_names=column_names, values=values)
+                verbose_prompt = f"/* \n {num_rows} example rows: \n SELECT * FROM {cur_table} LIMIT {num_rows}; \n {rows_prompt} \n */"
+                schemas[table[0]] = f"{create_prompt} \n {verbose_prompt}"
+        conn.close()
+        for v in schemas.values():
+            full_schema_prompt_list.append(v)
+        return "\n\n".join(full_schema_prompt_list)
+
+    def nice_look_table(self,column_names: list, values: list):
+        rows = []
+        widths = [max(len(str(value[i])) for value in values + [column_names]) for i in range(len(column_names))]
+        header = ''.join(f'{column.rjust(width)} ' for column, width in zip(column_names, widths))
+        for value in values:
+            row = ''.join(f'{str(v).rjust(width)} ' for v, width in zip(value, widths))
+            rows.append(row)
+        return header + '\n' + '\n'.join(rows)
+
+
+    def evaluate_res(self,evalObj):
+        predicted_sql=evalObj['sql'][-1]
+        ground_truth=evalObj['ground_truth']
+        db_path=os.path.join(self.db_root_path, evalObj['db_id'], evalObj['db_id'] + '.sqlite')
+        
+        res=self.execute_sql(predicted_sql,ground_truth,db_path)
+        
+        evalObj['res']=res
+        return res
+    
+    def execute_sql(self,predicted_sql,ground_truth, db_path):
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute(ground_truth)
+        ground_truth_res = cursor.fetchall()
+        try:
+            cursor.execute(predicted_sql)
+            predicted_res = cursor.fetchall()
+        except Exception:
+            return 0
+        res = 0
+        if set(predicted_res) == set(ground_truth_res):#####
+            res = 1
+        return res
+
+    def getPrompt_testAmends(self,evalObj):
+        systemPrompt='''
+            You are a helpful assistant that writes valid SQLite queries.
+            '''
+        schema_prompt=self.generate_schema_prompt(os.path.join(self.db_root_path, evalObj['db_id'], evalObj['db_id'] + '.sqlite'))
+        comment_prompt=self.generate_comment_prompt_testAmends(evalObj['question'], {'\n'.join(evalObj['amends']) if len(evalObj['amends'])>0 else ''})
+        Prompt=f'''
+            you will be given database schema, a question related to the database and some amends.
+            you should generate a SQLite query that solve the question with the help of amends.
+            the amends contains all the latent mistakes you may make while generating the target sql, you need obey all of them.
+            you have one function, you have to call it.
+            function SQLite_receiver takes the final SQLite query you generate.
+            \n-- database schema:\n{schema_prompt},
+            \n{comment_prompt}, 
+            \nyou have to call a function `SQLite_receiver` to return the SQL you generate'''
+        return systemPrompt,Prompt
+    
+    def getPrompt_getAmends(self,evalObj):
+        systemPrompt='''
+            You are a precise SQL remediation assistant.
+            '''
+        prompt='''
+            Given a WRONG\_SQL and a RIGHT\_SQL, output exactly one cohesive paragraph (no headings, no lists, no extra lines) composed of “Do … instead of …” sentences so both the amendment and the original are preserved. Use very short backticked snippets (≤4 tokens) to reference elements; never include either full query. Describe changes in this sequence: SELECT list (columns, expressions, aliases, aggregates), FROM sources and join types/ON predicates, WHERE filters, GROUP BY/HAVING, window functions (PARTITION/ORDER), subqueries/CTEs and correlations, ORDER BY/LIMIT/OFFSET, DISTINCT vs UNION/UNION ALL, and any casts/date handling/NULL semantics. For each difference, write a sentence like: “Do `LEFT JOIN` on `t1.id=t2.id` instead of `INNER JOIN` on `t1.id=t2.t1_id`.” If something is added/removed/moved, say “Do add `col_x` instead of omitting it,” “Do remove `DISTINCT` instead of keeping it,” or “Do move filter to `HAVING` instead of `WHERE`.” Call out added/removed tables or conditions, changed join direction, predicate fixes, and why the RIGHT\_SQL logic is correct when it repairs a bug. Do not invent schema and ignore purely cosmetic formatting differences. End with a brief confirmation that the amended query now matches RIGHT\_SQL’s behavior. Inputs: WRONG\_SQL = `{wrong_sql}` RIGHT\_SQL = `{right_sql}`. Output: one paragraph only.
+            you should call function amends_receiver the return the output amends paragraph.
+            '''
+        prompt+=f'''
+        the wrong SQL\n:
+        {evalObj['sql'][-1] if len(evalObj['sql'])>0 else ''}
+        the righi SQL\n:
+        {evalObj['ground_truth']}
+        '''
+
+        return systemPrompt,prompt
+
+    def getAmends(self,evalObj):
+        systemPrompt,prompt=self.getPrompt_getAmends(evalObj)
+        res=self.amendClient.connect_gpt(systemPrompt,prompt,engine='deepseek-chat')
+        if 'error' in res:
+            return res    
+        # print(res)        
+        evalObj['amends'].append(res['amends'])
+        return res
+        
+
+    def testAmends(self,evalObj):
+        systemPrompt,prompt=self.getPrompt_testAmends(evalObj)
+        res=self.testClient.connect_gpt(systemPrompt,prompt,engine='deepseek-chat')
+        if 'error' in res:
+            evalObj['sql'].append('error')
+            return res 
+        evalObj['sql'].append(res['sql'])
+        return res
+
+
+    def amend_loop(self,maxRefineloop=5):
+        totalCount=0
+        correctCount=0
+        for self.evalID, originObj in tqdm(self.evalRes.items(),total=len(self.evalRes),desc="Processing"):
+            totalCount+=1
+            evalObj=copy.deepcopy(originObj)
+            if evalObj['res']==1:
+                print(f'question{self.evalID} is able to output right result, skip.')
+                correctCount+=1
+                continue
+            if len(evalObj['amends'])>=maxRefineloop:
+                print(f'question{self.evalID} has failed before,skip.')
+                continue
+            evalObj['amends']=[]
+            print("processing question: ",self.evalID,' ',evalObj['question'])
+            loop_count=0
+            while evalObj['res']==0:
+                print('round',loop_count+1)
+                if len(evalObj['amends'])>1 and evalObj['amends'][-1]==evalObj['amends'][-2]:# if identical Reason was generated, probably fail.
+                    print(f"identical amends generated, giving up.")
+                    break
+                res=self.getAmends(evalObj)
+                self.testAmends(evalObj)
+                self.evaluate_res(evalObj)
+                loop_count+=1
+                if evalObj['res']==1:
+                    print(f"{GREEN}Success!{RESET}corrected within {loop_count} loop")
+                    correctCount+=1
+                    print('ex: ',correctCount/totalCount,'\n----------------------------\n')
+                if evalObj['res']==0 and loop_count>=maxRefineloop:
+                    print(f"{RED}fail:{RESET}could not correct sql in {maxRefineloop} loops, giving up.")
+                    print(f'ex: {BLUE}{correctCount/totalCount}{RESET}\n----------------------------\n')
+                    break
+            self.evalRes[self.evalID]=copy.deepcopy(evalObj)
+            json.dump(self.evalRes,open(self.dump_path,'w'),indent=4)
+            
+
+
+class MCPClient:
+    def __init__(self, server_path: str):
+        self.client = OpenAI()
+        self.server_path = server_path
+        self.available_tools = []
+        self._load_tools_once()
+
+    def _load_tools_once(self) -> None:
+        asyncio.run(self._load_tools())
+
+    async def _load_tools(self) -> None:
+        from contextlib import AsyncExitStack
+        from mcp import ClientSession, StdioServerParameters
+        from mcp.client.stdio import stdio_client
+
+        server_params = StdioServerParameters(
+            command="uv",
+            args=["run", self.server_path],
+            env=None,
+        )
+
+        async with AsyncExitStack() as stack:
+            stdio, write = await stack.enter_async_context(stdio_client(server_params))
+            session = await stack.enter_async_context(ClientSession(stdio, write))
+
+            await session.initialize()
+            response = await session.list_tools()
+
+            self.available_tools = [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": tool.name,
+                        "description": tool.description,
+                        "input_schema": tool.inputSchema,
+                    },
+                }
+            for tool in response.tools
+            ]
+
+    def connect_gpt(
+        self,
+        systemPrompt: str,
+        prompt: str,
+        engine: str = "deepseek-chat",
+        max_tokens: int = 512,
+        temperature: float = 0,
+        stop=None,
+    ):
+        result = self.client.chat.completions.create(
+            model=engine,
+            messages=[
+                {"role": "system", "content": systemPrompt},
+                {"role": "user", "content": prompt},
+            ],
+            tools=self.available_tools,
+            tool_choice="required",
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stop=stop,
+        )
+        choice = result.choices[0]
+        # print(choice)
+        if getattr(choice, "finish_reason", None) == "tool_calls":
+            res = {}
+            for tc in choice.message.tool_calls:
+                res.update(json.loads(tc.function.arguments))
+            return res
+        warnings.warn('tool did not call.')
+        return {"error": "something went wrong, tool did not call."}
+
+
+load_path='/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'
+dump_path='/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'
+db_root_path='/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+getAmendsMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V14/src/MCPserver_getAmends.py'
+testMCPserver_path='/home/walkiiiy/ChatTB/Process_document/V14/src/MCPserver_testSql.py'
+
+Processer=RuleProcesser(load_path=load_path,
+                            dump_path=dump_path,
+                            db_root_path=db_root_path,
+                            amendMCPserver_path=getAmendsMCPserver_path,
+                            testMCPserver_path=testMCPserver_path,
+                            )
+
+Processer.amend_loop(maxRefineloop=20)
+# print(Processer.generate_schema_prompt(os.path.join(Processer.db_root_path, Processer.evalRes['0']['db_id'], Processer.evalRes['0']['db_id'] + '.sqlite')))
+# sql1='''
+# SELECT T2.City
+# FROM frpm AS T1
+# JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode
+# GROUP BY T2.City
+# ORDER BY SUM(T1.`Enrollment (K-12)`) ASC
+# LIMIT 5;
+# '''
+# sql2='''
+# SELECT T2.City FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode GROUP BY T2.City ORDER BY SUM(T1.`Enrollment (K-12)`) ASC LIMIT 5
+# '''
+# print(Processer.execute_sql(sql1,sql2,os.path.join(Processer.db_root_path, Processer.evalRes['0']['db_id'], Processer.evalRes['0']['db_id'] + '.sqlite')))
+
+# def fetch_sql_schema(db_name,sql):
+#     """
+#     Fetch the schema of a specific column in a SQLite database.
+    
+#     :param db_name: The name of the SQLite database file.
+#     :param column_name: The name of the column to fetch the schema for.
+#     :return: A dictionary containing the schema information of the specified column.
+#     """
+#     words = sql.split()
+#     words = [word.strip(' ,;\"\'') for word in words if]
+#     print(words)
+#     pass

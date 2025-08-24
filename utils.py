@@ -5,13 +5,13 @@ import json
 
 def evalres(testRange):
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/dev_eval_looped150.json')
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json')
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/rules_res.json')
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/test_looped_150.json')
     j=json.load(f)
     succeed=0
     for i  in range(testRange):
         # print(j[en])
-        res=j[str(i)]["res"]
+        res=j[str(i)]["rule_res"]
         if res==1:
             succeed+=1
     rate=succeed/testRange
@@ -53,7 +53,7 @@ def shuffle_and_split_json(input_file, output_dir):
 
         print(f"已生成: {output_file} ({len(chunk_dict)} 条记录)")
         start = end
-# shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V14/dev.json',
+# shuffle_and_split_json('/home/walkiiiy/ChatTB/Process_document/V14/rules_res.json',
 #                        '/home/walkiiiy/ChatTB/Process_document/V14/'
 #                        )
 import json
@@ -115,16 +115,17 @@ def merge_and_sort_json_files(
     # 写出
     with open(output_file, "w", encoding=encoding) as f:
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
-# merge_and_sort_json_files(
-#     [
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_1.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_2.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_3.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_4.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_5.json',
-#         '/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'    ],
-#         '/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json'
-# )
+        
+merge_and_sort_json_files(
+    [
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_1.json',
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_2.json',
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_3.json',
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_4.json',
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_5.json',
+        '/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'    ],
+        '/home/walkiiiy/ChatTB/Process_document/V14/rules_res.json'
+)
 
 
 def  clear_reasons():
@@ -164,3 +165,12 @@ def solution_extract():
     f=open('/home/walkiiiy/ChatTB/Process_document/V14/dev.json',"w")
     json.dump(j,f,indent=4)
 # solution_extract()
+def change_key():
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json')
+    j=json.load(f)
+    for obj in j:
+        j[obj]['amend_sql']=j[obj].pop('sql')
+        j[obj]['rule_sql']=[]
+    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json',"w")
+    json.dump(j,f,indent=4)
+# change_key()

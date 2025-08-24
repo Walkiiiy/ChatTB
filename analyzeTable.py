@@ -1,6 +1,8 @@
 import sqlite3
 import json
 import statistics
+import os
+import math
 
 def analyze_sqlite_schema(db_path, sample_size=5):
     conn = sqlite3.connect(db_path)
@@ -13,15 +15,20 @@ def analyze_sqlite_schema(db_path, sample_size=5):
     result = {}
 
     for table in tables:
-        # 获取表的列信息
-        cursor.execute(f"PRAGMA table_info({table})")
+        # 表的列信息
+        cursor.execute(f'PRAGMA table_info("{table}")')
         columns = cursor.fetchall()  # (cid, name, type, notnull, dflt_value, pk)
+
+        # 表的外键信息
+        cursor.execute(f'PRAGMA foreign_key_list("{table}")')
+        fks = cursor.fetchall()  # (id, seq, table, from, to, on_update, on_delete, match)
+        fk_map = {fk[3]: {"toTable": fk[2], "toColumn": fk[4]} for fk in fks}
 
         for col in columns:
             col_name = col[1]
             col_type = col[2]
 
-            cursor.execute(f"SELECT {col_name} FROM {table}")
+            cursor.execute(f'SELECT "{col_name}" FROM "{table}"')
             values = [row[0] for row in cursor.fetchall()]
 
             total_count = len(values)
@@ -57,27 +64,52 @@ def analyze_sqlite_schema(db_path, sample_size=5):
             else:
                 val_type = "continuous values"
 
+            # ⚡ 处理 NaN / Inf -> None
+            def clean_number(x):
+                if x is None:
+                    return None
+                if isinstance(x, float) and (math.isnan(x) or math.isinf(x)):
+                    return None
+                return x
+
             result[col_name] = {
                 "originColumnName": col_name,
-                "columnDescription": col_name,
-                "belongs to table": table,
+                "belongsToTable": table,
                 "dataFormat": col_type,
                 "size": total_count,
                 "emptyValueCount": empty_count,
                 "valType": val_type,
                 "typeNum": type_num,
                 "samples": samples,
-                "averageValue": avg_val,
-                "maximumValue": max_val,
-                "minimumValue": min_val,
-                "sampleVariance": var_val
+                "averageValue": clean_number(avg_val),
+                "maximumValue": clean_number(max_val),
+                "minimumValue": clean_number(min_val),
+                "sampleVariance": clean_number(var_val),
+                # ⚡ 新增：外键信息
+                "foreignKey": fk_map.get(col_name, None)
             }
 
     conn.close()
     return result
 
 
+def find_sqlite_files(parent_dir):
+    sqlite_files = []
+    for root, dirs, files in os.walk(parent_dir):
+        for file in files:
+            if file.endswith(".sqlite"):
+                sqlite_files.append(os.path.join(root, file))
+    return sqlite_files
+
+
 if __name__ == "__main__":
-    db_path = "your_database.sqlite"  # 修改为你的数据库文件路径
-    stats = analyze_sqlite_schema(db_path)
-    print(json.dumps(stats, indent=4, ensure_ascii=False))
+    DATABASE = '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+    res = {}
+    for database in find_sqlite_files(DATABASE):
+        schema = analyze_sqlite_schema(database)
+        db_name = database.split('/')[-1].split('.')[0]
+        res[db_name] = schema
+        print(db_name, 'processed.')
+
+    with open('/home/walkiiiy/ChatTB/Bird_dev/dev_tableAnalyze.json', 'w') as f:
+        json.dump(res, f, indent=4, ensure_ascii=False)
