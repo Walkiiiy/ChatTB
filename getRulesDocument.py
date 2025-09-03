@@ -45,11 +45,11 @@ def shuffle_and_split_json(input_file, output_dir):
 # jsonpath='/home/walkiiiy/ChatTB/Spider_dev/dev_res.json'
 # dir='/home/walkiiiy/ChatTB/Spider_dev'
 
-# jsonpath='/home/walkiiiy/ChatTB/Bird_dev/dev_wSQLres.json'
-# dir='/home/walkiiiy/ChatTB/Bird_dev'
+jsonpath='/home/walkiiiy/ChatTB/Bird_dev/dev_wSQLres.json'
+dir='/home/walkiiiy/ChatTB/Bird_dev'
 
-jsonpath='/home/walkiiiy/ChatTB/Bird_train/train.json'
-dir='/home/walkiiiy/ChatTB/Bird_train'
+# jsonpath='/home/walkiiiy/ChatTB/Bird_train/train.json'
+# dir='/home/walkiiiy/ChatTB/Bird_train'
 
 # shuffle_and_split_json(jsonpath,dir)
 
@@ -65,11 +65,11 @@ def run_process(split):
     # db_root_path = '/home/walkiiiy/ChatTB/Spider_dev/database'
     # tableSchema_path = '/home/walkiiiy/ChatTB/Spider_dev/dev_schema.json'
 
-    # db_root_path = '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
-    # tableSchema_path = '/home/walkiiiy/ChatTB/Bird_dev/dev_schema.json'
+    db_root_path = '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+    tableSchema_path = '/home/walkiiiy/ChatTB/Bird_dev/dev_schema.json'
 
-    db_root_path = '/home/walkiiiy/ChatTB/Bird_train/train_databases'
-    tableSchema_path = '/home/walkiiiy/ChatTB/Bird_train/train_schema.json'
+    # db_root_path = '/home/walkiiiy/ChatTB/Bird_train/train_databases'
+    # tableSchema_path = '/home/walkiiiy/ChatTB/Bird_train/train_schema.json'
 
     Processer = RuleProcesser(
         load_path=load_path,

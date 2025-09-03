@@ -18,7 +18,7 @@ def evalres(res_path,testRange=0):
             succeed+=1
     rate=succeed/testRange
     print('total test: ',testRange,'\ntotal ac: ',succeed,'\nex: ',rate)
-# evalres('/home/walkiiiy/ChatTB/Bird_dev/dev_res.json')
+# evalres('/home/walkiiiy/ChatTB/Spider_train/res.json')
 import json
 import random
 import os
@@ -117,15 +117,16 @@ def merge_and_sort_json_files(
     # 写出
     with open(output_file, "w", encoding=encoding) as f:
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
-        
-# merge_and_sort_json_files(
-#     [
-#         '/home/walkiiiy/ChatTB/Spider_dev/part_1.json',
-#         '/home/walkiiiy/ChatTB/Spider_dev/part_2.json',
-#         '/home/walkiiiy/ChatTB/Spider_dev/part_3.json',
-#         '/home/walkiiiy/ChatTB/Spider_dev/part_4.json',  ],
-#         '/home/walkiiiy/ChatTB/Spider_dev/dev_res.json'
-# )
+    evalres(output_file)
+
+merge_and_sort_json_files(
+    [
+        '/home/walkiiiy/ChatTB/Bird_dev/part_1.json',
+        '/home/walkiiiy/ChatTB/Bird_dev/part_2.json',
+        '/home/walkiiiy/ChatTB/Bird_dev/part_3.json',
+        '/home/walkiiiy/ChatTB/Bird_dev/part_4.json',  ],
+        '/home/walkiiiy/ChatTB/Bird_dev/res.json'
+)
 
 
 
@@ -220,4 +221,4 @@ def prepare_trainSet():
         j[item]['rules']=[]
     f=open('/home/walkiiiy/ChatTB/Bird_train/train_cleaned.json','w')
     json.dump(j,f,indent=4)
-prepare_trainSet()
+# prepare_trainSet()

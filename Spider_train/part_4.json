@@ -113,6 +113,7 @@
         "rule_sql": [
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
+            "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;"
         ]
     },
@@ -9879,6 +9880,7 @@
         "rule_sql": [
             "SELECT c.category_id, c.name AS genre_name, COUNT(fc.film_id) AS film_count\nFROM category c\nLEFT JOIN film_category fc ON c.category_id = fc.category_id\nGROUP BY c.category_id, c.name\nORDER BY c.category_id;",
             "SELECT c.category_id, c.name AS genre_name, COUNT(fc.film_id) AS film_count\nFROM category c\nLEFT JOIN film_category fc ON c.category_id = fc.category_id\nGROUP BY c.category_id, c.name\nORDER BY c.category_id;",
+            "SELECT c.category_id, c.name AS genre_name, COUNT(fc.film_id) AS film_count\nFROM category c\nLEFT JOIN film_category fc ON c.category_id = fc.category_id\nGROUP BY c.category_id, c.name\nORDER BY c.category_id;",
             "SELECT c.category_id, c.name AS genre_name, COUNT(fc.film_id) AS film_count\nFROM category c\nLEFT JOIN film_category fc ON c.category_id = fc.category_id\nGROUP BY c.category_id, c.name\nORDER BY c.category_id;"
         ]
     },
@@ -17053,7 +17055,8 @@
             "SELECT city FROM airports GROUP BY city HAVING COUNT(*) = 2;"
         ],
         "rule_sql": [
-            "SELECT city, COUNT(*) as airport_count\nFROM airports\nGROUP BY city\nHAVING COUNT(*) = 2;"
+            "SELECT city, COUNT(*) as airport_count\nFROM airports\nGROUP BY city\nHAVING COUNT(*) = 2;",
+            "SELECT city, COUNT(*) as airport_count\nFROM airports\nGROUP BY city\nHAVING COUNT(*) = 2\nORDER BY city;"
         ]
     },
     "1461": {
@@ -17856,6 +17859,7 @@
             "SELECT city FROM airports WHERE country = 'United States' GROUP BY city HAVING COUNT(*) > 3;"
         ],
         "rule_sql": [
+            "SELECT city, COUNT(*) as airport_count\nFROM airports\nWHERE country = 'United States'\nGROUP BY city\nHAVING COUNT(*) > 3\nORDER BY airport_count DESC;",
             "SELECT city, COUNT(*) as airport_count\nFROM airports\nWHERE country = 'United States'\nGROUP BY city\nHAVING COUNT(*) > 3\nORDER BY airport_count DESC;"
         ]
     },
@@ -20669,6 +20673,7 @@
             "SELECT customer_name FROM customers ORDER BY customer_id DESC LIMIT 1;"
         ],
         "rule_sql": [
+            "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;"
         ]
     },
@@ -21862,6 +21867,7 @@
             "SELECT COUNT(*) FROM campuses WHERE county = 'Los Angeles';"
         ],
         "rule_sql": [
+            "SELECT COUNT(*) FROM Campuses WHERE County = 'LA';",
             "SELECT COUNT(*) FROM Campuses WHERE County = 'LA';"
         ]
     },
@@ -29817,6 +29823,7 @@
             "SELECT customer_name FROM customers ORDER BY customer_id DESC LIMIT 1;"
         ],
         "rule_sql": [
+            "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;"
         ]
     },

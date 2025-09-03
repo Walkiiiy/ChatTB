@@ -13853,6 +13853,7 @@
             "SELECT first_name, last_name FROM employees WHERE department_id = 70 OR department_id = 90"
         ],
         "rule_sql": [
+            "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name FROM employees WHERE DEPARTMENT_ID IN (70, 90)",
             "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name FROM employees WHERE DEPARTMENT_ID IN (70, 90)"
         ]
     },
@@ -15137,6 +15138,7 @@
             "SELECT first_name, last_name FROM employees WHERE salary > (SELECT salary FROM employees WHERE employee_id = 163);"
         ],
         "rule_sql": [
+            "SELECT e1.FIRST_NAME || ' ' || e1.LAST_NAME AS full_name\nFROM employees e1\nWHERE e1.SALARY > (SELECT SALARY FROM employees WHERE EMPLOYEE_ID = 163);",
             "SELECT e1.FIRST_NAME || ' ' || e1.LAST_NAME AS full_name\nFROM employees e1\nWHERE e1.SALARY > (SELECT SALARY FROM employees WHERE EMPLOYEE_ID = 163);"
         ]
     },
@@ -22918,6 +22920,7 @@
             "SELECT first_name, last_name FROM employees WHERE salary > (SELECT salary FROM employees WHERE employee_id = 163);"
         ],
         "rule_sql": [
+            "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name\nFROM employees\nWHERE SALARY > (SELECT SALARY FROM employees WHERE EMPLOYEE_ID = 163);",
             "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name\nFROM employees\nWHERE SALARY > (SELECT SALARY FROM employees WHERE EMPLOYEE_ID = 163);"
         ]
     },
@@ -29409,6 +29412,7 @@
             "SELECT customer_name FROM customers ORDER BY customer_id DESC LIMIT 1;"
         ],
         "rule_sql": [
+            "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;",
             "SELECT c.customer_name\nFROM Customers c\nJOIN Orders o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY COUNT(o.order_id) DESC\nLIMIT 1;"
         ]
     },
@@ -32976,6 +32980,7 @@
             "SELECT AVG(rating.stars), movie.title \nFROM movie \nJOIN rating ON movie.mID = rating.mID \nWHERE movie.year = (SELECT MIN(year) FROM movie) \nGROUP BY movie.title"
         ],
         "rule_sql": [
+            "SELECT m.title, AVG(r.stars) AS average_rating\nFROM Movie m\nJOIN Rating r ON m.mID = r.mID\nWHERE m.year = (SELECT MIN(year) FROM Movie)\nGROUP BY m.mID, m.title;",
             "SELECT m.title, AVG(r.stars) AS average_rating\nFROM Movie m\nJOIN Rating r ON m.mID = r.mID\nWHERE m.year = (SELECT MIN(year) FROM Movie)\nGROUP BY m.mID, m.title;"
         ]
     },

@@ -112,12 +112,13 @@
         "amends": [],
         "rules": [],
         "amend_res": 1,
-        "rule_res": 0,
+        "rule_res": 1,
         "amend_sql": [
             "SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';"
         ],
         "rule_sql": [
-            "SELECT AVG(LifeExpectancy) AS AverageLifeExpectancy FROM country WHERE Continent = 'Africa' AND GovernmentForm LIKE '%Republic%'"
+            "SELECT AVG(LifeExpectancy) AS AverageLifeExpectancy FROM country WHERE Continent = 'Africa' AND GovernmentForm LIKE '%Republic%'",
+            "SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';"
         ]
     },
     "545": {
@@ -1733,12 +1734,13 @@
         "amends": [],
         "rules": [],
         "amend_res": 1,
-        "rule_res": 0,
+        "rule_res": 1,
         "amend_sql": [
             "SELECT document_id, COUNT(*) FROM paragraphs GROUP BY document_id ORDER BY document_id;"
         ],
         "rule_sql": [
-            "SELECT d.Document_ID, COUNT(p.Paragraph_ID) AS Paragraph_Count\nFROM Documents d\nLEFT JOIN Paragraphs p ON d.Document_ID = p.Document_ID\nGROUP BY d.Document_ID\nORDER BY d.Document_ID;"
+            "SELECT d.Document_ID, COUNT(p.Paragraph_ID) AS Paragraph_Count\nFROM Documents d\nLEFT JOIN Paragraphs p ON d.Document_ID = p.Document_ID\nGROUP BY d.Document_ID\nORDER BY d.Document_ID;",
+            "SELECT Document_ID, COUNT(Paragraph_ID) AS Number_of_Paragraphs FROM Paragraphs GROUP BY Document_ID ORDER BY Document_ID;"
         ]
     },
     "589": {
@@ -1979,6 +1981,7 @@
             "SELECT template_id, COUNT(*) FROM documents GROUP BY template_id;"
         ],
         "rule_sql": [
+            "SELECT t.Template_ID, COUNT(d.Document_ID) AS NumberOfDocuments\nFROM Templates t\nLEFT JOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY t.Template_ID\nORDER BY t.Template_ID;",
             "SELECT t.Template_ID, COUNT(d.Document_ID) AS NumberOfDocuments\nFROM Templates t\nLEFT JOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY t.Template_ID\nORDER BY t.Template_ID;"
         ]
     },
@@ -2892,7 +2895,8 @@
             "SELECT AVG(lifeexpectancy) FROM country WHERE continent = 'Africa' AND governmentform = 'Republic';"
         ],
         "rule_sql": [
-            "SELECT AVG(LifeExpectancy) AS AverageLifeExpectancy FROM country WHERE Continent = 'Africa' AND GovernmentForm LIKE '%Republic%';"
+            "SELECT AVG(LifeExpectancy) AS AverageLifeExpectancy FROM country WHERE Continent = 'Africa' AND GovernmentForm LIKE '%Republic%';",
+            "SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm LIKE '%Republic%'"
         ]
     },
     "928": {

@@ -4581,6 +4581,8 @@
         ],
         "rule_sql": [
             "SELECT u.Id, u.DisplayName\nFROM users u\nJOIN badges b ON u.Id = b.UserId\nWHERE b.Name = 'Necromancer'\nLIMIT 10;",
+            "SELECT u.Id, u.DisplayName\nFROM users u\nJOIN badges b ON u.Id = b.UserId\nWHERE b.Name = 'Necromancer'\nLIMIT 10;",
+            "SELECT u.Id, u.DisplayName\nFROM users u\nJOIN badges b ON u.Id = b.UserId\nWHERE b.Name = 'Necromancer'\nLIMIT 10;",
             "SELECT u.Id, u.DisplayName\nFROM users u\nJOIN badges b ON u.Id = b.UserId\nWHERE b.Name = 'Necromancer'\nLIMIT 10;"
         ],
         "amend_res": 1

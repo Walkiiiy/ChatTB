@@ -8430,6 +8430,7 @@
         "rule_sql": [
             "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name, SALARY FROM employees WHERE FIRST_NAME LIKE '%m'",
             "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name, SALARY FROM employees WHERE FIRST_NAME LIKE '%m'",
+            "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name, SALARY FROM employees WHERE FIRST_NAME LIKE '%m'",
             "SELECT FIRST_NAME || ' ' || LAST_NAME AS full_name, SALARY FROM employees WHERE FIRST_NAME LIKE '%m'"
         ]
     },
@@ -11425,6 +11426,7 @@
         ],
         "rule_sql": [
             "SELECT d.DEPARTMENT_NAME, AVG(e.SALARY) AS AVERAGE_SALARY\nFROM employees e\nJOIN departments d ON e.DEPARTMENT_ID = d.DEPARTMENT_ID\nWHERE e.COMMISSION_PCT IS NOT NULL\nGROUP BY d.DEPARTMENT_NAME;",
+            "SELECT d.DEPARTMENT_NAME, AVG(e.SALARY) AS AVERAGE_SALARY\nFROM employees e\nJOIN departments d ON e.DEPARTMENT_ID = d.DEPARTMENT_ID\nWHERE e.COMMISSION_PCT IS NOT NULL\nGROUP BY d.DEPARTMENT_NAME;",
             "SELECT d.DEPARTMENT_NAME, AVG(e.SALARY) AS AVERAGE_SALARY\nFROM employees e\nJOIN departments d ON e.DEPARTMENT_ID = d.DEPARTMENT_ID\nWHERE e.COMMISSION_PCT IS NOT NULL\nGROUP BY d.DEPARTMENT_NAME;"
         ]
     },
@@ -13296,6 +13298,7 @@
             "SELECT country FROM people WHERE age > 30 AND age < 25;"
         ],
         "rule_sql": [
+            "SELECT DISTINCT Country FROM people WHERE Age > 30 OR Age < 25",
             "SELECT DISTINCT Country FROM people WHERE Age > 30 OR Age < 25"
         ]
     },
@@ -14620,6 +14623,7 @@
             "SELECT first_name, last_name, hire_date FROM employees WHERE department_id IN (SELECT department_id FROM employees WHERE first_name = 'Clara') AND first_name != 'Clara';"
         ],
         "rule_sql": [
+            "SELECT e.FIRST_NAME || ' ' || e.LAST_NAME AS full_name, e.HIRE_DATE\nFROM employees e\nWHERE e.DEPARTMENT_ID IN (\n    SELECT DEPARTMENT_ID \n    FROM employees \n    WHERE FIRST_NAME = 'Clara'\n)\nAND e.FIRST_NAME != 'Clara'\nORDER BY full_name;",
             "SELECT e.FIRST_NAME || ' ' || e.LAST_NAME AS full_name, e.HIRE_DATE\nFROM employees e\nWHERE e.DEPARTMENT_ID IN (\n    SELECT DEPARTMENT_ID \n    FROM employees \n    WHERE FIRST_NAME = 'Clara'\n)\nAND e.FIRST_NAME != 'Clara'\nORDER BY full_name;"
         ]
     },
@@ -27351,6 +27355,7 @@
             "SELECT planned_delivery_date, actual_delivery_date FROM bookings WHERE planned_delivery_date IS NOT NULL"
         ],
         "rule_sql": [
+            "SELECT Booking_ID, Planned_Delivery_Date, Actual_Delivery_Date FROM Bookings;",
             "SELECT Booking_ID, Planned_Delivery_Date, Actual_Delivery_Date FROM Bookings;"
         ]
     },
@@ -32492,6 +32497,7 @@
             "SELECT claim_id, COUNT(*) FROM settlements GROUP BY claim_id;"
         ],
         "rule_sql": [
+            "SELECT c.Claim_ID, COUNT(s.Settlement_ID) AS Number_of_Settlements\nFROM Claims c\nLEFT JOIN Settlements s ON c.Claim_ID = s.Claim_ID\nGROUP BY c.Claim_ID\nORDER BY c.Claim_ID;",
             "SELECT c.Claim_ID, COUNT(s.Settlement_ID) AS Number_of_Settlements\nFROM Claims c\nLEFT JOIN Settlements s ON c.Claim_ID = s.Claim_ID\nGROUP BY c.Claim_ID\nORDER BY c.Claim_ID;"
         ]
     },
@@ -34125,6 +34131,7 @@
             "SELECT first_name, last_name, hire_date FROM employees WHERE department_id IN (SELECT department_id FROM employees WHERE first_name = 'Clara')"
         ],
         "rule_sql": [
+            "SELECT e.FIRST_NAME || ' ' || e.LAST_NAME AS full_name, e.HIRE_DATE\nFROM employees e\nWHERE e.DEPARTMENT_ID IN (\n    SELECT DEPARTMENT_ID \n    FROM employees \n    WHERE FIRST_NAME = 'Clara'\n)\nORDER BY full_name;",
             "SELECT e.FIRST_NAME || ' ' || e.LAST_NAME AS full_name, e.HIRE_DATE\nFROM employees e\nWHERE e.DEPARTMENT_ID IN (\n    SELECT DEPARTMENT_ID \n    FROM employees \n    WHERE FIRST_NAME = 'Clara'\n)\nORDER BY full_name;"
         ]
     },

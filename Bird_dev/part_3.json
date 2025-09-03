@@ -4887,7 +4887,9 @@
         ],
         "rule_sql": [
             "SELECT \n    (COUNT(DISTINCT b.UserId) * 100.0 / (SELECT COUNT(DISTINCT UserId) FROM badges WHERE Name = 'Teacher')) AS percentage\nFROM \n    badges b\nWHERE \n    b.Name = 'Teacher';",
-            "SELECT \n    (COUNT(DISTINCT b.UserId) * 100.0 / (SELECT COUNT(DISTINCT UserId) FROM badges WHERE Name = 'Teacher')) AS percentage\nFROM badges b\nWHERE b.Name = 'Teacher';"
+            "SELECT \n    (COUNT(DISTINCT b.UserId) * 100.0 / (SELECT COUNT(DISTINCT UserId) FROM badges WHERE Name = 'Teacher')) AS percentage\nFROM badges b\nWHERE b.Name = 'Teacher';",
+            "SELECT \n    (COUNT(DISTINCT b.UserId) * 100.0 / (SELECT COUNT(DISTINCT UserId) FROM badges WHERE Name = 'Teacher')) AS percentage\nFROM badges b\nWHERE b.Name = 'Teacher';",
+            "SELECT \n    (COUNT(DISTINCT b.UserId) * 100.0 / (SELECT COUNT(DISTINCT UserId) FROM badges WHERE Name = 'Teacher')) AS percentage\nFROM \n    badges b\nWHERE \n    b.Name = 'Teacher';"
         ],
         "amend_res": 1
     },
