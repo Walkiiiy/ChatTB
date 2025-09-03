@@ -3,12 +3,14 @@ from typing import List, Dict, Any
 import os
 import json
 
-def evalres(testRange):
+def evalres(res_path,testRange=0):
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/dev_eval_looped150.json')
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/rules_res.json')
+    f=open(res_path)
     # f=open('/home/walkiiiy/ChatTB/Evaluation/exp_result/V9_output/test_looped_150.json')
     j=json.load(f)
     succeed=0
+    if not testRange:
+        testRange=len(j)
     for i  in range(testRange):
         # print(j[en])
         res=j[str(i)]["rule_res"]
@@ -16,7 +18,7 @@ def evalres(testRange):
             succeed+=1
     rate=succeed/testRange
     print('total test: ',testRange,'\ntotal ac: ',succeed,'\nex: ',rate)
-evalres(1533)
+# evalres('/home/walkiiiy/ChatTB/Bird_dev/dev_res.json')
 import json
 import random
 import os
@@ -116,61 +118,106 @@ def merge_and_sort_json_files(
     with open(output_file, "w", encoding=encoding) as f:
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
         
-merge_and_sort_json_files(
-    [
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_1.json',
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_2.json',
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_3.json',
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_4.json',
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_5.json',
-        '/home/walkiiiy/ChatTB/Process_document/V14/part_6.json'    ],
-        '/home/walkiiiy/ChatTB/Process_document/V14/rules_res.json'
-)
+# merge_and_sort_json_files(
+#     [
+#         '/home/walkiiiy/ChatTB/Spider_dev/part_1.json',
+#         '/home/walkiiiy/ChatTB/Spider_dev/part_2.json',
+#         '/home/walkiiiy/ChatTB/Spider_dev/part_3.json',
+#         '/home/walkiiiy/ChatTB/Spider_dev/part_4.json',  ],
+#         '/home/walkiiiy/ChatTB/Spider_dev/dev_res.json'
+# )
 
 
-def  clear_reasons():
-    f=open('/home/walkiiiy/ChatTB/Process_document/exp_result/v11_output/self_evidence_processed.json')
-    j=json.load(f)
-    for obj in j:
-        j[obj]['reason']=[]
-    f=open('/home/walkiiiy/ChatTB/Process_document/exp_result/v11_output/self_evidence_processed.json',"w")
-    json.dump(j,f,indent=4)
 
-def delete_reasons():
-    # 删除所有的reason
-    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json')
+def prepare_json(json_path):
+    f=open(json_path)
     j=json.load(f)
-    for obj in j:
-        if 'reason' in j[obj]:
-            del j[obj]['reason']
-    f=open('/home/walkiiiy/ChatTB/Process_document/V11/dev.json',"w")
-    json.dump(j,f,indent=4)
-    print("All reasons deleted.")
+    k={}
+    for id,obj in enumerate(j):
+        
+        obj['ground_truth']=obj.pop('SQL')
+        obj['amends']=[]
+        obj['rules']=[obj.pop('evidence')] if obj['evidence'] else []
+        obj['amends_res']=0
+        obj['rule_res']=0
+        obj['amend_sql']=[]
+        obj['rule_sql']=[]
+        # obj.pop('difficulty')
+        # obj.pop('question_id')
+        
+        k[str(id)]=obj
+
+    f=open(json_path,"w")
+    json.dump(k,f,indent=4)
+
+    
+def tweakStructure(json_path):
+    f=open(json_path)
+    j=json.load(f)
+    k={}
+    for id,obj in j.items():
+        obj['rule_res']=0
+        obj['rule_sql']=[]
+        if obj['rules']:
+            if obj['rules'][0][:2]=='1)':
+                obj['rules']=[]
+            else:
+                obj['rules']=obj['rules'][:1] # 只保留第一条rule
+
+        # obj.pop('amends_res')
+        # obj.pop('difficulty')
+        # obj.pop('question_id')
+        
+        k[id]=obj
+
+    f=open(json_path,"w")
+    json.dump(k,f,indent=4)
+
+# tweakStructure('Spider_dev/dev_res.json')
 
 
-def change_evidence_to_reason():
-    # 将所有的evidence改为reason
-    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json')
+
+
+
+
+import re
+def extractRules():
+    f=open('/home/walkiiiy/ChatTB/Spider_dev/dev_res.json')
     j=json.load(f)
-    for obj in j:
-        j[obj]['solution'] = []
-    f=open('/home/walkiiiy/ChatTB/Process_document/V12/dev.json',"w")
-    json.dump(j,f,indent=4)
-# change_evidence_to_reason()
-def solution_extract():
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/dev.json')
+    k={}
+    # 用正则匹配: 一个或多个数字 + 括号
+    for id,obj in j.items():
+        if obj['rules']:
+            if obj['db_id'] not in k:
+                k[obj['db_id']]=[]
+            for item in obj['rules']:
+                item=' '+item
+                parts = re.split(r'\s\d+\)\s', item)
+                # 去掉空字符串（因为开头会多一个空）
+                parts = [p.strip() for p in parts if p.strip()]
+                temp=''
+                for r in parts[:-1]:
+                    temp+=r.split(':')[0]+', '
+                parts[-1]=temp+parts[-1] #给ouputs columns加上条件
+                print(parts[-1])
+                k[obj['db_id']]+=(parts)
+    f=open('/home/walkiiiy/ChatTB/Spider_dev/rules.json',"w")
+    json.dump(k,f,indent=4)
+
+# extractRules()
+
+
+
+import sqlite3
+def prepare_trainSet():
+    f=open('/home/walkiiiy/ChatTB/Bird_train/train_cleaned.json')
     j=json.load(f)
-    for obj in j:
-        j[obj]['sql'] =[j[obj]['sql']]
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/dev.json',"w")
+    i=0
+    toBePop=[]
+    for item in j:
+        if "evidence" in j[item]:
+            j[item].pop('evidence')
+        j[item]['rules']=[]
+    f=open('/home/walkiiiy/ChatTB/Bird_train/train_cleaned.json','w')
     json.dump(j,f,indent=4)
-# solution_extract()
-def change_key():
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json')
-    j=json.load(f)
-    for obj in j:
-        j[obj]['amend_sql']=j[obj].pop('sql')
-        j[obj]['rule_sql']=[]
-    f=open('/home/walkiiiy/ChatTB/Process_document/V14/amends_res.json',"w")
-    json.dump(j,f,indent=4)
-# change_key()
+prepare_trainSet()

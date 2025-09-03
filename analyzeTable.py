@@ -1,70 +1,82 @@
 import sqlite3
 import json
-import statistics
-import os
 import math
+import os
+import random
 
-def analyze_sqlite_schema(db_path, sample_size=5):
+def safe_decode(val):
+    if isinstance(val, bytes):
+        for enc in ("utf-8", "latin1", "cp1254"):
+            try:
+                return val.decode(enc)
+            except UnicodeDecodeError:
+                continue
+        return val.decode("utf-8", errors="replace")
+    return val
+
+def safe_float(val):
+    try:
+        f = float(val)
+        if math.isinf(f) or math.isnan(f):
+            return None
+        return f
+    except (ValueError, TypeError, OverflowError):
+        return None
+
+def analyze_sqlite_schema(db_path, sample_size=5, sample_rows=1000):
     conn = sqlite3.connect(db_path)
+    conn.text_factory = bytes
     cursor = conn.cursor()
 
-    # 获取所有表名
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = [row[0] for row in cursor.fetchall()]
-
+    tables = [safe_decode(row[0]) for row in cursor.fetchall()]
     result = {}
 
     for table in tables:
-        # 表的列信息
         cursor.execute(f'PRAGMA table_info("{table}")')
-        columns = cursor.fetchall()  # (cid, name, type, notnull, dflt_value, pk)
+        columns = cursor.fetchall()
 
-        # 表的外键信息
         cursor.execute(f'PRAGMA foreign_key_list("{table}")')
-        fks = cursor.fetchall()  # (id, seq, table, from, to, on_update, on_delete, match)
-        fk_map = {fk[3]: {"toTable": fk[2], "toColumn": fk[4]} for fk in fks}
+        fks = cursor.fetchall()
+        fk_map = {safe_decode(fk[3]): {"toTable": safe_decode(fk[2]), "toColumn": safe_decode(fk[4])} for fk in fks}
+
+        # Fetch a sample of rows for this table
+        cursor.execute(f'SELECT * FROM "{table}" LIMIT {sample_rows}')
+        rows = cursor.fetchall()
+        columns_names = [safe_decode(col[1]) for col in columns]
+
+        # Transpose rows to column-wise data
+        col_values_map = {col: [] for col in columns_names}
+        for row in rows:
+            for col, val in zip(columns_names, row):
+                col_values_map[col].append(safe_decode(val))
 
         for col in columns:
-            col_name = col[1]
-            col_type = col[2]
-
-            cursor.execute(f'SELECT "{col_name}" FROM "{table}"')
-            values = [row[0] for row in cursor.fetchall()]
+            col_name = safe_decode(col[1])
+            col_type = safe_decode(col[2])
+            values = col_values_map[col_name]
 
             total_count = len(values)
             empty_count = sum(1 for v in values if v is None)
 
             non_null_values = [v for v in values if v is not None]
 
-            samples = non_null_values[:sample_size] if non_null_values else []
+            samples = random.sample(non_null_values, min(sample_size, len(non_null_values))) if non_null_values else []
 
-            # 统计数字型数据
-            numeric_values = []
-            for v in non_null_values:
-                try:
-                    numeric_values.append(float(v))
-                except (ValueError, TypeError):
-                    pass
+            numeric_values = [safe_float(v) for v in non_null_values if safe_float(v) is not None]
 
             avg_val = max_val = min_val = var_val = None
-            type_num = 0
+            type_num = 2 if numeric_values else 1
+
             if numeric_values:
-                type_num = 2
-                avg_val = statistics.mean(numeric_values)
+                avg_val = sum(numeric_values) / len(numeric_values)
                 max_val = max(numeric_values)
                 min_val = min(numeric_values)
-                var_val = statistics.pvariance(numeric_values) if len(numeric_values) > 1 else 0.0
-            else:
-                type_num = 1
+                var_val = sum((x - avg_val) ** 2 for x in numeric_values) / len(numeric_values) if len(numeric_values) > 1 else 0.0
 
-            # 判断 valType
             unique_count = len(set(non_null_values))
-            if total_count > 0 and unique_count < total_count / 2:
-                val_type = "discrete types"
-            else:
-                val_type = "continuous values"
+            val_type = "discrete types" if total_count > 0 and unique_count < total_count / 2 else "continuous values"
 
-            # ⚡ 处理 NaN / Inf -> None
             def clean_number(x):
                 if x is None:
                     return None
@@ -85,13 +97,11 @@ def analyze_sqlite_schema(db_path, sample_size=5):
                 "maximumValue": clean_number(max_val),
                 "minimumValue": clean_number(min_val),
                 "sampleVariance": clean_number(var_val),
-                # ⚡ 新增：外键信息
                 "foreignKey": fk_map.get(col_name, None)
             }
 
     conn.close()
     return result
-
 
 def find_sqlite_files(parent_dir):
     sqlite_files = []
@@ -101,9 +111,8 @@ def find_sqlite_files(parent_dir):
                 sqlite_files.append(os.path.join(root, file))
     return sqlite_files
 
-
 if __name__ == "__main__":
-    DATABASE = '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+    DATABASE = '/home/walkiiiy/ChatTB/Bird_train/train_databases'
     res = {}
     for database in find_sqlite_files(DATABASE):
         schema = analyze_sqlite_schema(database)
@@ -111,5 +120,5 @@ if __name__ == "__main__":
         res[db_name] = schema
         print(db_name, 'processed.')
 
-    with open('/home/walkiiiy/ChatTB/Bird_dev/dev_tableAnalyze.json', 'w') as f:
+    with open('/home/walkiiiy/ChatTB/Bird_train/train_schema.json', 'w', encoding="utf-8") as f:
         json.dump(res, f, indent=4, ensure_ascii=False)

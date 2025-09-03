@@ -1,0 +1,17 @@
+{
+    "7712": {
+        "db_id": "hockey",
+        "question": "For he who had the highest plus / minus on the court in the 1981 season, what's his full name?",
+        "ground_truth": "SELECT T1.firstName, T1.lastName FROM Master AS T1 INNER JOIN Scoring AS T2 ON T1.playerID = T2.playerID WHERE T2.year = 1981 GROUP BY T2.playerID ORDER BY SUM(T2.`+/-`) DESC LIMIT 1",
+        "amends": [],
+        "rules": [
+            "highest Plus/minus refers to MAX(+/-); full name refers to firstName, lastName; 1981 season refers to year = '1981'\n\n"
+        ],
+        "amend_res": 0,
+        "rule_res": 0,
+        "amend_sql": [
+            "SELECT first_name, last_name FROM players WHERE season = 1981 ORDER BY plus_minus DESC LIMIT 1;"
+        ],
+        "rule_sql": []
+    }
+}
