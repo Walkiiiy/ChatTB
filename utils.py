@@ -119,16 +119,37 @@ def merge_and_sort_json_files(
         json.dump(merged_renumbered, f, ensure_ascii=False, indent=2)
     evalres(output_file)
 
-merge_and_sort_json_files(
-    [
-        '/home/walkiiiy/ChatTB/Bird_train/part_1.json',
-        '/home/walkiiiy/ChatTB/Bird_train/part_2.json',
-        '/home/walkiiiy/ChatTB/Bird_train/part_3.json',
-        '/home/walkiiiy/ChatTB/Bird_train/part_4.json',  ],
-        '/home/walkiiiy/ChatTB/Bird_train/res.json'
+# merge_and_sort_json_files(
+#     [
+#         '/home/walkiiiy/ChatTB/Bird_train/part_1.json',
+#         '/home/walkiiiy/ChatTB/Bird_train/part_2.json',
+#         '/home/walkiiiy/ChatTB/Bird_train/part_3.json',
+#         '/home/walkiiiy/ChatTB/Bird_train/part_4.json',  ],
+#         '/home/walkiiiy/ChatTB/Bird_train/res.json'
+# )
+
+def merge_res_json(input_files, output_file):
+    merged = {}
+    id=0
+    for path in input_files:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        for item in data:
+            data[item]['id']=item
+            data[item]['origin_dataset']=path.split('/')[-2]
+            merged.update({str(id):data[item]})
+            id+=1
+    os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(merged, f, ensure_ascii=False, indent=2)
+    evalres(output_file)
+merge_res_json(
+    ['/home/walkiiiy/ChatTB/Bird_dev/res.json',
+    '/home/walkiiiy/ChatTB/Bird_train/res.json',
+    '/home/walkiiiy/ChatTB/Spider_dev/res.json',
+    '/home/walkiiiy/ChatTB/Spider_train/res.json',],
+    '/home/walkiiiy/ChatTB/rules.json'
 )
-
-
 
 def prepare_json(json_path):
     f=open(json_path)
