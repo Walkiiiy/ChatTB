@@ -121,11 +121,11 @@ def merge_and_sort_json_files(
 
 merge_and_sort_json_files(
     [
-        '/home/walkiiiy/ChatTB/Bird_dev/part_1.json',
-        '/home/walkiiiy/ChatTB/Bird_dev/part_2.json',
-        '/home/walkiiiy/ChatTB/Bird_dev/part_3.json',
-        '/home/walkiiiy/ChatTB/Bird_dev/part_4.json',  ],
-        '/home/walkiiiy/ChatTB/Bird_dev/res.json'
+        '/home/walkiiiy/ChatTB/Bird_train/part_1.json',
+        '/home/walkiiiy/ChatTB/Bird_train/part_2.json',
+        '/home/walkiiiy/ChatTB/Bird_train/part_3.json',
+        '/home/walkiiiy/ChatTB/Bird_train/part_4.json',  ],
+        '/home/walkiiiy/ChatTB/Bird_train/res.json'
 )
 
 
