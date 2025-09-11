@@ -143,14 +143,31 @@ def merge_res_json(input_files, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
     evalres(output_file)
-merge_res_json(
-    ['/home/walkiiiy/ChatTB/Bird_dev/res.json',
-    '/home/walkiiiy/ChatTB/Bird_train/res.json',
-    '/home/walkiiiy/ChatTB/Spider_dev/res.json',
-    '/home/walkiiiy/ChatTB/Spider_train/res.json',],
-    '/home/walkiiiy/ChatTB/rules.json'
-)
-
+# merge_res_json(
+#     ['/home/walkiiiy/ChatTB/Bird_dev/res.json',
+#     '/home/walkiiiy/ChatTB/Bird_train/res.json',
+#     '/home/walkiiiy/ChatTB/Spider_dev/res.json',
+#     '/home/walkiiiy/ChatTB/Spider_train/res.json',],
+#     '/home/walkiiiy/ChatTB/rules.json'
+# )
+def extract_rules(input_file, output_file):
+    with open(input_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    rules_dict = {}
+    for item in data:
+        db_id = data[item].get('db_id')
+        rules = data[item].get('rules', [])
+        if db_id not in rules_dict:
+            rules_dict[db_id] = []
+        rules_dict[db_id]+=rules
+    # Convert sets to lists for JSON serialization
+    # rules_dict = {k: list(v) for k, v in rules_dict.items()}
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(rules_dict, f, ensure_ascii=False, indent=2)
+# extract_rules(
+#     '/home/walkiiiy/ChatTB/rules.json',
+#     '/home/walkiiiy/ChatTB/rules_extracted.json'
+# )
 def prepare_json(json_path):
     f=open(json_path)
     j=json.load(f)
@@ -203,8 +220,8 @@ def tweakStructure(json_path):
 
 
 import re
-def extractRules():
-    f=open('/home/walkiiiy/ChatTB/Spider_dev/dev_res.json')
+def extractRules(inputPath,ouputPath):
+    f=open(inputPath)
     j=json.load(f)
     k={}
     # 用正则匹配: 一个或多个数字 + 括号
@@ -223,12 +240,38 @@ def extractRules():
                 parts[-1]=temp+parts[-1] #给ouputs columns加上条件
                 print(parts[-1])
                 k[obj['db_id']]+=(parts)
-    f=open('/home/walkiiiy/ChatTB/Spider_dev/rules.json',"w")
+    f=open(ouputPath,'w')
     json.dump(k,f,indent=4)
 
-# extractRules()
+# extractRules(
+#     'Spider_train/res.json',
+#     'Spider_train/rules.json'
+# )
+def structure_rules(inputPath,outputPath):
+    f=open(inputPath)
+    j=json.load(f)
+    k={}
+    
+    for schema in j:
+        id=0
+        k[schema]={}
+        for rule in j[schema]:
+            splited=rule.split(':',1)
+            if len(splited)>2:
+                print(splited)
+            condition=splited[0]
+            operation=splited[-1]
+            k[schema][str(id)]={}
+            k[schema][str(id)]['condition']=condition
+            k[schema][str(id)]['operation']=operation
+            id+=1
+    f=open(outputPath,'w')
+    json.dump(k,f,indent=4)
 
-
+structure_rules(
+    'Spider_train/rules.json',
+    'Spider_train/rules.json'
+)
 
 import sqlite3
 def prepare_trainSet():
