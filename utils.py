@@ -268,10 +268,10 @@ def structure_rules(inputPath,outputPath):
     f=open(outputPath,'w')
     json.dump(k,f,indent=4)
 
-structure_rules(
-    'Spider_train/rules.json',
-    'Spider_train/rules.json'
-)
+# structure_rules(
+#     'Spider_train/rules.json',
+#     'Spider_train/rules.json'
+# )
 
 import sqlite3
 def prepare_trainSet():
@@ -286,3 +286,29 @@ def prepare_trainSet():
     f=open('/home/walkiiiy/ChatTB/Bird_train/train_cleaned.json','w')
     json.dump(j,f,indent=4)
 # prepare_trainSet()
+
+def chunkTopSimilarity():
+    with open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for db in data:
+        for item in data[db]:
+            del_lis=[]
+            for similar_id in data[db][item]['similar_rules']:
+                score = data[db][item]['similar_rules'][similar_id]
+                if score < 0.7:
+                    del_lis.append(similar_id)
+            for del_id in del_lis:
+                del data[db][item]['similar_rules'][del_id]
+    with open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity>0.7.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+# chunkTopSimilarity()
+
+def tweak_similarRule_json():
+    f=open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity>0.7.json')
+    j=json.load(f)
+    for db in j:
+        for rid in j[db]:
+            j[db][rid]['similar_condition']=j[db][rid].pop('similar_rules')
+    f=open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity>0.7.json','w')
+    json.dump(j,f,indent=4)
+tweak_similarRule_json()

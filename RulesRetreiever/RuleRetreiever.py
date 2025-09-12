@@ -5,7 +5,8 @@ import numpy as np
 import json
 
 class DBRuleSimilarity:
-    def __init__(self, model_name='sentence-transformers/paraphrase-MiniLM-L6-v2'):
+    def __init__(self, 
+                 model_name='/home/walkiiiy/.cache/huggingface/hub/models--sentence-transformers--paraphrase-MiniLM-L6-v2/snapshots/c9a2bfebc254878aee8c3aca9e6844d5bbb102d1'):
         # 初始化 Chroma 客户端
         self.client = chromadb.Client()
         # 初始化 embedding 模型
@@ -30,9 +31,10 @@ class DBRuleSimilarity:
 
         ids, documents, metadatas = [], [], []
         for rid, item in rules_dict.items():
-            print(rid,item)
+            # print(rid,item)
             ids.append(str(rid))
-            documents.append(item["condition"])
+            # documents.append(item["condition"])
+            documents.append(item["operation"])
             metadatas.append(item)
 
         # 批量存入
@@ -41,7 +43,7 @@ class DBRuleSimilarity:
 
     def compute_similarity(self, db_name):
         """
-        对数据库内的每条规则，返回与其他规则的相似度排序
+        对数据库内的每条规则，返回与其他规则的top相似度
         """
         collection = self.client.get_collection(db_name)
 
@@ -56,29 +58,31 @@ class DBRuleSimilarity:
         for i, rid in enumerate(ids):
             query_emb = embeddings[i].reshape(1, -1)
             scores = np.dot(embeddings, query_emb.T).squeeze()  # 余弦相似度
-            ranking = sorted(
-                [(ids[j], conditions[j], float(scores[j])) for j in range(len(ids))],
-                key=lambda x: x[2],
-                reverse=True
-            )
+            ranking = {ids[j]:float(scores[j]) for j in range(len(ids)) if float(scores[j]) > 0.7},
             results[rid] = ranking
         return results
 
-
-
-
-inputPath = '/home/walkiiiy/ChatTB/Spider_train/rules.json'
-ouputPath='/home/walkiiiy/ChatTB/Spider_train/rules_similarity.json'
+inputPath = '/home/walkiiiy/ChatTB/Bird_train/rules.json'
+ouputPath='/home/walkiiiy/ChatTB/Bird_train/rules_operationSimilarity>0.7.json'
 with open(inputPath)as f:
     rules = json.load(f)
 
 SimProcessor = DBRuleSimilarity()
+id=1
 for db in rules:
+    print(id)
+    id+=1
+    # 把规则存进 Chroma
     SimProcessor.add_database_rules(db_name=db, rules_dict=rules[db])
     ranking = SimProcessor.compute_similarity(db)
-    for id in ranking:
-        rules[db][id]['similar_rules'] = ranking[id][1:6]  #去掉自己的前五相似 
+
+    for rid, sim_dict in ranking.items():
+        # 初始化相似规则字典
+        rules[db][rid]['similar_rules'] = sim_dict
+
+    # 如果只是临时计算，可以删掉集合
     SimProcessor.client.delete_collection(db)
+    print('writing...')        
     with open(ouputPath, 'w') as f:
         json.dump(rules, f, ensure_ascii=False, indent=2)
-    break
+    # break
