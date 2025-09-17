@@ -311,4 +311,10 @@ def tweak_similarRule_json():
             j[db][rid]['similar_condition']=j[db][rid].pop('similar_rules')
     f=open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity>0.7.json','w')
     json.dump(j,f,indent=4)
-tweak_similarRule_json()
+# tweak_similarRule_json()
+from Model.SchemaInformation import SchemaInformation
+def testSchemaInformation():
+    schema_processor = SchemaInformation()
+    print(schema_processor.generate_schema_info('/home/ubuntu/walkiiiy/ChatTB/Bird_train/train_databases/address/address.sqlite'))
+
+testSchemaInformation()
