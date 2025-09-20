@@ -311,14 +311,68 @@ def tweak_similarRule_json():
             j[db][rid]['similar_condition']=j[db][rid].pop('similar_rules')
     f=open('/home/walkiiiy/ChatTB/Bird_train/rules_conditionSimilarity>0.7.json','w')
     json.dump(j,f,indent=4)
-# tweak_similarRule_json()
-from Model.SchemaInformation import SchemaInformation
-def testSchemaInformation():
-    schema_processor = SchemaInformation()
-    print(schema_processor.generate_schema_info('/home/ubuntu/walkiiiy/ChatTB/Bird_train/train_databases/address/address.sqlite'))
 
-# testSchemaInformation()
-from Process_model.LLMClient import LLMClient
-def testModel(model_path):
+
+
+def compare_sql_with_db_id(sql1: str, sql2: str, db_id: str, db_root_path: str) -> dict:
+    """
+    Compare if two SQL queries produce the same results using database ID.
     
+    Args:
+        sql1: First SQL query to compare
+        sql2: Second SQL query to compare
+        db_id: Database identifier (used to construct db_path)
+        db_root_path: Root path to databases directory
+        
+    Returns:
+        Dictionary containing comparison results
+    """
+    try:
+        from Process_model.SQLTestComparator import SQLTestComparator
+        
+        comparator = SQLTestComparator(db_root_path)
+        
+        # Use the test_sql_with_db_id method
+        result_code = comparator.test_sql_with_db_id(sql1, sql2, db_id)
+        
+        # Construct full db_path for detailed comparison
+        db_path = os.path.join(db_root_path, db_id, db_id + '.sqlite')
+        detailed_info = comparator.compare_results_detailed(sql1, sql2, db_path)
+        
+        return {
+            "match": result_code == 1,
+            "result_code": result_code,
+            "error": detailed_info.get("error"),
+            "detailed_info": detailed_info,
+            "db_id": db_id,
+            "db_path": db_path
+        }
+        
+    except Exception as e:
+        return {
+            "match": False,
+            "result_code": -1,
+            "error": f"Error during comparison: {str(e)}",
+            "detailed_info": {},
+            "db_id": db_id,
+            "db_path": None
+        }
 
+
+
+
+print(compare_sql_with_db_id(
+    '''SELECT T2.Phone
+FROM frpm AS T1
+INNER JOIN schools AS T2
+    ON T1.CDSCode = T2.CDSCode
+WHERE T1."Charter School (Y/N)" = 1
+  AND T1."Charter Funding Type" = 'Directly funded'
+  AND T2.OpenDate > '2000-01-01';
+''',
+'''
+SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'
+''',
+'california_schools',
+'/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+))
