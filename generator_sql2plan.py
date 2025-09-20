@@ -290,8 +290,8 @@ class SQL2PlanExperiment:
         """
         
         user_prompt = f"""
-        Your job: given a step-by-step natural-language execution plan, reconstruct the original SQL query.
-        The plan describes exactly how to execute a query, and you need to convert it back to SQL.
+        Your job: given a step-by-step natural-language execution plan, construct the corresponding SQL query.
+        The plan describes exactly how to execute a query, and you need to convert it to SQL.
         
         Guidelines:
         1. Use standard SQL syntax (SQLite compatible)
@@ -560,7 +560,7 @@ def main():
         experiment = SQL2PlanExperiment(
             train_json_path=base_path + "/Spider_dev/res.json",
             db_root_path= base_path + "/Spider_dev/database",
-            output_json_path= base_path + "/Spider_dev/EXP_sql2plan_Qwen3_8B.json",
+            output_json_path= base_path + "/Spider_dev/sql2plan_Qwen3_8B.json",
             model='/home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B'
         )
         
