@@ -115,3 +115,84 @@ class SchemaInformation:
             row = ''.join(f'{str(v).rjust(width)} ' for v, width in zip(value, widths))
             rows.append(row)
         return header + '\n' + '\n'.join(rows)
+    
+    def extract_constraints(self, db_path: str) -> Dict[str, Any]:
+        """
+        Extract primary keys, foreign keys, and constraints for each table.
+        Returns dict {table_name: {"columns": [...], "primary_keys": [...], "foreign_keys": [...]}}
+        """
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        schema_info = {}
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [t[0] for t in cursor.fetchall() if t[0] != 'sqlite_sequence']
+
+        for table in tables:
+            schema_info[table] = {"columns": [], "primary_keys": [], "foreign_keys": []}
+
+            # columns
+            cursor.execute(f"PRAGMA table_info({table})")
+            for col in cursor.fetchall():
+                cid, name, col_type, notnull, dflt_value, pk = col
+                schema_info[table]["columns"].append({"name": name, "type": col_type})
+                if pk:
+                    schema_info[table]["primary_keys"].append(name)
+
+            # foreign keys
+            cursor.execute(f"PRAGMA foreign_key_list({table})")
+            for fk in cursor.fetchall():
+                id_, seq, ref_table, from_col, to_col, on_update, on_delete, match = fk
+                schema_info[table]["foreign_keys"].append({
+                    "from": from_col,
+                    "to_table": ref_table,
+                    "to_column": to_col
+                })
+
+        conn.close()
+        return schema_info
+
+    def schema_to_prompt(self, db_path: str, num_rows: Optional[int] = 5) -> str:
+        """
+        Convert schema into Arctic-Text2SQL-R1 style serialization:
+        - CREATE TABLE statement
+        - Columns with PK/FK annotations
+        - Optional few-shot rows
+        """
+        constraints = self.extract_constraints(db_path)
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        prompt_parts = []
+
+        for table, info in constraints.items():
+            # base CREATE TABLE
+            cursor.execute(f"SELECT sql FROM sqlite_master WHERE type='table' AND name='{table}';")
+            create_stmt = cursor.fetchone()[0]
+
+            # enrich with constraints
+            col_descs = []
+            for col in info["columns"]:
+                line = f"- {col['name']} ({col['type']})"
+                if col['name'] in info["primary_keys"]:
+                    line += " [PRIMARY KEY]"
+                fk = next((fk for fk in info["foreign_keys"] if fk["from"] == col["name"]), None)
+                if fk:
+                    line += f" [FK -> {fk['to_table']}({fk['to_column']})]"
+                col_descs.append(line)
+
+            desc = f"Table {table}:\n" + "\n".join(col_descs)
+
+            # add sample rows if requested
+            rows_prompt = ""
+            if num_rows:
+                cursor.execute(f"SELECT * FROM {table} LIMIT {num_rows}")
+                col_names = [d[0] for d in cursor.description]
+                values = cursor.fetchall()
+                rows_prompt = self.nice_look_table(col_names, values)
+                rows_prompt = f"\n/* {num_rows} sample rows:\n{rows_prompt}\n*/"
+
+            prompt_parts.append(f"{create_stmt}\n{desc}{rows_prompt}")
+
+        conn.close()
+        return "\n\n".join(prompt_parts)
+

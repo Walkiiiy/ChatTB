@@ -317,4 +317,8 @@ def testSchemaInformation():
     schema_processor = SchemaInformation()
     print(schema_processor.generate_schema_info('/home/ubuntu/walkiiiy/ChatTB/Bird_train/train_databases/address/address.sqlite'))
 
-testSchemaInformation()
+# testSchemaInformation()
+from Process_model.LLMClient import LLMClient
+def testModel(model_path):
+    
+

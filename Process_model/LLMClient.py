@@ -1,19 +1,19 @@
 """
-LLM Client class for interacting with local Qwen model (supports 30B with 4bit quantization).
-Ensures large models can run across multiple GPUs (e.g., 2×3090 24GB).
+LLM Client class for interacting with local models with full accuracy.
+Supports loading large models across multiple GPUs (e.g., 2×3090 24GB).
 """
 
 import torch
 import logging
 from typing import List, Dict, Optional, Union
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from pathlib import Path
 
 
 class LLMClient:
     """
-    A client class for interacting with the local Qwen model.
-    Supports loading large models (e.g., 30B) with 4bit quantization across multiple GPUs.
+    A client class for interacting with local models.
+    Supports loading large models with full accuracy across multiple GPUs.
     """
 
     def __init__(self, 
@@ -56,7 +56,7 @@ class LLMClient:
         self._load_model()
 
     def _load_model(self) -> None:
-        """Load the tokenizer and model with 4bit quantization + device_map=auto."""
+        """Load the tokenizer and model with full accuracy (no quantization) + device_map=auto."""
         try:
             self.logger.info(f"Loading model from {self.model_path}")
 
@@ -66,42 +66,16 @@ class LLMClient:
                 trust_remote_code=self.trust_remote_code
             )
 
-            # Try to load with 4bit quantization first
-            try:
-                # Configure 4bit quantization
-                quant_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type="nf4",  # NormalFloat4, best balance of speed and accuracy
-                    bnb_4bit_compute_dtype=self.torch_dtype
-                )
+            # Load model without quantization for full accuracy
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_path,
+                device_map="auto",           # Distribute across GPUs
+                torch_dtype=self.torch_dtype,
+                trust_remote_code=self.trust_remote_code,
+                low_cpu_mem_usage=True
+            )
 
-                # Load model with quantization
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    self.model_path,
-                    device_map="auto",           # Distribute across GPUs
-                    quantization_config=quant_config,
-                    torch_dtype=self.torch_dtype,
-                    trust_remote_code=self.trust_remote_code,
-                    low_cpu_mem_usage=True
-                )
-
-                self.logger.info("Model loaded successfully with 4bit quantization")
-
-            except Exception as quant_error:
-                self.logger.warning(f"Failed to load with quantization: {quant_error}")
-                self.logger.info("Falling back to loading without quantization...")
-                
-                # Fallback: Load model without quantization
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    self.model_path,
-                    device_map="auto",           # Distribute across GPUs
-                    torch_dtype=self.torch_dtype,
-                    trust_remote_code=self.trust_remote_code,
-                    low_cpu_mem_usage=True
-                )
-
-                self.logger.info("Model loaded successfully without quantization")
+            self.logger.info("Model loaded successfully with full accuracy (no quantization)")
 
         except Exception as e:
             self.logger.error(f"Failed to load model: {e}")

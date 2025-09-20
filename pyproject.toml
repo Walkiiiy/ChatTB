@@ -15,6 +15,7 @@ dependencies = [
     "ipykernel>=6.30.0",
     "ipynb>=0.5.1",
     "mcp[client]>=1.11.0",
+    "modelscope>=1.30.0",
     "numpy>=2.3.1",
     "openai>=1.96.1",
     "pandas>=2.3.1",
