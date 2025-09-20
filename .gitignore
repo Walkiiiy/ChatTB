@@ -16,3 +16,5 @@ dev_databases
 database
 
 models--*
+
+.env
