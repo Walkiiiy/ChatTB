@@ -1,18 +1,17 @@
 """
-LLM Client class for interacting with local models with full accuracy.
+Simplified LLM Client class for single-turn conversations with local models.
 Supports loading large models across multiple GPUs (e.g., 2×3090 24GB).
 """
 
 import torch
 import logging
-from typing import List, Dict, Optional, Union
+from typing import Optional
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from pathlib import Path
 
 
 class LLMClient:
     """
-    A client class for interacting with local models.
+    A simplified client class for single-turn interactions with local models.
     Supports loading large models with full accuracy across multiple GPUs.
     """
 
@@ -21,14 +20,15 @@ class LLMClient:
                  torch_dtype: torch.dtype = torch.float16,
                  max_new_tokens: int = 512,
                  temperature: float = 0.1,
-                 top_p: float = 0.9,
+                 top_p: float = 0.95,
                  trust_remote_code: bool = True,
-                 max_context_tokens: int = 8192):
+                 max_context_tokens: int = 8192,
+                 do_sample: bool = False):
         """
         Initialize the LLM client.
 
         Args:
-            model_path: Path to the Qwen model.
+            model_path: Path to the model.
             torch_dtype: Data type for model weights (default: float16).
             max_new_tokens: Maximum number of new tokens to generate.
             temperature: Sampling temperature.
@@ -46,11 +46,11 @@ class LLMClient:
         self.top_p = top_p
         self.trust_remote_code = trust_remote_code
         self.max_context_tokens = max_context_tokens
+        self.do_sample = do_sample
 
         # Model components
         self.tokenizer = None
         self.model = None
-        self.history = []
 
         # Initialize model
         self._load_model()
@@ -84,7 +84,7 @@ class LLMClient:
     def _count_tokens(self, text: str) -> int:
         """Count the number of tokens in the given text."""
         if self.tokenizer is None:
-            raise RuntimeError("Tokenizer not loaded. Call _load_model() first.")
+            raise RuntimeError("Tokenizer not loaded.")
         try:
             tokens = self.tokenizer.encode(text, add_special_tokens=False)
             return len(tokens)
@@ -104,96 +104,157 @@ class LLMClient:
                 f"(tokens={total_estimated_tokens}, limit={self.max_context_tokens})"
             )
 
-    def generate_response(self, 
-                          user_prompt: str, 
-                          system_prompt: Optional[str] = None,
-                          clear_history: bool = False,
-                          **generation_kwargs) -> str:
-        """Generate a response from the LLM given a user prompt."""
+    def _clean_response(self, response: str) -> str:
+        """
+        Clean the model response by removing any remaining artifacts or unwanted content.
+        
+        Args:
+            response: Raw model response
+            
+        Returns:
+            Cleaned response containing only the model's actual content
+        """
+        if not response:
+            return ""
+        
+        # Remove any leading/trailing whitespace
+        cleaned = response.strip()
+        
+        # Remove common artifacts that might appear at the beginning
+        artifacts_to_remove = [
+            "<|im_start|>assistant\n",
+            "<|im_start|>assistant",
+            "<|im_end|>",
+            "assistant:",
+            "Assistant:",
+            "assistant",
+            "Assistant"
+        ]
+        
+        # Remove artifacts from the beginning
+        for artifact in artifacts_to_remove:
+            while cleaned.startswith(artifact):
+                cleaned = cleaned[len(artifact):].strip()
+        
+        # Remove any trailing end tokens
+        if cleaned.endswith("<|im_end|>"):
+            cleaned = cleaned[:-len("<|im_end|>")].strip()
+        
+        # Remove any remaining user content or system content that might have leaked through
+        lines = cleaned.split('\n')
+        filtered_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            # Skip lines that look like user or system content
+            if (line.startswith('<|im_start|>user') or 
+                line.startswith('<|im_end|>') or
+                line.startswith('user:') or
+                line.startswith('User:') or
+                line.startswith('<|im_start|>system') or
+                line.startswith('system:') or
+                line.startswith('System:')):
+                continue
+            filtered_lines.append(line)
+        
+        cleaned = '\n'.join(filtered_lines).strip()
+        
+        return cleaned
+
+    def chat(self, user_prompt: str, system_prompt: Optional[str] = None) -> str:
+        """
+        Single-turn chat with optional system prompt.
+        Returns only the model's response content without prompt or history.
+        
+        Args:
+            user_prompt: The user's input message
+            system_prompt: Optional system instruction
+            
+        Returns:
+            The model's response content only
+        """
         if self.model is None or self.tokenizer is None:
-            raise RuntimeError("Model not loaded. Call _load_model() first.")
+            raise RuntimeError("Model not loaded.")
 
         if system_prompt:
             self._validate_prompt_length(system_prompt, user_prompt)
         else:
             self._validate_prompt_length("", user_prompt)
 
-        if clear_history:
-            self.history = []
-
+        # Build conversation history for single turn
+        history = []
         if system_prompt:
-            self.history.append({"role": "system", "content": system_prompt})
-        self.history.append({"role": "user", "content": user_prompt})
+            history.append({"role": "system", "content": system_prompt})
+        history.append({"role": "user", "content": user_prompt})
 
-        # Apply chat template
+        # Apply chat template to get the formatted prompt
         text = self.tokenizer.apply_chat_template(
-            self.history, tokenize=False, add_generation_prompt=True
+            history, tokenize=False, add_generation_prompt=True,enable_thinking=False,
         )
+        
+        # Tokenize the input
         inputs = self.tokenizer(text, return_tensors="pt").to(self.model.device)
+        input_length = inputs.input_ids.shape[1]  # Store the input length
 
+        # Generation parameters
         gen_params = {
-            "max_new_tokens": generation_kwargs.get("max_new_tokens", self.max_new_tokens),
-            "temperature": generation_kwargs.get("temperature", self.temperature),
-            "top_p": generation_kwargs.get("top_p", self.top_p),
-            "do_sample": True,
+            "max_new_tokens": self.max_new_tokens,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "do_sample": self.do_sample,
             "pad_token_id": self.tokenizer.eos_token_id,
-            "repetition_penalty": 1.1,
-            "no_repeat_ngram_size": 3
+            "repetition_penalty": 1.0,
+            "no_repeat_ngram_size": 0
         }
 
+        # Generate response
         with torch.no_grad():
             outputs = self.model.generate(**inputs, **gen_params)
 
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        reply = response[len(text):].strip() if text in response else response.strip()
-        self.history.append({"role": "assistant", "content": reply})
-        return reply
-
-    def chat(self, user_prompt: str, system_prompt: Optional[str] = None) -> str:
-        """Single-turn chat with optional system prompt."""
-        return self.generate_response(user_prompt, system_prompt, clear_history=True)
-
-    def continue_chat(self, user_prompt: str) -> str:
-        """Multi-turn chat continuing from previous history."""
-        return self.generate_response(user_prompt, clear_history=False)
-
-    def clear_history(self) -> None:
-        self.history = []
-        self.logger.info("Conversation history cleared")
-
-    def get_history(self) -> List[Dict[str, str]]:
-        return self.history.copy()
+        # Extract only the new tokens (generated part)
+        new_tokens = outputs[0][input_length:]
+        model_response = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+        
+        # Clean up any remaining artifacts
+        model_response = self._clean_response(model_response)
+        
+        return model_response
 
     def set_generation_params(self, 
                               max_new_tokens: Optional[int] = None,
                               temperature: Optional[float] = None,
-                              top_p: Optional[float] = None) -> None:
+                              top_p: Optional[float] = None,
+                              do_sample: Optional[bool] = None) -> None:
+        """Update generation parameters."""
         if max_new_tokens is not None:
             self.max_new_tokens = max_new_tokens
         if temperature is not None:
             self.temperature = temperature
         if top_p is not None:
             self.top_p = top_p
+        if do_sample is not None:
+            self.do_sample = do_sample
 
     def is_loaded(self) -> bool:
+        """Check if model is loaded."""
         return self.model is not None and self.tokenizer is not None
 
-    def get_model_info(self) -> Dict[str, Union[str, int, float]]:
+    def get_model_info(self) -> dict:
+        """Get model information."""
         return {
             "model_path": self.model_path,
             "torch_dtype": str(self.torch_dtype),
             "max_new_tokens": self.max_new_tokens,
             "temperature": self.temperature,
             "top_p": self.top_p,
-            "is_loaded": self.is_loaded(),
-            "history_length": len(self.history)
+            "is_loaded": self.is_loaded()
         }
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     llm = LLMClient(
-        model_path="/home/ubuntu/walkiiiy/ChatTB/Model/models--Qwen--Qwen3-Coder-30B-A3B-Instruct/snapshots/573fa3901e5799703b1e60825b0ec024a4c0f1d3"
-        )  # 你需要改成自己的路径
+        model_path="/home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B"
+    )
     print("Testing model:")
-    print(llm.chat("Hello, how are you?"))
+    print(llm.chat("What is the capital of France?"))
