@@ -634,6 +634,7 @@ def main():
     parser.add_argument('--max', type=int, default=None, help='Maximum number of questions to process')
     parser.add_argument('--start', type=int, default=None, help='Start index')
     parser.add_argument('--resume-info', action='store_true', help='Show resume info and exit')
+    parser.add_argument('--dataset', type=str, default='Spider_dev', help='Dataset to process')
     args = parser.parse_args()
 
     try:
@@ -670,7 +671,18 @@ def main():
 
 
         # exp = SQL2PlanExperiment(**spider_train)
-        exp = SQL2PlanExperiment(**bird_train)
+        # exp = SQL2PlanExperiment(**bird_train)
+        args.dataset = args.dataset.lower()
+        if args.dataset == 'spider_dev':
+            exp = SQL2PlanExperiment(**spider_dev)
+        elif args.dataset == 'spider_train':
+            exp = SQL2PlanExperiment(**spider_train)
+        elif args.dataset == 'bird_dev':
+            exp = SQL2PlanExperiment(**bird_dev)
+        elif args.dataset == 'bird_train':
+            exp = SQL2PlanExperiment(**bird_train)
+        else:
+            raise ValueError(f"Invalid dataset: {args.dataset}")
 
         if args.resume_info:
             ri = exp.get_resume_info()
