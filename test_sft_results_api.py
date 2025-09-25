@@ -5,6 +5,7 @@ SFT Results Test Script - Triple Comparison Version
 This script tests the SFT fine-tuned model by comparing THREE approaches:
 1. Loading the fine-tuned globalAssumer model
 2. Randomly selecting samples from a dataset (supports rules_res_type.json format)
+   NOTE: Only samples containing definational_rules will be selected for testing
 3. Using the model to generate rules for each question
 4. Testing THREE approaches:
    A. Generate SQL using DeepSeek WITH SFT-generated rules
@@ -61,7 +62,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--db_root_path", type=str, required=True,
                        help="Root directory containing database files")
     parser.add_argument("--num_samples", type=int, default=10,
-                       help="Number of random samples to test")
+                       help="Number of random samples to test (only samples with definational_rules will be selected)")
     parser.add_argument("--output_file", type=str, default="sft_test_results.json",
                        help="Output file for test results")
     
@@ -113,7 +114,7 @@ def load_model_and_tokenizer(base_model_path: str, adapter_path: str, trust_remo
 
 
 def load_test_samples(dataset_path: str, num_samples: int) -> List[Dict]:
-    """Load random samples from the dataset for testing."""
+    """Load random samples from the dataset for testing, only including samples with definational_rules."""
     print(f"📋 Loading test samples from: {dataset_path}")
     
     with open(dataset_path, "r", encoding="utf-8") as f:
@@ -125,10 +126,32 @@ def load_test_samples(dataset_path: str, num_samples: int) -> List[Dict]:
     else:
         items = data
     
-    # Sample random items
-    sampled_items = random.sample(items, min(num_samples, len(items)))
+    # Filter items that have definational_rules
+    items_with_definational_rules = []
+    for item in items:
+        rules = item.get("rules", [])
+        has_definational_rules = False
+        
+        # Check if any rule has type "definitional" or "definational"
+        for rule in rules:
+            rule_type = str(rule.get("type", "")).lower()
+            if rule_type in ["definitional", "definational"]:
+                has_definational_rules = True
+                break
+        
+        if has_definational_rules:
+            items_with_definational_rules.append(item)
     
-    print(f"✅ Selected {len(sampled_items)} test samples")
+    print(f"📊 Found {len(items_with_definational_rules)} samples with definational_rules out of {len(items)} total samples")
+    
+    if len(items_with_definational_rules) == 0:
+        print("⚠️  No samples with definational_rules found in the dataset!")
+        return []
+    
+    # Sample random items from those with definational_rules
+    sampled_items = random.sample(items_with_definational_rules, min(num_samples, len(items_with_definational_rules)))
+    
+    print(f"✅ Selected {len(sampled_items)} test samples (all with definational_rules)")
     return sampled_items
 
 
@@ -345,11 +368,8 @@ class SFTResultsTester:
         db_id = sample.get("db_id", "").strip()
         dataset_rules = sample.get("rules", [])
         
-        print(f"\n{'='*80}")
-        print(f"Sample {sample_idx + 1}/{len(self.test_samples)}")
-        print(f"Database: {db_id}")
-        print(f"Question: {question}")
-        print(f"Ground Truth: {ground_truth}")
+        # Only print basic info, detailed output will be conditional
+        print(f"\nSample {sample_idx + 1}/{len(self.test_samples)} - {db_id}")
         
         result = {
             "sample_idx": sample_idx,
@@ -390,7 +410,6 @@ class SFTResultsTester:
                 return result
             
             # Step 1: Generate rules using the fine-tuned model
-            print(f"\n🤖 Step 1: Generating rules with fine-tuned model...")
             instruction = "Read the question and output only the definitional rules that apply."
             rule_prompt = build_rule_generation_prompt(instruction, schema, question)
             
@@ -404,23 +423,18 @@ class SFTResultsTester:
             )
             
             result["generated_rules"] = generated_rules
-            print(f"Generated Rules:\n{generated_rules}")
             
             # Step 2: Extract dataset rules
-            print(f"\n📋 Step 2: Extracting dataset definitional rules...")
             dataset_definitional_rules = extract_definitional_rules_from_dataset(dataset_rules)
             result["dataset_rules"] = dataset_definitional_rules
-            print(f"Dataset Rules:\n{dataset_definitional_rules}")
             
             # Step 3A: Test with SFT-generated rules
-            print(f"\n🔍 Step 3A: Generating SQL with DeepSeek (WITH SFT rules)...")
             system_prompt, user_prompt = build_sql_generation_prompt_with_rules(question, schema, generated_rules)
             
             try:
                 response = self.llm_client.chat(user_prompt, system_prompt)
                 predicted_sql_with_sft_rules = extract_sql_from_response(response)
                 result["sql_with_sft_rules"] = predicted_sql_with_sft_rules
-                print(f"Generated SQL (with SFT rules): {predicted_sql_with_sft_rules}")
                 
                 # Verify the result with SFT rules
                 verification_result_with_sft_rules = self.sql_comparator.test_sql_with_db_id(
@@ -430,27 +444,21 @@ class SFTResultsTester:
                 
                 if verification_result_with_sft_rules == 1:
                     self.correct_answers_with_sft_rules += 1
-                    print("✅ Correct (with SFT rules)!")
-                elif verification_result_with_sft_rules == 0:
-                    print("❌ Incorrect result (with SFT rules)")
                 else:
-                    print("❌ Execution error (with SFT rules)")
-                    self.failed_executions_with_sft_rules += 1
+                    if verification_result_with_sft_rules == -1:
+                        self.failed_executions_with_sft_rules += 1
                     
             except Exception as e:
-                print(f"❌ Error generating SQL with SFT rules: {e}")
                 result["result_with_sft_rules"] = -1
                 self.failed_executions_with_sft_rules += 1
             
             # Step 3B: Test with dataset rules
-            print(f"\n🔍 Step 3B: Generating SQL with DeepSeek (WITH dataset rules)...")
             system_prompt, user_prompt = build_sql_generation_prompt_with_dataset_rules(question, schema, dataset_definitional_rules)
             
             try:
                 response = self.llm_client.chat(user_prompt, system_prompt)
                 predicted_sql_with_dataset_rules = extract_sql_from_response(response)
                 result["sql_with_dataset_rules"] = predicted_sql_with_dataset_rules
-                print(f"Generated SQL (with dataset rules): {predicted_sql_with_dataset_rules}")
                 
                 # Verify the result with dataset rules
                 verification_result_with_dataset_rules = self.sql_comparator.test_sql_with_db_id(
@@ -460,27 +468,21 @@ class SFTResultsTester:
                 
                 if verification_result_with_dataset_rules == 1:
                     self.correct_answers_with_dataset_rules += 1
-                    print("✅ Correct (with dataset rules)!")
-                elif verification_result_with_dataset_rules == 0:
-                    print("❌ Incorrect result (with dataset rules)")
                 else:
-                    print("❌ Execution error (with dataset rules)")
-                    self.failed_executions_with_dataset_rules += 1
+                    if verification_result_with_dataset_rules == -1:
+                        self.failed_executions_with_dataset_rules += 1
                     
             except Exception as e:
-                print(f"❌ Error generating SQL with dataset rules: {e}")
                 result["result_with_dataset_rules"] = -1
                 self.failed_executions_with_dataset_rules += 1
             
             # Step 3C: Test without rules
-            print(f"\n🔍 Step 3C: Generating SQL with DeepSeek (WITHOUT rules)...")
             system_prompt, user_prompt = build_sql_generation_prompt_without_rules(question, schema)
             
             try:
                 response = self.llm_client.chat(user_prompt, system_prompt)
                 predicted_sql_without_rules = extract_sql_from_response(response)
                 result["sql_without_rules"] = predicted_sql_without_rules
-                print(f"Generated SQL (without rules): {predicted_sql_without_rules}")
                 
                 # Verify the result without rules
                 verification_result_without_rules = self.sql_comparator.test_sql_with_db_id(
@@ -490,33 +492,63 @@ class SFTResultsTester:
                 
                 if verification_result_without_rules == 1:
                     self.correct_answers_without_rules += 1
-                    print("✅ Correct (without rules)!")
-                elif verification_result_without_rules == 0:
-                    print("❌ Incorrect result (without rules)")
                 else:
-                    print("❌ Execution error (without rules)")
-                    self.failed_executions_without_rules += 1
+                    if verification_result_without_rules == -1:
+                        self.failed_executions_without_rules += 1
                     
             except Exception as e:
-                print(f"❌ Error generating SQL without rules: {e}")
                 result["result_without_rules"] = -1
                 self.failed_executions_without_rules += 1
             
             # Update total questions count
             self.total_questions += 1
             
-            # Print current accuracies
+            # Check if fine-tuned model SQL is wrong while other two are correct
+            sft_result = result["result_with_sft_rules"]
+            dataset_result = result["result_with_dataset_rules"]
+            no_rules_result = result["result_without_rules"]
+            
+            # Only output detailed information when SFT rules produce wrong SQL but other two produce correct SQL
+            if (sft_result != 1 and dataset_result == 1 and no_rules_result == 1):
+                print(f"\n{'='*80}")
+                print(f"🔍 SPECIAL CASE: Fine-tuned model failed while others succeeded")
+                print(f"{'='*80}")
+                print(f"Sample {sample_idx + 1} - Database: {db_id}")
+                print(f"Question: {question}")
+                print(f"Ground Truth: {ground_truth}")
+                
+                print(f"\n📋 EXTRACTED RULES (from dataset):")
+                print(f"{dataset_definitional_rules}")
+                
+                print(f"\n🤖 GENERATED RULES (from fine-tuned model):")
+                print(f"{generated_rules}")
+                
+                print(f"\n🔍 SQL COMPARISON:")
+                print(f"With SFT rules: {result['sql_with_sft_rules']}")
+                print(f"With dataset rules: {result['sql_with_dataset_rules']}")
+                print(f"Without rules: {result['sql_without_rules']}")
+                
+                print(f"\n❌ ERROR ANALYSIS:")
+                if sft_result == 0:
+                    print(f"Fine-tuned model SQL is incorrect (result: {sft_result})")
+                elif sft_result == -1:
+                    print(f"Fine-tuned model SQL execution failed (result: {sft_result})")
+                else:
+                    print(f"Fine-tuned model SQL has unexpected result: {sft_result}")
+                
+                print(f"Dataset rules SQL is correct (result: {dataset_result})")
+                print(f"No rules SQL is correct (result: {no_rules_result})")
+                print(f"{'='*80}")
+            else:
+                # Simple output for normal cases
+                print(f"  SFT: {'✅' if sft_result == 1 else '❌'}, Dataset: {'✅' if dataset_result == 1 else '❌'}, No rules: {'✅' if no_rules_result == 1 else '❌'}")
+            
+            # Print current accuracies (simplified)
             accuracy_with_sft_rules = self.correct_answers_with_sft_rules / self.total_questions if self.total_questions > 0 else 0
             accuracy_with_dataset_rules = self.correct_answers_with_dataset_rules / self.total_questions if self.total_questions > 0 else 0
             accuracy_without_rules = self.correct_answers_without_rules / self.total_questions if self.total_questions > 0 else 0
             
-            print(f"\n📊 Current Accuracies:")
-            print(f"  With SFT rules: {accuracy_with_sft_rules:.3f} ({self.correct_answers_with_sft_rules}/{self.total_questions})")
-            print(f"  With dataset rules: {accuracy_with_dataset_rules:.3f} ({self.correct_answers_with_dataset_rules}/{self.total_questions})")
-            print(f"  Without rules: {accuracy_without_rules:.3f} ({self.correct_answers_without_rules}/{self.total_questions})")
-            print(f"  SFT vs No rules: {accuracy_with_sft_rules - accuracy_without_rules:+.3f}")
-            print(f"  Dataset vs No rules: {accuracy_with_dataset_rules - accuracy_without_rules:+.3f}")
-            print(f"  SFT vs Dataset: {accuracy_with_sft_rules - accuracy_with_dataset_rules:+.3f}")
+            print(f"  Accuracies: SFT={accuracy_with_sft_rules:.3f}, Dataset={accuracy_with_dataset_rules:.3f}, No rules={accuracy_without_rules:.3f}")
             
         except Exception as e:
             print(f"❌ Error processing sample: {e}")

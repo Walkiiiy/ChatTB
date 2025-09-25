@@ -354,12 +354,46 @@ def build_io_pair(instruction: str, schema: str, question: str, definitional_rul
     else:
         target = "No definitional rules found."
     
+
+    instruction ='''
+    You are an expert in analyzing database schemas and user questions to infer possible definitional rules.  
+Definitional rules describe **special mappings or operations** that must be followed when interpreting the question and generating SQL.  
+
+The output format must always be:
+
+definitional rules:
+condition: [condition 1], 
+operation: [operation 1], 
+condition: [condition 2], 
+operation: [operation 2], 
+...
+
+Rules should be concise, accurate, and schema-faithful. If no rules apply, just output:
+definitional rules:
+
+### Examples:
+
+definitional rules:
+Rule 1:
+condition: When answering about "heads of the departments", 
+operation: use table "head" instead of "departments" for counting heads.
+
+Rule 2:
+condition: When the question asks for customer information, 
+operation: use table "Customers" instead of "customers" with exact case and quotes. If the question involves multiple tables, join "Customers_cards" as T1 with "Customers" as T2 on T1.customer_id = T2.customer_id using an inner match. If the question refers to a table named "customer" instead of "customers", use the correct table name with exact case and quotes. 
+
+Rule 3:
+condition: When the question asks for students who have taken courses, 
+operation: join table "student" with "enrollment" on student.id = enrollment.student_id, and join with "course" on course.id = enrollment.course_id.
+
+### Now process the following:
+    '''
     # Build the complete prompt
     text = (
-        f"Instruction:\n{instruction}\n\n"
+        f"Instruction:\n\n\n"
         f"Database Schema:\n{schema}\n\n"
         f"Question:\n{question}\n\n"
-        f"definitional rules:\n{target}"
+        f"generated definitional rules:\n{target}"
     )
     
     return text
@@ -527,10 +561,9 @@ class CustomSFTTrainer(SFTTrainer):
         # Call parent training step
         loss = super().training_step(model, inputs, num_items_in_batch)
         
-        # Log sample prompt and a short generation every 10 steps
-        if hasattr(self, "state") and self.state.global_step % 10 == 0:
+        # Log sample prompt every 20 steps (removed generation to save time)
+        if hasattr(self, "state") and self.state.global_step % 20 == 0:
             self._log_sample_prompt(inputs)
-            self._log_sample_generation(model, inputs)
             
         return loss
     
@@ -567,56 +600,6 @@ class CustomSFTTrainer(SFTTrainer):
         except Exception as e:
             print(f"Warning: Failed to log sample prompt: {e}")
 
-    def _log_sample_generation(self, model, inputs):
-        """
-        Run a short generation on one sample to inspect model output.
-        """
-        try:
-            if "input_ids" not in inputs:
-                return
-            input_ids = inputs["input_ids"][0]
-            attention_mask = inputs.get("attention_mask", None)
-            if attention_mask is not None:
-                attention_mask = attention_mask[0]
-
-            tokenizer = getattr(self, "processing_class", None) or getattr(self, "tokenizer", None)
-            if tokenizer is None:
-                return
-
-            device = next(model.parameters()).device
-            input_ids = input_ids.to(device)
-            if attention_mask is not None:
-                attention_mask = attention_mask.to(device)
-
-            model_was_training = model.training
-            model.eval()
-            with torch.no_grad():
-                # Use deterministic generation without sampling parameters
-                generation_kwargs = {
-                    "input_ids": input_ids.unsqueeze(0),
-                    "max_new_tokens": 128,
-                    "do_sample": False,
-                    "num_beams": 1,
-                    "pad_token_id": tokenizer.pad_token_id,
-                    "eos_token_id": tokenizer.eos_token_id,
-                }
-                
-                # Only add attention_mask if it exists
-                if attention_mask is not None:
-                    generation_kwargs["attention_mask"] = attention_mask.unsqueeze(0)
-                
-                gen_out = model.generate(**generation_kwargs)
-            if model_was_training:
-                model.train()
-
-            generated_ids = gen_out[0][input_ids.shape[0]:]
-            generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
-            print(f"\n🧪 Sample Generation (Step {self.state.global_step}):")
-            print("-" * 40)
-            print(generated_text.strip())
-            print("-" * 40)
-        except Exception as e:
-            print(f"Warning: Failed to generate sample output: {e}")
 
 
 @dataclass
@@ -778,7 +761,7 @@ def main() -> None:
     
     # Initialize custom trainer with enhanced logging
     print("\n🎯 Initializing trainer...")
-    response_template = "definitional rules:\n"
+    response_template = "generated definitional rules:\n"
     data_collator = CollatorMaskAfterDelimiter(tokenizer=tokenizer, delimiter=response_template)
     trainer = CustomSFTTrainer(
         model=model,
@@ -804,6 +787,7 @@ def main() -> None:
     # Start training
     print("\n🏋️  Starting training...")
     print("📊 Training progress will be logged with sample prompts every 20 steps and loss values")
+    print("⚡ Sample generation disabled for faster training")
     print("=" * 60)
     
     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
