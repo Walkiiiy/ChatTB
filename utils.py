@@ -222,13 +222,10 @@ def tweakStructure(json_path):
 import re
 def extractRules(inputPath,ouputPath):
     f=open(inputPath)
-    j=json.load(f)
-    k={}
-    # 用正则匹配: 一个或多个数字 + 括号
+    j=json.load(f)# 用正则匹配: 一个或多个数字 + 括号
     for id,obj in j.items():
         if obj['rules']:
-            if obj['db_id'] not in k:
-                k[obj['db_id']]=[]
+            p=[]
             for item in obj['rules']:
                 item=' '+item
                 parts = re.split(r'\s\d+\)\s', item)
@@ -239,14 +236,18 @@ def extractRules(inputPath,ouputPath):
                     temp+=r.split(':')[0]+', '
                 parts[-1]=temp+parts[-1] #给ouputs columns加上条件
                 print(parts[-1])
-                k[obj['db_id']]+=(parts)
+                p+=parts
+            j[id]['rules']=p
     f=open(ouputPath,'w')
-    json.dump(k,f,indent=4)
+    json.dump(j,f,indent=4)
 
-# extractRules(
-#     'Spider_train/res.json',
-#     'Spider_train/rules.json'
-# )
+extractRules(
+    'Bird_dev/res.json',
+    'Bird_dev/condensed_rules.json'
+)
+
+
+
 def structure_rules(inputPath,outputPath):
     f=open(inputPath)
     j=json.load(f)
@@ -361,18 +362,18 @@ def compare_sql_with_db_id(sql1: str, sql2: str, db_id: str, db_root_path: str) 
 
 
 
-print(compare_sql_with_db_id(
-    '''SELECT T2.Phone
-FROM frpm AS T1
-INNER JOIN schools AS T2
-    ON T1.CDSCode = T2.CDSCode
-WHERE T1."Charter School (Y/N)" = 1
-  AND T1."Charter Funding Type" = 'Directly funded'
-  AND T2.OpenDate > '2000-01-01';
-''',
-'''
-SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'
-''',
-'california_schools',
-'/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
-))
+# print(compare_sql_with_db_id(
+#     '''SELECT T2.Phone
+# FROM frpm AS T1
+# INNER JOIN schools AS T2
+#     ON T1.CDSCode = T2.CDSCode
+# WHERE T1."Charter School (Y/N)" = 1
+#   AND T1."Charter Funding Type" = 'Directly funded'
+#   AND T2.OpenDate > '2000-01-01';
+# ''',
+# '''
+# SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'
+# ''',
+# 'california_schools',
+# '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
+# ))
