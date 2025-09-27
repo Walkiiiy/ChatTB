@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--instruction", type=str, 
                        default="Analyze the question and schema, output only the rules that apply.",
                        help="Instruction prompt for the model")
-    parser.add_argument("--db_root_path", type=str, default="./Spider_dev/database", 
+    parser.add_argument("--db_root_path", type=str, default="/home/ubuntu/walkiiiy/ChatTB/Database_train", 
                        help="Root directory containing database files (<db_id>/<db_id>.sqlite)")
     parser.add_argument("--schema_rows", type=int, default=0, 
                        help="Number of sample rows to include per table in schema (0 to disable)")

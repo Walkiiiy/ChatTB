@@ -241,10 +241,10 @@ def extractRules(inputPath,ouputPath):
     f=open(ouputPath,'w')
     json.dump(j,f,indent=4)
 
-extractRules(
-    'Bird_dev/res.json',
-    'Bird_dev/condensed_rules.json'
-)
+# extractRules(
+#     'rules_all.json',
+#     'condensed_rules_all.json'
+# )
 
 
 
@@ -377,3 +377,16 @@ def compare_sql_with_db_id(sql1: str, sql2: str, db_id: str, db_root_path: str) 
 # 'california_schools',
 # '/home/walkiiiy/ChatTB/Bird_dev/dev_databases'
 # ))
+
+
+from Process_model.SemanticSimilarity import SemanticSimilarity
+def test_semantic_similarity():
+    similarity = SemanticSimilarity()
+    print(similarity.calculate_similarity(
+        'SELECT * FROM users WHERE age > 25', 
+        'SELECT * FROM users WHERE age >= 25',
+        'all'
+        ))
+    print(similarity.get_model_info())
+
+test_semantic_similarity()

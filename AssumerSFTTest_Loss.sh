@@ -1,8 +1,8 @@
 python AssumerSFTTest_Loss.py \
     --base_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B \
-    --fine_tuned_models /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Spider3_Bird3/checkpoint-1000 \
+    --fine_tuned_models /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed/checkpoint-13000 \
     --test_data /home/ubuntu/walkiiiy/ChatTB/Bird_dev/condensed_rules.json \
-    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Spider3_Bird3/LossTest_1000_Bird_dev \
+    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed/LossTest_13000_Bird_dev \
     --max_samples 100
 
 # python AssumerSFTTest_Loss.py \

@@ -9,10 +9,10 @@ echo "=============================================================="
 
 # Configuration
 BASE_MODEL="./Process_model/models--Qwen3-8B"
-ADAPTER_PATH="./Process_model/models--Assumer_Spider3/checkpoint-3000"
-DATASET="./Bird_train/condensed_rules.json"
-DB_ROOT_PATH="./Bird_train/train_databases"
-OUTPUT_DIR="./Process_model/models--Assumer_Spider3/SQL_test_results_3000_Bird_train"
+ADAPTER_PATH="./Process_model/models--Assumer_Mixed/checkpoint-11000"
+DATASET="./Spider_dev/condensed_rules.json"
+DB_ROOT_PATH="./Spider_dev/database"
+OUTPUT_DIR="./Process_model/models--Assumer_Mixed/SQL_test_results_11000_Spider_dev"
 NUM_SAMPLES=100
 
 # Create output directory

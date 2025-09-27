@@ -20,3 +20,5 @@ models--*
 .env
 
 Bird_train/rules_res_type.json
+
+Database*
