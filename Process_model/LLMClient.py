@@ -193,8 +193,18 @@ class LLMClient:
         )
         
         # Tokenize the input
-        inputs = self.tokenizer(text, return_tensors="pt").to(self.model.device)
-        input_length = inputs.input_ids.shape[1]  # Store the input length
+        inputs = self.tokenizer(text, return_tensors="pt")
+        
+        # Move inputs to the same device as the first parameter of the model
+        # This handles cases where model is distributed across multiple devices
+        if hasattr(self.model, 'device'):
+            device = self.model.device
+        else:
+            # Get device from first parameter
+            device = next(self.model.parameters()).device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        
+        input_length = inputs["input_ids"].shape[1]  # Store the input length
 
         # Generation parameters
         gen_params = {

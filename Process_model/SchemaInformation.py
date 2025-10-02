@@ -5,6 +5,7 @@ from typing import Optional, Dict, List, Any
 import re
 import sqlite3
 
+logger = logging.getLogger(__name__)
 class SchemaInformation:
     def __init__(self, table_schema_path=None):
         if table_schema_path:
@@ -76,11 +77,38 @@ class SchemaInformation:
         words=[m[0] or m[1] or m[2] for m in matches]
         words=set(words)
         schemas=[]
+        unfound_info=""
+        # print(self.table_schema)
         for word in words:
-            if word in self.tableSchema[db_name]:
-                schemas.append(self.tableSchema[db_name][word])
-        return self.schema_to_natural_language(schemas)
-    
+            if word in self.table_schema[db_name]:
+                schemas.append(self.table_schema[db_name][word])
+            else:
+                logger.warning(f"Word in condition: {word} not found in database {db_name}")
+                unfound_info+=f'''Word in condition: "{word}" not found in database {db_name},
+                \if it's supposed to be a column or table name,
+                the condition should be considered to revise with correct name in schema.\n
+                '''
+
+        return self.schema_to_natural_language(schemas),unfound_info
+        
+    def generate_specific_column_info(self,db_path, column_names:list):
+        db_name = os.path.basename(db_path).split('.')[0]
+        schemas=[]
+        unfound_info={}
+        for column in column_names:
+            if column in self.table_schema[db_name]:
+                schemas.append(self.table_schema[db_name][column])
+            else:
+                logger.warning(f"Column in condition: {column} not found in database {db_name}")
+                unfound_info[column]=f'''Column in condition: "{column}" not found in database {db_name},
+                \if it's supposed to be a column name,
+                the condition should be considered to revise with correct name in schema.\n
+                '''
+        res=self.schema_to_natural_language(schemas)
+        res.update(unfound_info)
+        return res
+
+        
     def generate_schema_info(self,db_path, num_rows=None):
         full_schema_prompt_list = []
         conn = sqlite3.connect(db_path)
