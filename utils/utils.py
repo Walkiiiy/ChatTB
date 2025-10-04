@@ -398,4 +398,13 @@ def transform_weakenedquestion_question(inputPath,outputPath):
     f=open(outputPath,'w')
     json.dump(j,f,indent=4)
 
-transform_weakenedquestion_question('/home/ubuntu/walkiiiy/ChatTB/Spider_dev/weakened_dataset.json', '/home/ubuntu/walkiiiy/ChatTB/Spider_dev/weakened_dataset_question.json')
+# transform_weakenedquestion_question('/home/ubuntu/walkiiiy/ChatTB/Spider_dev/weakened_dataset.json', '/home/ubuntu/walkiiiy/ChatTB/Spider_dev/weakened_dataset_question.json')
+def mergejson(inputPaths,outputPath):
+    merged={}
+    for path in inputPaths:
+        with open(path,'r',encoding='utf-8') as f:
+            data=json.load(f)
+        merged.update(data)
+    with open(outputPath,'w',encoding='utf-8') as f:
+        json.dump(merged,f,indent=4)
+mergejson(['/home/ubuntu/walkiiiy/ChatTB/Bird_train/tokenizedDB.json','/home/ubuntu/walkiiiy/ChatTB/Spider_train/tokenizedDB.json'],'/home/ubuntu/walkiiiy/ChatTB/Database_train/tokenizedDB_train.json')

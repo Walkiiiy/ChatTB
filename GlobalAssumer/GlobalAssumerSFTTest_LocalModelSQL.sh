@@ -10,12 +10,21 @@
 
 python GlobalAssumer/GlobalAssumerSFTTest_LocalModelSQL.py \
     --base_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B \
-    --adapter_path /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed/checkpoint-13000 \
+    --adapter_path /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_lossTweaked/checkpoint-11000 \
     --sql_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Arctic-Text2SQL-R1-7B\
-    --dataset /home/ubuntu/walkiiiy/ChatTB/Spider_dev/weakened_dataset_question.json \
+    --dataset /home/ubuntu/walkiiiy/ChatTB/Spider_dev/condensed_rules.json \
     --db_root_path /home/ubuntu/walkiiiy/ChatTB/Spider_dev/database \
-    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed/SQL_test_weakenedNLQresults_13000_Spider_dev_ArcticSQL_Rules1 \
-    --num_samples -1
+    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_lossTweaked/SQL_test_11000_Spider_dev_ArcticSQL \
+    --num_samples 100
+
+# python GlobalAssumer/GlobalAssumerSFTTest_LocalModelSQL.py \
+#     --base_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B \
+#     --adapter_path /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_lossTweaked/checkpoint-11000 \
+#     --sql_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Arctic-Text2SQL-R1-7B\
+#     --dataset /home/ubuntu/walkiiiy/ChatTB/Bird_dev/condensed_rules.json \
+#     --db_root_path /home/ubuntu/walkiiiy/ChatTB/Bird_dev/database \
+#     --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_lossTweaked/SQL_test_weakenedNLQresults_11000_Bird_dev_ArcticSQL \
+#     --num_samples 100
 
 # python AssumerSFTTest_LocalModelSQL.py \
 #     --base_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B \
