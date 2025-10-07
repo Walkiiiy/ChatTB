@@ -121,7 +121,7 @@ def parse_args() -> argparse.Namespace:
                        help="Ratio of total training steps for warmup")
     parser.add_argument("--lr_scheduler_type", type=str, default="cosine",
                        help="Learning rate scheduler type")
-    parser.add_argument("--max_seq_length", type=int, default=4096,
+    parser.add_argument("--max_prompt_length", type=int, default=None,
                        help="Maximum sequence length for training")
     parser.add_argument("--packing", action="store_true", 
                        help="Enable sample packing for training efficiency")
@@ -405,7 +405,7 @@ def iter_rules_items(rules_json_path: str) -> Iterable[Dict]:
         raise ValueError("Unsupported rules file structure. Expect list or dict.")
 
 
-def get_prompts_from_rules(rules_json_path: str, instruction: str, skip_no_rules: bool, db_root_path: str, schema_rows: int) -> List[Dict[str, str]]:
+def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruction: str, skip_no_rules: bool, db_root_path: str, schema_rows: int) -> List[Dict[str, str]]:
     """
     Generate training prompts from condensed rules file and database schemas.
     
@@ -455,8 +455,11 @@ def get_prompts_from_rules(rules_json_path: str, instruction: str, skip_no_rules
         
         # Build the training prompt
         text = build_io_pair(instruction, schema, question, rule_list)
+        if max_prompt_length is not None and len(text) > max_prompt_length:
+            print(f"Warning: Text length {len(text)} exceeds max_prompt_length {max_prompt_length}")
+            continue
         samples.append({"text": text})
-    
+
     print(f"Generated {len(samples)} training samples")
     return samples
 
@@ -687,6 +690,7 @@ def main() -> None:
     # Generate training prompts from rules and database schemas
     print("\n🔄 Generating training prompts...")
     prompt_records = get_prompts_from_rules(
+        args.max_prompt_length,
         args.rules_file,
         args.instruction,
         args.skip_no_rules,
@@ -729,6 +733,7 @@ def main() -> None:
         dataset_text_field="text",
         report_to=None if args.report_to == "none" else args.report_to,
         gradient_checkpointing=args.gradient_checkpointing,
+        max_length=None,
     )
     
     print(f"   - Batch size: {args.per_device_train_batch_size}")
@@ -781,400 +786,6 @@ def main() -> None:
     print("✅ Fine-tuning completed successfully!")
     print(f"📁 Model saved to: {args.output_dir}")
     print("🎉 Training finished!")
-
-
-class SFTer:
-    """
-    Supervised Fine-Tuning class for Hugging Face models using datasets.
-    
-    This class provides a simple interface to fine-tune language models using
-    Hugging Face datasets with LoRA/QLoRA for parameter-efficient training.
-    
-    Features:
-    - Support for both new training and resuming from checkpoints
-    - QLoRA for memory-efficient training
-    - Automatic model and tokenizer loading
-    - Configurable training parameters
-    - Built-in data validation and preprocessing
-    
-    Args:
-        ds: Hugging Face Dataset object containing training data
-        output_dir (str): Directory to save the fine-tuned model
-        root_model_path (str, optional): Path to base model for new training
-        resumed_model_path (str, optional): Path to model to resume training from
-        max_seq_length (int): Maximum sequence length (default: 16384)
-        use_qlora (bool): Whether to use QLoRA quantization (default: True)
-        learning_rate (float): Learning rate for training (default: 2e-4)
-        num_epochs (float): Number of training epochs (default: 1.0)
-        per_device_batch_size (int): Batch size per device (default: 1)
-        gradient_accumulation_steps (int): Gradient accumulation steps (default: 4)
-        save_steps (int): Save checkpoint every N steps (default: 500)
-        logging_steps (int): Log metrics every N steps (default: 10)
-        warmup_ratio (float): Warmup ratio (default: 0.03)
-        lora_r (int): LoRA rank (default: 16)
-        lora_alpha (int): LoRA alpha (default: 32)
-        lora_dropout (float): LoRA dropout (default: 0.05)
-        trust_remote_code (bool): Trust remote code from model hub (default: True)
-    """
-    
-    def __init__(
-        self, 
-        ds, 
-        output_dir, 
-        root_model_path=None, 
-        resumed_model_path=None,
-        max_seq_length=16384,
-        use_qlora=True,
-        learning_rate=2e-4,
-        num_epochs=1.0,
-        per_device_batch_size=1,
-        gradient_accumulation_steps=4,
-        save_steps=500,
-        logging_steps=10,
-        warmup_ratio=0.03,
-        lora_r=16,
-        lora_alpha=32,
-        lora_dropout=0.05,
-        trust_remote_code=True,
-        text_field="text",
-        response_template="generated rules:\n"
-    ):
-        """
-        Initialize the SFTer class with dataset and configuration.
-        """
-        # Validate inputs
-        if not ds:
-            raise ValueError("Dataset cannot be None or empty")
-        
-        if not root_model_path and not resumed_model_path:
-            raise ValueError("Either root_model_path or resumed_model_path must be provided")
-        
-        # Store configuration
-        self.ds = ds
-        self.output_dir = output_dir
-        self.root_model_path = root_model_path
-        self.resumed_model_path = resumed_model_path
-        self.max_seq_length = max_seq_length
-        self.use_qlora = use_qlora
-        self.learning_rate = learning_rate
-        self.num_epochs = num_epochs
-        self.per_device_batch_size = per_device_batch_size
-        self.gradient_accumulation_steps = gradient_accumulation_steps
-        self.save_steps = save_steps
-        self.logging_steps = logging_steps
-        self.warmup_ratio = warmup_ratio
-        self.lora_r = lora_r
-        self.lora_alpha = lora_alpha
-        self.lora_dropout = lora_dropout
-        self.trust_remote_code = trust_remote_code
-        self.text_field = text_field
-        self.response_template = response_template
-        
-        # Create output directory
-        os.makedirs(self.output_dir, exist_ok=True)
-        
-        # Initialize components
-        self.model = None
-        self.tokenizer = None
-        self.trainer = None
-        
-        print(f"🚀 SFTer initialized")
-        print(f"📁 Output directory: {self.output_dir}")
-        print(f"📊 Dataset size: {len(self.ds)}")
-        print(f"🔧 QLoRA enabled: {self.use_qlora}")
-        print(f"📏 Max sequence length: {self.max_seq_length}")
-        
-    def _load_tokenizer(self, model_path: str) -> AutoTokenizer:
-        """Load and configure tokenizer."""
-        print(f"📖 Loading tokenizer from: {model_path}")
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_path,
-            use_fast=True,
-            trust_remote_code=self.trust_remote_code
-        )
-        
-        # Ensure pad token is set
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-        
-        tokenizer.padding_side = "right"
-        return tokenizer
-    
-    def _load_model(self, model_path: str) -> AutoModelForCausalLM:
-        """Load model with optional quantization."""
-        print(f"🤖 Loading model from: {model_path}")
-        
-        # Build BitsAndBytes config for QLoRA
-        bnb_config = None
-        if self.use_qlora:
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_use_double_quant=True,
-            )
-        
-        # Load model
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            quantization_config=bnb_config,
-            torch_dtype=torch.bfloat16 if self.use_qlora else None,
-            device_map="auto",
-            trust_remote_code=self.trust_remote_code,
-        )
-        
-        # Clear generation config to avoid sampling warnings
-        if hasattr(model, 'generation_config') and model.generation_config is not None:
-            model.generation_config.temperature = None
-            model.generation_config.top_p = None
-            model.generation_config.top_k = None
-            model.generation_config.do_sample = False
-        
-        return model
-    
-    def _build_lora_config(self) -> LoraConfig:
-        """Build LoRA configuration."""
-        target_modules = [
-            "q_proj", "k_proj", "v_proj", "o_proj",
-            "gate_proj", "up_proj", "down_proj"
-        ]
-        
-        return LoraConfig(
-            r=self.lora_r,
-            lora_alpha=self.lora_alpha,
-            lora_dropout=self.lora_dropout,
-            bias="none",
-            task_type="CAUSAL_LM",
-            target_modules=target_modules,
-        )
-    
-    def _validate_dataset(self) -> None:
-        """Validate the input dataset."""
-        print("🔍 Validating dataset...")
-        
-        # Check if dataset has the expected text field
-        if self.text_field not in self.ds.features:
-            available_fields = list(self.ds.features.keys())
-            raise ValueError(
-                f"Dataset does not contain '{self.text_field}' field. "
-                f"Available fields: {available_fields}"
-            )
-        
-        # Check for empty dataset
-        if len(self.ds) == 0:
-            raise ValueError("Dataset is empty")
-        
-        # Sample check
-        sample = self.ds[0]
-        if not isinstance(sample[self.text_field], str) or len(sample[self.text_field].strip()) == 0:
-            raise ValueError(f"Sample text in '{self.text_field}' field is empty or not a string")
-        
-        print(f"✅ Dataset validation passed - {len(self.ds)} samples")
-    
-    def _setup_trainer(self) -> None:
-        """Setup the trainer with model, dataset, and configuration."""
-        print("🎯 Setting up trainer...")
-        
-        # Determine model path
-        model_path = self.resumed_model_path if self.resumed_model_path else self.root_model_path
-        
-        # Load tokenizer and model
-        self.tokenizer = self._load_tokenizer(model_path)
-        self.model = self._load_model(model_path)
-        
-        # Build LoRA config
-        lora_config = self._build_lora_config()
-        
-        # Setup training configuration
-        training_config = SFTConfig(
-            output_dir=self.output_dir,
-            per_device_train_batch_size=self.per_device_batch_size,
-            gradient_accumulation_steps=self.gradient_accumulation_steps,
-            num_train_epochs=self.num_epochs,
-            learning_rate=self.learning_rate,
-            warmup_ratio=self.warmup_ratio,
-            lr_scheduler_type="cosine",
-            logging_steps=self.logging_steps,
-            save_steps=self.save_steps,
-            bf16=True,
-            seed=42,
-            dataset_text_field=self.text_field,
-            max_seq_length=self.max_seq_length,
-            report_to=None,
-            gradient_checkpointing=True,
-        )
-        
-        # Setup data collator
-        data_collator = CollatorMaskAfterDelimiter(
-            tokenizer=self.tokenizer, 
-            delimiter=self.response_template
-        )
-        
-        # Initialize trainer
-        self.trainer = CustomSFTTrainer(
-            model=self.model,
-            train_dataset=self.ds,
-            peft_config=lora_config,
-            args=training_config,
-            data_collator=data_collator,
-        )
-        
-        # Set tokenizer for prompt logging
-        self.trainer.processing_class = self.tokenizer
-        
-        print("✅ Trainer setup completed")
-    
-    def train(self, resume_from_checkpoint=None) -> None:
-        """
-        Execute the training process.
-        
-        Args:
-            resume_from_checkpoint (str, optional): Path to checkpoint to resume from
-        """
-        print("🏋️  Starting training process...")
-        print("=" * 60)
-        
-        # Validate dataset
-        self._validate_dataset()
-        
-        # Setup trainer
-        self._setup_trainer()
-        
-        # Start training
-        print("🚀 Beginning training...")
-        try:
-            self.trainer.train(resume_from_checkpoint=resume_from_checkpoint)
-            
-            # Save the fine-tuned model
-            print("\n💾 Saving fine-tuned model...")
-            self.trainer.save_model(self.output_dir)
-            self.tokenizer.save_pretrained(self.output_dir)
-            
-            # Save training configuration
-            config_info = {
-                "model_path": self.resumed_model_path or self.root_model_path,
-                "dataset_size": len(self.ds),
-                "max_seq_length": self.max_seq_length,
-                "use_qlora": self.use_qlora,
-                "learning_rate": self.learning_rate,
-                "num_epochs": self.num_epochs,
-                "per_device_batch_size": self.per_device_batch_size,
-                "gradient_accumulation_steps": self.gradient_accumulation_steps,
-                "lora_r": self.lora_r,
-                "lora_alpha": self.lora_alpha,
-                "lora_dropout": self.lora_dropout,
-                "text_field": self.text_field,
-                "response_template": self.response_template,
-            }
-            
-            with open(os.path.join(self.output_dir, "training_config.json"), "w", encoding="utf-8") as f:
-                json.dump(config_info, f, ensure_ascii=False, indent=2)
-            
-            print("✅ Training completed successfully!")
-            print(f"📁 Model saved to: {self.output_dir}")
-            
-        except Exception as e:
-            print(f"❌ Training failed: {str(e)}")
-            raise
-    
-    def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about the loaded model.
-        
-        Returns:
-            Dict containing model information
-        """
-        if self.model is None:
-            return {"status": "Model not loaded"}
-        
-        return {
-            "model_type": type(self.model).__name__,
-            "device_map": getattr(self.model, "device_map", "auto"),
-            "dtype": str(self.model.dtype),
-            "num_parameters": sum(p.numel() for p in self.model.parameters()),
-            "trainable_parameters": sum(p.numel() for p in self.model.parameters() if p.requires_grad),
-            "quantization": "4-bit QLoRA" if self.use_qlora else "None",
-        }
-    
-    def save_checkpoint(self, checkpoint_dir: str) -> None:
-        """
-        Save a training checkpoint.
-        
-        Args:
-            checkpoint_dir (str): Directory to save checkpoint to
-        """
-        if self.trainer is None:
-            raise RuntimeError("Trainer not initialized. Call train() first.")
-        
-        os.makedirs(checkpoint_dir, exist_ok=True)
-        self.trainer.save_model(checkpoint_dir)
-        print(f"💾 Checkpoint saved to: {checkpoint_dir}")
-
-
-# Usage Example
-def example_usage():
-    """
-    Example usage of the SFTer class for supervised fine-tuning.
-    
-    This example demonstrates how to use the SFTer class with a Hugging Face dataset
-    to fine-tune a language model using QLoRA.
-    """
-    from datasets import Dataset
-    
-    # Example 1: Basic usage with a simple dataset
-    # Create a sample dataset
-    sample_data = [
-        {
-            "text": "Instruction: Analyze the question and schema, output only the rules that apply.\n\nDatabase Schema:\nCREATE TABLE users (id INTEGER, name TEXT);\n\nQuestion:\nWhat are the names of all users?\n\ngenerated rules:\nWhen querying user information: use table 'users' with column 'name'."
-        },
-        {
-            "text": "Instruction: Analyze the question and schema, output only the rules that apply.\n\nDatabase Schema:\nCREATE TABLE products (id INTEGER, price REAL);\n\nQuestion:\nWhat is the average price of products?\n\ngenerated rules:\nWhen calculating averages: use table 'products' with column 'price' and apply AVG() function."
-        }
-    ]
-    
-    # Convert to Hugging Face Dataset
-    dataset = Dataset.from_list(sample_data)
-    
-    # Initialize SFTer
-    sfter = SFTer(
-        ds=dataset,
-        output_dir="./output/fine_tuned_model",
-        root_model_path="/path/to/your/model",  # Replace with actual model path
-        max_seq_length=16384,
-        use_qlora=True,
-        learning_rate=2e-4,
-        num_epochs=1.0,
-        per_device_batch_size=1,
-        gradient_accumulation_steps=4,
-        save_steps=500,
-        logging_steps=10,
-        lora_r=16,
-        lora_alpha=32,
-        lora_dropout=0.05
-    )
-    
-    # Start training
-    sfter.train()
-    
-    # Get model information
-    model_info = sfter.get_model_info()
-    print("Model Info:", model_info)
-    
-    # Example 2: Resume training from a checkpoint
-    # sfter_resume = SFTer(
-    #     ds=dataset,
-    #     output_dir="./output/fine_tuned_model_continued",
-    #     resumed_model_path="./output/fine_tuned_model",  # Resume from previous training
-    #     max_seq_length=16384,
-    #     use_qlora=True
-    # )
-    # sfter_resume.train()
-    
-    # Example 3: Resume from a specific checkpoint
-    # sfter.train(resume_from_checkpoint="./output/fine_tuned_model/checkpoint-1000")
-    
-    print("✅ Example usage completed!")
-
 
 if __name__ == "__main__":
     # Run the main script for command-line usage

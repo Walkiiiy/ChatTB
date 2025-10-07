@@ -1,35 +1,32 @@
 #!/usr/bin/env python
 """
-Fine-tuning Loss Testing Script for AssumerSFT Models
+SFT Model Loss Testing Script
 
-This script evaluates fine-tuned models by calculating and comparing loss metrics
-on test datasets. It supports testing both base models and fine-tuned models to
-measure the effectiveness of the fine-tuning process.
+This script evaluates SFT (fine-tuned) models by calculating loss metrics
+on test datasets. It focuses on testing fine-tuned model performance only.
 
 IMPORTANT: The loss calculation matches the training process by only computing
 loss on the response part (after "generated rules:\n" delimiter), not the entire
 input text. This ensures accurate evaluation that reflects the actual training loss.
 
 Features:
-- Load base and fine-tuned models for comparison
+- Load and evaluate fine-tuned SFT models
 - Calculate perplexity and cross-entropy loss on response tokens only
 - Support for both Spider and Bird datasets
 - Generate detailed loss analysis reports
-- Visualize loss trends and improvements
+- Visualize loss metrics across multiple models
 - Export results to JSON and CSV formats
 
 Usage:
   # Test a single fine-tuned model
-  python AssumerSFTTest_Loss.py \
-    --base_model /path/to/base/model \
-    --fine_tuned_model /path/to/fine_tuned/model \
+  python GlobalAssumerSFTTest_Loss_SFTonly.py \
+    --fine_tuned_models /path/to/fine_tuned/model \
     --test_data /path/to/test_data.json \
     --output_dir /path/to/results
 
   # Compare multiple fine-tuned models
-  python AssumerSFTTest_Loss.py \
-    --base_model /path/to/base/model \
-    --fine_tuned_models /path/to/model1 /path/to/model2 \
+  python GlobalAssumerSFTTest_Loss_SFTonly.py \
+    --fine_tuned_models /path/to/model1 /path/to/model2 /path/to/model3 \
     --test_data /path/to/test_data.json \
     --output_dir /path/to/results
 
@@ -463,17 +460,15 @@ class LossTestSuite:
         
         return metrics
     
-    def compare_models(self, 
-                      base_model_path: str,
-                      fine_tuned_models: List[str],
-                      test_data: List[Dict[str, Any]],
-                      use_quantization: bool = False,
-                      delimiter: str = "generated rules:\n") -> Dict[str, LossMetrics]:
+    def evaluate_multiple_models(self, 
+                                 fine_tuned_models: List[str],
+                                 test_data: List[Dict[str, Any]],
+                                 use_quantization: bool = False,
+                                 delimiter: str = "generated rules:\n") -> Dict[str, LossMetrics]:
         """
-        Compare base model with fine-tuned models.
+        Evaluate multiple fine-tuned models.
         
         Args:
-            base_model_path: Path to base model
             fine_tuned_models: List of paths to fine-tuned models
             test_data: Test dataset
             use_quantization: Whether to use quantization
@@ -482,20 +477,14 @@ class LossTestSuite:
         Returns:
             Dictionary mapping model names to LossMetrics
         """
-        self.logger.info("Starting model comparison...")
+        self.logger.info(f"Starting evaluation of {len(fine_tuned_models)} SFT model(s)...")
         
         results = {}
         
-        # Evaluate base model
-        self.logger.info("Evaluating base model...")
-        results["base_model"] = self.evaluate_model(
-            base_model_path, test_data, use_quantization, delimiter
-        )
-        
-        # Evaluate fine-tuned models
+        # Evaluate each fine-tuned model
         for model_path in fine_tuned_models:
             model_name = os.path.basename(model_path)
-            self.logger.info(f"Evaluating fine-tuned model: {model_name}")
+            self.logger.info(f"Evaluating SFT model: {model_name}")
             results[model_name] = self.evaluate_model(
                 model_path, test_data, use_quantization, delimiter
             )
@@ -565,18 +554,18 @@ class LossTestSuite:
         self._print_summary(df, results)
     
     def _create_visualizations(self, df: pd.DataFrame, results: Dict[str, LossMetrics]) -> None:
-        """Create visualization plots."""
+        """Create visualization plots for SFT models."""
         plt.style.use('default')
         
         # Set up the plotting area
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-        fig.suptitle('Fine-tuning Loss Analysis', fontsize=16, fontweight='bold')
+        fig.suptitle('SFT Model Loss Analysis', fontsize=16, fontweight='bold')
         
         # 1. Average Loss Comparison
         ax1 = axes[0, 0]
         models = df['Model']
         avg_losses = df['Average Loss']
-        bars = ax1.bar(models, avg_losses, color=['red' if 'base' in model.lower() else 'blue' for model in models])
+        bars = ax1.bar(models, avg_losses, color='blue', alpha=0.7)
         ax1.set_title('Average Loss Comparison')
         ax1.set_ylabel('Average Loss')
         ax1.tick_params(axis='x', rotation=45)
@@ -589,7 +578,7 @@ class LossTestSuite:
         # 2. Perplexity Comparison
         ax2 = axes[0, 1]
         perplexities = df['Perplexity']
-        bars = ax2.bar(models, perplexities, color=['red' if 'base' in model.lower() else 'green' for model in models])
+        bars = ax2.bar(models, perplexities, color='green', alpha=0.7)
         ax2.set_title('Perplexity Comparison')
         ax2.set_ylabel('Perplexity')
         ax2.tick_params(axis='x', rotation=45)
@@ -604,9 +593,9 @@ class LossTestSuite:
         x = np.arange(len(models))
         width = 0.25
         
-        ax3.bar(x - width, df['Min Loss'], width, label='Min Loss', alpha=0.8)
-        ax3.bar(x, df['Median Loss'], width, label='Median Loss', alpha=0.8)
-        ax3.bar(x + width, df['Max Loss'], width, label='Max Loss', alpha=0.8)
+        ax3.bar(x - width, df['Min Loss'], width, label='Min Loss', alpha=0.8, color='lightblue')
+        ax3.bar(x, df['Median Loss'], width, label='Median Loss', alpha=0.8, color='blue')
+        ax3.bar(x + width, df['Max Loss'], width, label='Max Loss', alpha=0.8, color='darkblue')
         
         ax3.set_title('Loss Distribution (Min/Median/Max)')
         ax3.set_ylabel('Loss Value')
@@ -646,102 +635,32 @@ class LossTestSuite:
         plt.close()
         
         self.logger.info(f"Visualizations saved to {plot_path}")
-        
-        # Create improvement analysis if we have base model
-        if any('base' in model.lower() for model in models):
-            self._create_improvement_analysis(df)
-    
-    def _create_improvement_analysis(self, df: pd.DataFrame) -> None:
-        """Create improvement analysis plot."""
-        base_model_row = df[df['Model'].str.contains('base', case=False, na=False)]
-        if base_model_row.empty:
-            return
-        
-        base_loss = base_model_row['Average Loss'].iloc[0]
-        base_perplexity = base_model_row['Perplexity'].iloc[0]
-        
-        # Calculate improvements
-        improvements = []
-        model_names = []
-        
-        for _, row in df.iterrows():
-            if 'base' not in row['Model'].lower():
-                loss_improvement = ((base_loss - row['Average Loss']) / base_loss) * 100
-                perplexity_improvement = ((base_perplexity - row['Perplexity']) / base_perplexity) * 100
-                improvements.append([loss_improvement, perplexity_improvement])
-                model_names.append(row['Model'])
-        
-        if not improvements:
-            return
-        
-        improvements = np.array(improvements)
-        
-        # Create improvement plot
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-        fig.suptitle('Fine-tuning Improvements Over Base Model', fontsize=14, fontweight='bold')
-        
-        # Loss improvement
-        bars1 = ax1.bar(model_names, improvements[:, 0], color='green', alpha=0.7)
-        ax1.set_title('Loss Improvement (%)')
-        ax1.set_ylabel('Improvement (%)')
-        ax1.tick_params(axis='x', rotation=45)
-        ax1.axhline(y=0, color='red', linestyle='--', alpha=0.5)
-        
-        # Add value labels
-        for bar, value in zip(bars1, improvements[:, 0]):
-            ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
-                    f'{value:.1f}%', ha='center', va='bottom')
-        
-        # Perplexity improvement
-        bars2 = ax2.bar(model_names, improvements[:, 1], color='blue', alpha=0.7)
-        ax2.set_title('Perplexity Improvement (%)')
-        ax2.set_ylabel('Improvement (%)')
-        ax2.tick_params(axis='x', rotation=45)
-        ax2.axhline(y=0, color='red', linestyle='--', alpha=0.5)
-        
-        # Add value labels
-        for bar, value in zip(bars2, improvements[:, 1]):
-            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
-                    f'{value:.1f}%', ha='center', va='bottom')
-        
-        plt.tight_layout()
-        
-        # Save improvement plot
-        improvement_path = self.output_dir / "improvement_analysis.png"
-        plt.savefig(improvement_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        
-        self.logger.info(f"Improvement analysis saved to {improvement_path}")
     
     def _print_summary(self, df: pd.DataFrame, results: Dict[str, LossMetrics]) -> None:
         """Print evaluation summary to console."""
         print("\n" + "="*80)
-        print("FINE-TUNING LOSS EVALUATION SUMMARY")
+        print("SFT MODEL LOSS EVALUATION SUMMARY")
         print("="*80)
         
         print(f"\n📊 Dataset Statistics:")
         print(f"   Total test samples: {df['Total Samples'].iloc[0]}")
         print(f"   Total tokens evaluated: {df['Total Tokens'].sum():,}")
+        print(f"   Number of SFT models evaluated: {len(df)}")
         
         print(f"\n🏆 Model Performance Ranking (by Average Loss):")
         sorted_df = df.sort_values('Average Loss')
         for i, (_, row) in enumerate(sorted_df.iterrows(), 1):
             print(f"   {i}. {row['Model']}: {row['Average Loss']:.4f} (Perplexity: {row['Perplexity']:.2f})")
         
-        # Calculate improvements if base model exists
-        base_model_row = df[df['Model'].str.contains('base', case=False, na=False)]
-        if not base_model_row.empty:
-            base_loss = base_model_row['Average Loss'].iloc[0]
-            base_perplexity = base_model_row['Perplexity'].iloc[0]
-            
-            print(f"\n📈 Improvements Over Base Model:")
-            for _, row in df.iterrows():
-                if 'base' not in row['Model'].lower():
-                    loss_improvement = ((base_loss - row['Average Loss']) / base_loss) * 100
-                    perplexity_improvement = ((base_perplexity - row['Perplexity']) / base_perplexity) * 100
-                    print(f"   {row['Model']}:")
-                    print(f"     Loss: {loss_improvement:+.1f}% improvement")
-                    print(f"     Perplexity: {perplexity_improvement:+.1f}% improvement")
+        print(f"\n📊 Best Model Statistics:")
+        best_model_idx = df['Average Loss'].idxmin()
+        best_model = df.loc[best_model_idx]
+        print(f"   Model: {best_model['Model']}")
+        print(f"   Average Loss: {best_model['Average Loss']:.4f}")
+        print(f"   Perplexity: {best_model['Perplexity']:.2f}")
+        print(f"   Min Loss: {best_model['Min Loss']:.4f}")
+        print(f"   Max Loss: {best_model['Max Loss']:.4f}")
+        print(f"   Std Loss: {best_model['Std Loss']:.4f}")
         
         print(f"\n⚡ Performance Metrics:")
         print(f"   Fastest evaluation: {df['Evaluation Time (s)'].min():.1f}s ({df.loc[df['Evaluation Time (s)'].idxmin(), 'Model']})")
@@ -754,14 +673,12 @@ class LossTestSuite:
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Evaluate fine-tuned models using loss metrics"
+        description="Evaluate SFT (fine-tuned) models using loss metrics"
     )
     
     # Model configuration
-    parser.add_argument("--base_model", type=str, required=True,
-                       help="Path to base model for comparison")
     parser.add_argument("--fine_tuned_models", type=str, nargs="+", required=True,
-                       help="Path(s) to fine-tuned model(s)")
+                       help="Path(s) to fine-tuned SFT model(s)")
     
     # Data configuration
     parser.add_argument("--test_data", type=str, required=True,
@@ -788,7 +705,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main():
-    """Main function to run loss evaluation."""
+    """Main function to run SFT model loss evaluation."""
     args = parse_args()
     
     # Initialize test suite
@@ -805,9 +722,8 @@ def main():
     if not test_data:
         raise ValueError("No test data loaded. Check your test data file and paths.")
     
-    # Compare models
-    results = test_suite.compare_models(
-        base_model_path=args.base_model,
+    # Evaluate SFT models
+    results = test_suite.evaluate_multiple_models(
         fine_tuned_models=args.fine_tuned_models,
         test_data=test_data,
         use_quantization=args.use_quantization,
@@ -817,7 +733,7 @@ def main():
     # Generate comprehensive report
     test_suite.generate_report(results)
     
-    print(f"\n✅ Loss evaluation completed successfully!")
+    print(f"\n✅ SFT model loss evaluation completed successfully!")
     print(f"📁 Results saved to: {args.output_dir}")
 
 
