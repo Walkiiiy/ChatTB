@@ -127,7 +127,7 @@ def parse_args() -> argparse.Namespace:
                        help="Ratio of total training steps for warmup")
     parser.add_argument("--lr_scheduler_type", type=str, default="cosine",
                        help="Learning rate scheduler type")
-    parser.add_argument("--max_seq_length", type=int, default=8192,
+    parser.add_argument("--max_seq_length", type=int, default=3072,
                        help="Maximum sequence length for training")
     parser.add_argument("--packing", action="store_true", 
                        help="Enable sample packing for training efficiency")
@@ -291,45 +291,6 @@ def load_model(model_name: str, bnb_config: Optional[BitsAndBytesConfig], bf16: 
     return model
 
 
-def normalize_chat_example(example: dict, chat_field: str, tokenizer: AutoTokenizer, apply_template: bool) -> Dict[str, str]:
-    """
-    Normalize chat examples into text format for training.
-    
-    Args:
-        example (dict): Example containing chat messages
-        chat_field (str): Field name containing the chat messages
-        tokenizer (AutoTokenizer): Tokenizer for applying chat templates
-        apply_template (bool): Whether to apply the model's chat template
-        
-    Returns:
-        Dict[str, str]: Normalized example with 'text' field
-        
-    Raises:
-        ValueError: If chat_field doesn't contain a list of messages
-    """
-    messages = example.get(chat_field)
-    if not isinstance(messages, list):
-        raise ValueError("chat_json_field must contain a list of messages, e.g. [{role, content}, ...]")
-        
-    if apply_template:
-        try:
-            # Try to apply the model's chat template
-            text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False,enable_thinking=False)
-        except Exception:
-            # Fallback to simple format if template fails
-            text_lines = [f"{m.get('role','user')}: {m.get('content','')}" for m in messages]
-            text = "\n".join(text_lines)
-    else:
-        # Simple format without template
-        text_lines = [f"{m.get('role','user')}: {m.get('content','')}" for m in messages]
-        text = "\n".join(text_lines)
-        
-    return {"text": text}
-
-
-# Removed is_definitional_rule function as we no longer distinguish between rule types
-
-
 def build_io_pair(instruction: str, schema: str, question: str, rules: List[str]) -> str:
     """
     Build a training prompt from instruction, schema, question, and rules.
@@ -411,7 +372,7 @@ def iter_rules_items(rules_json_path: str) -> Iterable[Dict]:
         raise ValueError("Unsupported rules file structure. Expect list or dict.")
 
 
-def get_prompts_from_rules(rules_json_path: str, instruction: str, skip_no_rules: bool, db_root_path: str, schema_rows: int) -> List[Dict[str, str]]:
+def get_prompts_from_rules(rules_json_path: str, instruction: str, skip_no_rules: bool, db_root_path: str, schema_rows: int, max_seq_length: int) -> List[Dict[str, str]]:
     """
     Generate training prompts from condensed rules file and database schemas.
     
@@ -461,6 +422,9 @@ def get_prompts_from_rules(rules_json_path: str, instruction: str, skip_no_rules
         
         # Build the training prompt
         text = build_io_pair(instruction, schema, question, rule_list)
+        if len(text) > max_seq_length:
+            print("len(text):", len(text))
+            continue
         samples.append({"text": text})
     
     print(f"Generated {len(samples)} training samples")
@@ -617,7 +581,7 @@ class CustomSFTTrainer(SFTTrainer):
                 tokenizer = getattr(self, "processing_class", None) or getattr(self, "tokenizer", None)
                 if tokenizer is not None:
                     sample_text = tokenizer.decode(sample_ids, skip_special_tokens=True)
-                    print(f"\n📝 Sample Prompt (Step {self.state.global_step}):")
+                    print(f"\n📝 Sample Prompt (Step {self.state.global_step}):",len(inputs["input_ids"][0]))
                     print("-" * 40)
                     print(sample_text)
                     print("-" * 40)
@@ -751,6 +715,7 @@ def main() -> None:
         args.skip_no_rules,
         args.db_root_path,
         args.schema_rows,
+        args.max_seq_length,
     )
     
     if len(prompt_records) == 0:
@@ -816,6 +781,7 @@ def main() -> None:
         dataset_text_field="text",
         report_to=None if args.report_to == "none" else args.report_to,
         gradient_checkpointing=args.gradient_checkpointing,
+        max_length=args.max_seq_length,  # 添加 max_length 参数
     )
     
     print(f"   - Batch size: {args.per_device_train_batch_size}")

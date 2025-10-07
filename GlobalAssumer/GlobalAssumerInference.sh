@@ -6,22 +6,25 @@
 
 # Configuration
 MODEL_PATH="/home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B"
-ADAPTER_PATH="/home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed/checkpoint-13000"
-INPUT_FILE="/home/ubuntu/walkiiiy/ChatTB/Bird_train/condensed_rules.json"
-OUTPUT_FILE="/home/ubuntu/walkiiiy/ChatTB/Bird_train/generated_rules.json"
+ADAPTER_PATH="/home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_lossTweaked/checkpoint-13000"
+INPUT_FILE="/home/ubuntu/walkiiiy/ChatTB/rules_shuffled.json"
+OUTPUT_FILE="/home/ubuntu/walkiiiy/ChatTB/generated_rules.json"
 DB_ROOT_PATH="/home/ubuntu/walkiiiy/ChatTB/Database_train"
+TABLE_SCHEMA_PATH="/home/ubuntu/walkiiiy/ChatTB/Database_train/schema.json"
 
 # Inference parameters
 NUM_SAMPLES=-1  # Set to -1 to process all samples
-MAX_NEW_TOKENS=1024
+MAX_NEW_TOKENS=65535
 TEMPERATURE=0.1
 DO_SAMPLE=false
-BATCH_SIZE=16
+BATCH_SIZE=8  # Reduced for better memory efficiency
 
 # Performance settings
 USE_QLORA=true
 BF16=true
 TF32=true
+NUM_WORKERS=2
+SAVE_FREQUENCY=50
 
 # Logging
 VERBOSE=true
@@ -52,7 +55,7 @@ else
 fi
 
 # Run inference
-python AssumerInference.py \
+python GlobalAssumer/GlobalAssumerInference.py \
     --model "$MODEL_PATH" \
     --adapter_path "$ADAPTER_PATH" \
     --input_file "$INPUT_FILE" \
@@ -67,7 +70,10 @@ python AssumerInference.py \
     --tf32 \
     --trust_remote_code \
     --verbose \
-    --save_intermediate
+    --save_intermediate \
+    --tableSchema_path "$TABLE_SCHEMA_PATH" \
+    --num_workers $NUM_WORKERS \
+    --save_frequency $SAVE_FREQUENCY
 
 echo "✅ Inference completed!"
 echo "Results saved to: $OUTPUT_FILE"

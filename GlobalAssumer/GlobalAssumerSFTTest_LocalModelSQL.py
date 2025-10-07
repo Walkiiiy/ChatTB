@@ -81,7 +81,7 @@ def parse_args() -> argparse.Namespace:
                        help="Output directory for test results and reports")
     
     # Generation parameters
-    parser.add_argument("--max_new_tokens", type=int, default=256,
+    parser.add_argument("--max_new_tokens", type=int, default=1024,
                        help="Maximum number of new tokens to generate for rules")
     parser.add_argument("--temperature", type=float, default=0.1,
                        help="Temperature for rule generation")
@@ -89,7 +89,7 @@ def parse_args() -> argparse.Namespace:
                        help="Enable sampling during rule generation")
     
     # SQL generation parameters
-    parser.add_argument("--sql_max_new_tokens", type=int, default=512,
+    parser.add_argument("--sql_max_new_tokens", type=int, default=1024,
                        help="Maximum number of new tokens to generate for SQL")
     parser.add_argument("--sql_temperature", type=float, default=0.1,
                        help="Temperature for SQL generation")

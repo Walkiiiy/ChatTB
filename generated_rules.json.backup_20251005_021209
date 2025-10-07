@@ -1,0 +1,1556 @@
+{
+  "0": {
+    "db_id": "human_resources",
+    "question": "Among the employees working at the office in New York, how many of them have a good job performance?",
+    "ground_truth": "SELECT COUNT(*) FROM employee AS T1 INNER JOIN location AS T2  ON T1.locationID = T2.locationID WHERE T2.state = 'NY' AND T1.performance = 'Good'",
+    "amends": [
+      "Do join `employee` with `location` on `T1.locationID = T2.locationID` instead of querying a single table. Do filter on `T2.state = 'NY'` instead of `office_location = 'New York'` to use standardized state codes. Do filter on `T1.performance = 'Good'` instead of `job_performance = 'good'` to match the correct column name and case-sensitive value. Do use proper table aliases `T1` and `T2` instead of referencing columns without table qualification. The amended query now correctly joins employee and location data and uses proper column references to match the intended behavior."
+    ],
+    "rules": [
+      "When the question mentions \"office in New York\": filter using T2.state = 'NY' instead of city-based filtering.",
+      "When combining employee and location data: link rows where T1.locationID = T2.locationID using an inner match.",
+      "When filtering for job performance: use T1.performance = 'Good' (exact case) instead of 'good'.",
+      "When the question mentions \"office in New York\", When combining employee and location data, When filtering for job performance, When counting employees: count T1.employee ID values rather than all columns to avoid counting nulls."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM employees WHERE office_location = 'New York' AND job_performance = 'good';",
+      "SELECT COUNT(*) \nFROM employee T1\nJOIN location T2 ON T1.locationID = T2.locationID\nWHERE T2.state = 'NY' AND T1.performance = 'Good'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(*) \nFROM employee T1\nINNER JOIN location T2 ON T1.locationID = T2.locationID\nWHERE T2.state = 'NY' AND T1.performance = 'Good'"
+    ],
+    "id": "8587",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When combining employee and location data: link rows where T1.locationID equals T2.locationID and keep only matching pairs (inner match).",
+      "When filtering for New York office employees: use T2.state = 'NY' instead of 'New York' to match standardized state codes.",
+      "When filtering for good job performance: use T1.performance = 'Good' with exact case matching.",
+      "When counting employees: count using the canonical employee key from the employee table.",
+      "When combining employee and location data, When filtering for New York office employees, When filtering for good job performance, When counting employees, When answering about employees in New York with good performance: make sure to join employee (T1) with location (T2) tables using the locationID relationship."
+    ]
+  },
+  "1": {
+    "db_id": "csu_1",
+    "question": "How many degrees were conferred in \"San Jose State University\" in 2000?",
+    "ground_truth": "SELECT degrees FROM campuses AS T1 JOIN degrees AS T2 ON t1.id  =  t2.campus WHERE t1.campus  =  \"San Jose State University\" AND t2.year  =  2000",
+    "amends": [
+      "Do select `degrees` instead of `COUNT(*)` to return the actual degree values rather than just a count. Do join `campuses` as `T1` with `degrees` as `T2` on `t1.id = t2.campus` instead of querying only the `degrees` table to properly relate campuses to their degrees. Do filter on `t1.campus = \"San Jose State University\"` instead of `university = 'San Jose State University'` to use the correct column name from the campuses table. Do filter on `t2.year = 2000` instead of `year = 2000` to specify the table alias for clarity. The amended query now correctly joins campuses with degrees and returns the actual degree data instead of just a count, matching the intended behavior."
+    ],
+    "rules": [
+      "When answering about degrees conferred at a specific university: select from the \"degrees\" table (T1) instead of the \"universities\" table.",
+      "When combining campus and degree data: link rows where T1.campus = T2.id using an inner join between campuses AS T2 and degrees AS T1.",
+      "When filtering by year: use T1.year = 2000 to specify the year context.",
+      "When filtering by university name: use T2.campus = \"San Jose State University\" to reference the joined campus table's campus field.",
+      "When answering about degrees conferred at a specific university, When combining campus and degree data, When filtering by year, When filtering by university name, When counting degrees: count the number of records from the degrees table that match the specified criteria."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM degrees WHERE university = 'San Jose State University' AND year = 2000;",
+      "SELECT T2.Degrees \nFROM Campuses AS T1 \nJOIN degrees AS T2 ON T1.Id = T2.Campus \nWHERE T1.Campus = 'San Jose State University' \nAND T2.Year = 2000"
+    ],
+    "rule_sql": [
+      "SELECT d.Degrees \nFROM degrees d\nJOIN Campuses c ON d.Campus = c.Id\nWHERE c.Campus = 'San Jose State University' AND d.Year = 2000"
+    ],
+    "id": "2368",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about degrees conferred: return the actual degree values from the \"degrees\" table instead of just counting them.",
+      "When combining campuses and degrees tables: link rows where T1.id = T2.campus to properly relate campuses to their degrees, keeping only matching pairs.",
+      "When filtering for a specific university: use T1.campus = \"San Jose State University\" to match the exact campus name from the campuses table.",
+      "When answering about degrees conferred, When combining campuses and degrees tables, When filtering for a specific university, When filtering for a specific year: use T2.year = 2000 to specify the year from the degrees table with the exact value 2000."
+    ]
+  },
+  "2": {
+    "db_id": "superhero",
+    "question": "List the powers of Hunter Zolomon.",
+    "ground_truth": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Hunter Zolomon'",
+    "amends": [
+      "Do select `T3.power_name` instead of `*` from all columns. Do use `superhero AS T1` joined with `hero_power AS T2` on `T1.id = T2.hero_id` instead of querying `powers` table directly. Do add a second join to `superpower AS T3` on `T2.power_id = T3.id` instead of omitting this relationship. Do filter on `T1.full_name = 'Hunter Zolomon'` instead of `character_name = 'Barry Allen'` to target the correct character. The amended query now properly navigates the relational schema through appropriate joins to retrieve powers for the specified superhero, matching the RIGHT_SQL's behavior."
+    ],
+    "rules": [],
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT * FROM powers WHERE character_name = 'Barry Allen';",
+      "SELECT T3.power_name\nFROM superhero AS T1\nJOIN hero_power AS T2 ON T1.id = T2.hero_id\nJOIN superpower AS T3 ON T2.power_id = T3.id\nWHERE T1.full_name = 'Hunter Zolomon'"
+    ],
+    "rule_sql": [
+      "SELECT T3.power_name\nFROM superhero T1\nINNER JOIN hero_power T2 ON T1.id = T2.hero_id\nINNER JOIN superpower T3 ON T2.power_id = T3.id\nWHERE T1.full_name = 'Hunter Zolomon'"
+    ],
+    "amend_res": 1,
+    "id": "780",
+    "origin_dataset": "Bird_dev",
+    "original_rules": [
+      "failed to find schema"
+    ]
+  },
+  "3": {
+    "db_id": "codebase_community",
+    "question": "What are the name of badges that users who have the lowest reputation obtained?",
+    "ground_truth": "SELECT T2.Name FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId WHERE T1.Reputation = (SELECT MIN(Reputation) FROM users)",
+    "amends": [
+      "Do use `T2.Name` instead of `b.name` for the SELECT list. Do specify `INNER JOIN` explicitly instead of just `JOIN`. Do use `T1.Id = T2.UserId` as the join condition instead of `b.user_id = u.id`. Do reference `T1.Reputation` instead of `u.reputation` in the WHERE clause. Do use table aliases `T1` for users and `T2` for badges instead of `u` and `b`. The amended query now correctly joins users to badges and selects badge names for users with minimum reputation, matching the intended behavior."
+    ],
+    "rules": [
+      "When answering about \"membership card has more than 5 members\": make sure the output order: Membership_card",
+      "When the question mentions \"membership card\": \"membership card\" actually means \"Membership_card in schema\"",
+      "When the question mentions \"more than 5 members\": count the number of rows using the canonical key token for members (e.g., member_id) per group and keep only groups where the count exceeds 5",
+      "When grouping by Membership_card: organize results by Membership_card and compute requested aggregates per group",
+      "When choosing identifier delimiters: do not replace double quotes with backticks or unquoted forms",
+      "When answering about \"membership card has more than 5 members\", When the question mentions \"membership card\", When the question mentions \"more than 5 members\", When grouping by Membership_card, When choosing identifier delimiters, When handling text literals: do not change case, spacing, or punctuation"
+    ],
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT b.name \nFROM badges b \nJOIN users u ON b.user_id = u.id \nWHERE u.reputation = (SELECT MIN(reputation) FROM users);",
+      "SELECT T2.Name \nFROM users T1 \nINNER JOIN badges T2 ON T1.Id = T2.UserId \nWHERE T1.Reputation = (SELECT MIN(Reputation) FROM users)"
+    ],
+    "rule_sql": [
+      "SELECT T2.Name \nFROM users T1 \nINNER JOIN badges T2 ON T1.Id = T2.UserId \nWHERE T1.Reputation = (SELECT MIN(T1.Reputation) FROM users T1)"
+    ],
+    "amend_res": 1,
+    "id": "621",
+    "origin_dataset": "Bird_dev",
+    "original_rules": [
+      "failed to find schema"
+    ]
+  },
+  "4": {
+    "db_id": "legislator",
+    "question": "List all of the ids of the representatives belonging to the Democrat party in district 13 that ended their term on 1/3/2019?",
+    "ground_truth": "SELECT bioguide FROM `current-terms` WHERE type = 'rep' AND party = 'Democrat' AND end = '2019-01-03' AND district = 13",
+    "amends": [
+      "Do select `bioguide` instead of `id` and use table `current-terms` instead of `representatives`. Do filter on `type = 'rep'` instead of omitting it and use `end = '2019-01-03'` instead of `end_term = '1/3/2019'` with proper date format. Do keep `party = 'Democrat'` and `district = 13` filters unchanged. The amended query now correctly retrieves congressional representatives using the appropriate table structure and date formatting."
+    ],
+    "rules": [
+      "When joining tables for language-page relationships: link rows where T1.lid = T2.lid to connect languages to their pages.",
+      "When retrieving locale information: select T1.locale from the langs table rather than assuming it exists directly in the pages table.",
+      "When filtering by page title: apply the condition T2.title = 'Abril' to the joined pages table to find the specific page.",
+      "When answering about locale of a page: ensure the result contains only the locale column from the matching language record.",
+      "When handling identifier delimiters: do not replace double quotes with backticks or unquoted forms for any identifiers.",
+      "When choosing identifier aliases: use explicit AS keywords for clarity when assigning table aliases.",
+      "When combining tables for shared entities: perform inner joins to keep only matching pairs between languages and pages tables.",
+      "When eliminating duplicate results: use DISTINCT to return unique locale values instead of potentially multiple identical entries.",
+      "When referring to table roles: use T1 for the langs table and T2 for the pages table as established in the amends.",
+      "When joining tables for language-page relationships, When retrieving locale information, When filtering by page title, When answering about locale of a page, When handling identifier delimiters, When choosing identifier aliases, When combining tables for shared entities, When eliminating duplicate results, When referring to table roles, When producing output columns: maintain the order specified in the question, which requires only the locale value."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT id FROM representatives WHERE party = 'Democrat' AND district = 13 AND end_term = '1/3/2019';",
+      "SELECT bioguide FROM \"current-terms\" WHERE party = 'Democrat' AND district = 13 AND end = '2019-01-03' AND type = 'rep'"
+    ],
+    "rule_sql": [
+      "SELECT bioguide FROM \"current-terms\" WHERE party = 'Democrat' AND district = 13 AND end = '2019-01-03' AND type = 'rep';"
+    ],
+    "id": "4860",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks for \"ids of the representatives\": use the exact column \"bioguide\" instead of \"id\" from the \"current-terms\" table.",
+      "When filtering by party: use \"party = 'Democrat'\" exactly as specified in the question.",
+      "When filtering by district: use \"district = 13\" exactly as specified in the question.",
+      "When filtering by end term date: use \"end = '2019-01-03'\" with the proper date format instead of '1/3/2019'.",
+      "When the question asks for \"ids of the representatives\", When filtering by party, When filtering by district, When filtering by end term date, When querying congressional representatives: use the \"current-terms\" table instead of \"representatives\" and include \"type = 'rep'\" to filter for representatives specifically."
+    ]
+  },
+  "5": {
+    "db_id": "coffee_shop",
+    "question": "Which membership card has more than 5 members?",
+    "ground_truth": "SELECT Membership_card FROM member GROUP BY Membership_card HAVING count(*)  >  5",
+    "amends": [
+      "Do select `Membership_card` instead of `card_id` and use `GROUP BY Membership_card` instead of no grouping. Do use `HAVING count(*) > 5` instead of `WHERE member_count > 5` to filter aggregated results rather than individual rows. Do query from `member` table instead of `memberships` table. The amended query now correctly identifies membership cards with more than 5 members by using proper aggregation and filtering, matching the intended behavior."
+    ],
+    "rules": [
+      "When the question mentions \"employees\": use table \"Employee\" instead of \"employees\".",
+      "When filtering by gender values like 'Male': use uppercase 'M' instead of lowercase 'male'.",
+      "When joining tables: explicitly specify INNER JOIN instead of just JOIN.",
+      "When selecting employee names: include both \"FirstName\" and \"LastName\" columns instead of only \"name\".",
+      "When referencing business entities: use column \"BusinessEntityID\" instead of \"id\".",
+      "When the question mentions \"employees\", When filtering by gender values like 'Male', When joining tables, When selecting employee names, When referencing business entities, When working with this schema: do not apply unnecessary filters like WHERE id = 1 unless specifically required by the question."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT card_id FROM memberships WHERE member_count > 5;",
+      "SELECT Membership_card FROM member GROUP BY Membership_card HAVING COUNT(*) > 5"
+    ],
+    "rule_sql": [
+      "SELECT Membership_card FROM member GROUP BY Membership_card HAVING COUNT(*) > 5 ORDER BY Membership_card;"
+    ],
+    "id": "794",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about \"membership card has more than 5 members\": make sure the output order: Membership_card.",
+      "When the question asks for \"count of members\": compute the number of rows using the canonical key token for members (e.g., count(*) from member table).",
+      "When the question asks for \"more than 5 members\": filter aggregated results using HAVING count(*) > 5 rather than filtering individual rows.",
+      "When grouping by membership card: organize results by Membership_card column from member table and compute count per group.",
+      "When answering about \"membership card has more than 5 members\", When the question asks for \"count of members\", When the question asks for \"more than 5 members\", When grouping by membership card, When producing output: select Membership_card instead of card_id as the final result."
+    ]
+  },
+  "15": {
+    "db_id": "talkingdata",
+    "question": "List the app users IDs and installed status for the event ID of 844.",
+    "ground_truth": "SELECT app_id , IIF(is_installed = 1, 'YES', 'NO') AS status FROM app_events WHERE event_id = 844",
+    "amends": [
+      "Do select `app_id` and `IIF(is_installed = 1, 'YES', 'NO') AS status` instead of `user_id` and `installed`. Do query from `app_events` instead of `events`. Do keep the `WHERE event_id = 844` filter unchanged. The amended query now correctly retrieves application installation status with proper formatting from the appropriate table."
+    ],
+    "rules": [
+      "for the event ID of 844: filter rows where T1.event_id equals 844 exactly."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT user_id, installed FROM events WHERE event_id = 844",
+      "SELECT app_id, IIF(is_installed = 1, 'YES', 'NO') AS status FROM app_events WHERE event_id = 844"
+    ],
+    "rule_sql": [
+      "SELECT app_id, IIF(is_installed = 1, 'YES', 'NO') AS status FROM app_events WHERE event_id = 844"
+    ],
+    "id": "1058",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks for \"app users IDs\": use the exact column \"app_id\" from the app_events table instead of \"user_id\".",
+      "When the question asks for \"installed status\": format the \"is_installed\" column using IIF logic where 1 becomes 'YES' and other values become 'NO', and name the result as \"status\".",
+      "When querying for event information: use the \"app_events\" table instead of the \"events\" table.",
+      "When the question asks for \"app users IDs\", When the question asks for \"installed status\", When querying for event information, When filtering by event ID: keep the condition \"event_id = 844\" unchanged."
+    ]
+  },
+  "16": {
+    "db_id": "chinook_1",
+    "question": "Find the number of albums by the artist \"Metallica\".",
+    "ground_truth": "SELECT COUNT(*) FROM ALBUM AS T1 JOIN ARTIST AS T2 ON T1.ArtistId  =  T2.ArtistId WHERE T2.Name  =  \"Metallica\"",
+    "amends": [
+      "Do join `ALBUM AS T1` with `ARTIST AS T2` on `T1.ArtistId = T2.ArtistId` instead of querying only the `artists` table. Do filter on `T2.Name = \"Metallica\"` instead of filtering directly on the artists table without the join. Do count albums by Metallica instead of counting artists named Metallica. The amended query now correctly counts albums by the specified artist rather than just counting the artist record itself."
+    ],
+    "rules": [
+      "When answering about \"number of albums by the artist 'Metallica'\": make sure to join the Album table (T1) with the Artist table (T2) using the condition T1.ArtistId = T2.ArtistId.",
+      "When filtering for the artist \"Metallica\": use the exact literal \"Metallica\" with the column T2.Name from the joined Artist table.",
+      "When answering about \"number of albums by the artist 'Metallica'\", When filtering for the artist \"Metallica\", When counting albums: count the rows from the Album table after applying the join and filter conditions."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM artists WHERE name = 'Metallica';",
+      "SELECT COUNT(*) AS NumberOfAlbums FROM Album AS T1 JOIN Artist AS T2 ON T1.ArtistId = T2.ArtistId WHERE T2.Name = 'Metallica'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(*) AS \"count of albums\" FROM Album AS T1 INNER JOIN Artist AS T2 ON T1.ArtistId = T2.ArtistId WHERE T2.Name = \"Metallica\""
+    ],
+    "id": "822",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about \"number of albums by the artist Metallica\": make sure the output order: count of albums",
+      "When the question mentions \"albums by the artist\": join table \"ALBUM\" as T1 with table \"ARTIST\" as T2 on T1.ArtistId = T2.ArtistId using inner match",
+      "When the question specifies artist \"Metallica\": filter on T2.Name = \"Metallica\" exactly as written",
+      "When answering about \"number of albums by the artist Metallica\", When the question mentions \"albums by the artist\", When the question specifies artist \"Metallica\", When counting albums: count using the canonical key from T1 (album entities) rather than counting artists"
+    ]
+  },
+  "17": {
+    "db_id": "department_store",
+    "question": "What is the average price of clothes?",
+    "ground_truth": "SELECT avg(product_price) FROM products WHERE product_type_code  =  'Clothes'",
+    "amends": [
+      "Do reference `product_price` instead of `price` in the aggregate function. Do filter on `product_type_code = 'Clothes'` instead of `category = 'electronics'` in the WHERE clause. The amended query now correctly calculates the average price for clothing products instead of electronics."
+    ],
+    "rules": [
+      "When answering about \"average price of clothes\": use the \"products\" table instead of \"clothes\" table.",
+      "When calculating average price: compute the average of the \"product_price\" column instead of \"price\".",
+      "When answering about \"average price of clothes\", When calculating average price, When filtering for clothing products: add a condition where \"product_type_code\" equals 'Clothing' exactly (case-sensitive).",
+      "When answering about \"average price of clothes\": make sure the output order: avg(product_price).",
+      "When the question mentions \"clothes\": \"clothes\" actually means \"product_type_code = 'Clothing'\" in schema.",
+      "When choosing identifier delimiters: do not replace double quotes with backticks or unquoted forms.",
+      "When answering about \"average price of clothes\", When the question mentions \"clothes\", When choosing identifier delimiters, When handling text literals: do not change case, spacing, or punctuation - use exact literal 'Clothing'."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT AVG(price) FROM products WHERE category = 'electronics';",
+      "SELECT AVG(product_price) AS average_price FROM Products WHERE product_type_code = 'Clothes';"
+    ],
+    "rule_sql": [
+      "SELECT AVG(product_price) AS average_price FROM Products WHERE product_type_code = 'Clothes';"
+    ],
+    "id": "4794",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about \"average price of clothes\": make sure the output order: average of product_price.",
+      "When the question mentions \"price\": \"price\" actually means \"product_price\" in schema.",
+      "When the question mentions \"clothes\": \"clothes\" actually means \"product_type_code = 'Clothes'\" in schema.",
+      "When answering about \"average price of clothes\", When the question mentions \"price\", When the question mentions \"clothes\", When filtering for clothing products: use the exact literal 'Clothes' with the correct case and spacing."
+    ]
+  },
+  "18": {
+    "db_id": "cookbook",
+    "question": "Identify recipes with different maximum and minimum quantities.",
+    "ground_truth": "SELECT T1.title FROM Recipe AS T1 INNER JOIN Quantity AS T2 ON T1.recipe_id = T2.recipe_id WHERE T2.max_qty <> T2.min_qty",
+    "amends": [
+      "Do select `T1.title` from `Recipe AS T1` instead of `recipe_id, MAX(quantity), MIN(quantity)` from `recipe_ingredients`. Do use `INNER JOIN Quantity AS T2` instead of no join. Do join on `T1.recipe_id = T2.recipe_id` instead of no join condition. Do filter with `T2.max_qty <> T2.min_qty` in the WHERE clause instead of `max_quantity != min_quantity` in a non-existent HAVING clause. Do remove the GROUP BY clause instead of keeping it. The amended query now correctly retrieves recipe titles where maximum and minimum quantities differ by joining the Recipe and Quantity tables."
+    ],
+    "rules": [
+      "When answering about \"recipes with different maximum and minimum quantities\": make sure the output order: T1.title.",
+      "When combining Recipe table (T1) and Quantity table (T2): link rows where T1.recipe_id = T2.recipe_id exactly as shown; keep only matching pairs (inner match).",
+      "When filtering for different maximum and minimum quantities: filter on T2.max_qty != T2.min_qty to identify recipes where maximum quantity differs from minimum quantity.",
+      "When answering about \"recipes with different maximum and minimum quantities\", When combining Recipe table (T1) and Quantity table (T2), When filtering for different maximum and minimum quantities, When selecting recipe titles: select DISTINCT T1.title to return unique recipe titles rather than all columns."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT recipe_id, MAX(quantity) as max_quantity, MIN(quantity) as min_quantity FROM recipe_ingredients GROUP BY recipe_id WHERE max_quantity != min_quantity;",
+      "SELECT T1.title FROM Recipe AS T1 INNER JOIN Quantity AS T2 ON T1.recipe_id = T2.recipe_id WHERE T2.max_qty <> T2.min_qty"
+    ],
+    "rule_sql": [
+      "SELECT T1.title FROM Recipe AS T1 INNER JOIN Quantity AS T2 ON T1.recipe_id = T2.recipe_id WHERE T2.max_qty <> T2.min_qty"
+    ],
+    "id": "8577",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about recipes with different maximum and minimum quantities: select T1.title from Recipe AS T1 instead of recipe_id and aggregate functions from recipe_ingredients.",
+      "When combining Recipe and Quantity tables: use INNER JOIN Quantity AS T2 on T1.recipe_id = T2.recipe_id to link matching rows.",
+      "When filtering for different quantities: apply the condition T2.max_qty <> T2.min_qty in the WHERE clause instead of using a HAVING clause with aggregate comparisons.",
+      "When answering about recipes with different maximum and minimum quantities, When combining Recipe and Quantity tables, When filtering for different quantities, When the question does not require grouping: remove the GROUP BY clause entirely."
+    ]
+  },
+  "19": {
+    "db_id": "retail_complains",
+    "question": "Which product received a review from Indianapolis on 2016/10/7?",
+    "ground_truth": "SELECT T1.Product FROM reviews AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.city = 'Indianapolis' AND T1.Date = '2016-10-07'",
+    "amends": [
+      "Do select `T1.Product` instead of `product_name` and use table aliases. Do add `INNER JOIN district AS T2` instead of querying only the reviews table. Do join on `T1.district_id = T2.district_id` instead of missing the join condition entirely. Do filter on `T2.city = 'Indianapolis'` instead of directly filtering reviews.city. Do filter on `T1.Date = '2016-10-07'` with proper date format instead of `review_date = '2016/10/7'`. The amended query now correctly joins to the district table to validate city information and uses proper date formatting, matching the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "When the question mentions \"product\": select distinct values of \"T2.Product\" instead of \"product_name\".",
+      "When combining data about reviews and districts: link rows where \"T1.district_id = T2.district_id\" and keep only matching pairs (inner match).",
+      "When filtering by date \"2016/10/7\": use the exact literal '2016-10-07' with proper date formatting.",
+      "When filtering by location \"Indianapolis\": filter on \"T1.city = 'Indianapolis'\" using the exact city name.",
+      "When the question mentions \"product\", When combining data about reviews and districts, When filtering by date \"2016/10/7\", When filtering by location \"Indianapolis\", When answering about products reviewed from a specific location on a specific date: ensure the output order shows distinct product names."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT product_name FROM reviews WHERE city = 'Indianapolis' AND review_date = '2016/10/7';",
+      "SELECT T1.Product\nFROM reviews AS T1\nINNER JOIN district AS T2 ON T1.district_id = T2.district_id\nWHERE T2.city = 'Indianapolis'\nAND T1.Date = '2016-10-07'"
+    ],
+    "rule_sql": [
+      "SELECT T1.Product FROM reviews AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.city = 'Indianapolis' AND T1.Date = '2016-10-07'"
+    ],
+    "id": "266",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about a product receiving a review: select \"T1.Product\" instead of product_name.",
+      "When combining review and district information: use INNER JOIN between reviews as T1 and district as T2 where T1.district_id = T2.district_id to match rows.",
+      "When filtering for Indianapolis: use T2.city = 'Indianapolis' instead of filtering directly on the reviews table.",
+      "When the question asks about a product receiving a review, When combining review and district information, When filtering for Indianapolis, When filtering for the date 2016/10/7: use T1.Date = '2016-10-07' with the exact date format shown in the amends."
+    ]
+  },
+  "20": {
+    "db_id": "movie_platform",
+    "question": "What is the name of the movie whose critic received the highest amount of likes? Indicate the URL to the rating on Mubi.",
+    "ground_truth": "SELECT T2.movie_title, T1.rating_url FROM ratings AS T1 INNER JOIN movies AS T2 ON T1.movie_id = T2.movie_id ORDER BY T1.critic_likes DESC LIMIT 1",
+    "amends": [
+      "Do use `T2.movie_title` and `T1.rating_url` as column aliases instead of `m.title` and `r.url`. Do specify `INNER JOIN` explicitly instead of just `JOIN`. Do join on `T1.movie_id = T2.movie_id` instead of `m.movie_id = r.movie_id`. Do remove the subquery filter and instead add `ORDER BY T1.critic_likes DESC` to sort by the maximum likes instead of using a subquery comparison. Do keep `LIMIT 1` but remove the unnecessary `WHERE` clause with subquery. The amended query now correctly finds the movie with the highest critic likes by sorting and limiting instead of using an inefficient subquery comparison."
+    ],
+    "rules": [
+      "When selecting movie information: use T2.movie_title and T1.rating_url as output columns instead of m.title and r.url.",
+      "When combining ratings and movies data: link rows where T1.movie_id = T2.movie_id using an inner match.",
+      "When ordering by critic likes count: sort by T1.critic_likes DESC instead of r.likes ASC to find the highest value.",
+      "When selecting movie information, When combining ratings and movies data, When ordering by critic likes count, When limiting results to the top entry: keep only the first row after descending ordering by critic likes."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT m.title, r.url \nFROM movies m \nJOIN ratings r ON m.movie_id = r.movie_id \nWHERE r.likes = (SELECT MAX(likes) FROM ratings) \nLIMIT 1;",
+      "SELECT T2.movie_title, T1.rating_url FROM ratings T1 INNER JOIN movies T2 ON T1.movie_id = T2.movie_id ORDER BY T1.critic_likes DESC LIMIT 1"
+    ],
+    "rule_sql": [
+      "SELECT T2.movie_title, T1.rating_url\nFROM ratings T1\nINNER JOIN movies T2 ON T1.movie_id = T2.movie_id\nORDER BY T1.critic_likes DESC\nLIMIT 1"
+    ],
+    "id": "159",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about \"the movie whose critic received the highest amount of likes\": make sure the output order: T2.movie_title, T1.rating_url.",
+      "When combining T1 and T2 for shared entities: link rows where T1.movie_id = T2.movie_id and keep only matching pairs (inner match).",
+      "When the question mentions \"highest amount of likes\": rank rows by T1.critic_likes in descending order and keep the first 1 row.",
+      "When answering about \"the movie whose critic received the highest amount of likes\", When combining T1 and T2 for shared entities, When the question mentions \"highest amount of likes\", When choosing identifier delimiters: do not replace the exact column names T2.movie_title, T1.rating_url, T1.movie_id, T2.movie_id, and T1.critic_likes with any other forms."
+    ]
+  },
+  "21": {
+    "db_id": "olympics",
+    "question": "How many people have won the gold medal of the event \"Rowing Women's Coxed Eights\"?",
+    "ground_truth": "SELECT COUNT(T1.competitor_id) FROM competitor_event AS T1 INNER JOIN event AS T2 ON T1.event_id = T2.id INNER JOIN medal AS T3 ON T1.medal_id = T3.id WHERE T2.event_name LIKE 'Rowing Women%s Coxed Eights' AND T3.medal_name = 'Gold'",
+    "amends": [
+      "Do query from `competitor_event AS T1` instead of `athletes`, and add joins to `event AS T2` and `medal AS T3` instead of omitting them. Do use `INNER JOIN` on `T1.event_id = T2.id` and `INNER JOIN` on `T1.medal_id = T3.id` instead of no joins. Do filter on `T2.event_name LIKE 'Rowing Women%s Coxed Eights'` instead of `event = 'Rowing Women\\'s Coxed Eights'`, and on `T3.medal_name = 'Gold'` instead of `medal = 'Gold'`. Do count `T1.competitor_id` instead of `COUNT(*)` to ensure accurate competitor counting. The amended query now correctly joins the necessary tables and matches the intended behavior."
+    ],
+    "rules": [
+      "When counting entities from the competitor_event table: count using the exact token \"T1.id\" instead of counting all rows to exclude null values.",
+      "When filtering by medal type: join the medal table as \"T3\" using \"T1.medal_id = T3.id\" and filter where \"T3.medal_name = 'Gold'\" instead of directly comparing medal values.",
+      "When filtering by event type: join the event table as \"T2\" using \"T1.event_id = T2.id\" and filter where \"T2.event_name = 'Rowing Women''s Coxed Eights'\" instead of using direct event comparisons.",
+      "When counting entities from the competitor_event table, When filtering by medal type, When filtering by event type, When combining tables for this query: perform inner joins between competitor_event (T1), event (T2), and medal (T3) tables to ensure only matching pairs are considered."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM athletes WHERE event = 'Rowing Women\\'s Coxed Eights' AND medal = 'Gold';",
+      "SELECT COUNT(DISTINCT T1.competitor_id) \nFROM competitor_event AS T1\nINNER JOIN event AS T2 ON T1.event_id = T2.id\nINNER JOIN medal AS T3 ON T1.medal_id = T3.id\nWHERE T2.event_name LIKE 'Rowing Women%s Coxed Eights'\nAND T3.medal_name = 'Gold'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(DISTINCT T1.competitor_id) \nFROM competitor_event T1\nJOIN event T2 ON T1.event_id = T2.id\nJOIN medal T3 ON T1.medal_id = T3.id\nWHERE T3.medal_name = 'Gold' \nAND T2.event_name LIKE 'Rowing Women%s Coxed Eights'"
+    ],
+    "id": "4995",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about counting people who won gold medals: make sure the output order: count of competitors",
+      "When the question mentions \"gold medal\": \"gold medal\" actually means \"T3.medal_name = 'Gold' in schema\"",
+      "When the question mentions \"event 'Rowing Women's Coxed Eights'\": \"Rowing Women's Coxed Eights\" actually means \"T2.event_name LIKE 'Rowing Women%s Coxed Eights' in schema\"",
+      "When combining tables for shared entities: link rows where T1.event_id = T2.id and T1.medal_id = T3.id; keep only matching pairs (inner match)",
+      "When counting competitors: compute the number of rows using the canonical key token T1.competitor_id instead of counting all rows",
+      "When choosing identifier delimiters: do not replace double quotes with backticks or unquoted forms",
+      "When answering about counting people who won gold medals, When the question mentions \"gold medal\", When the question mentions \"event 'Rowing Women's Coxed Eights'\", When combining tables for shared entities, When counting competitors, When choosing identifier delimiters, When handling text literals: do not change case, spacing, or punctuation for 'Gold' and 'Rowing Women%s Coxed Eights'"
+    ]
+  },
+  "22": {
+    "db_id": "sales_in_weather",
+    "question": "Which weather station does the store that sold the highest quantity of item 9 belongs to?",
+    "ground_truth": "SELECT station_nbr FROM sales_in_weather AS T1 INNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr WHERE T1.item_nbr = 9 GROUP BY T2.station_nbr ORDER BY SUM(T1.units) DESC LIMIT 1",
+    "amends": [
+      "Do select `station_nbr` instead of `station_name` and use `sales_in_weather` as T1 instead of `weather_stations` as the primary table. Do `INNER JOIN` `relation` as T2 on `T1.store_nbr = T2.store_nbr` instead of joining `weather_stations` with `stores` and then `sales`. Do filter `T1.item_nbr = 9` instead of `sa.item_id = 9` and move to `WHERE` instead of keeping it there. Do add `GROUP BY T2.station_nbr` instead of omitting grouping and use `SUM(T1.units)` in `ORDER BY` instead of `sa.quantity DESC`. Do keep `LIMIT 1` but change the ordering logic to aggregate-based sorting. The amended query now correctly aggregates sales by station for the specified item and returns the station with highest total units sold."
+    ],
+    "rules": [],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT ws.station_name\nFROM weather_stations ws\nJOIN stores s ON ws.station_id = s.station_id\nJOIN sales sa ON s.store_id = sa.store_id\nWHERE sa.item_id = 9\nORDER BY sa.quantity DESC\nLIMIT 1;",
+      "SELECT T2.station_nbr\nFROM sales_in_weather AS T1\nINNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr\nWHERE T1.item_nbr = 9\nGROUP BY T2.station_nbr\nORDER BY SUM(T1.units) DESC\nLIMIT 1"
+    ],
+    "rule_sql": [
+      "SELECT T2.station_nbr\nFROM sales_in_weather AS T1\nINNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr\nWHERE T1.item_nbr = 9\nGROUP BY T2.station_nbr\nORDER BY SUM(T1.units) DESC\nLIMIT 1;"
+    ],
+    "id": "7833",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about weather stations: use \"station_nbr\" from table \"relation\" instead of \"station_name\" from \"weather_stations\".",
+      "When combining sales and store-weather relationships: use \"sales_in_weather\" as T1 and \"relation\" as T2, joining on T1.store_nbr = T2.store_nbr with inner match.",
+      "When filtering for item 9: use T1.item_nbr = 9 exactly as specified.",
+      "When calculating highest quantity sold: group by T2.station_nbr and sum T1.units for aggregation.",
+      "When the question asks about weather stations, When combining sales and store-weather relationships, When filtering for item 9, When calculating highest quantity sold, When finding the highest quantity: order by SUM(T1.units) in descending direction and keep only the top 1 result."
+    ]
+  },
+  "30": {
+    "db_id": "soccer_2016",
+    "question": "How many seasons did Pune Warriors participate in?",
+    "ground_truth": "SELECT COUNT(T.Season_Year) FROM ( SELECT T4.Season_Year FROM Team AS T1 INNER JOIN Match AS T2 ON T1.team_id = T2.match_winner INNER JOIN Player_Match AS T3 ON T1.Team_Id = T3.Team_Id INNER JOIN Season AS T4 ON T2.Season_Id = T4.Season_Id WHERE T1.Team_Name = 'Pune Warriors' GROUP BY T4.Season_Year ) T",
+    "amends": [
+      "Do use a multi-table join structure with `Team`, `Match`, `Player_Match`, and `Season` tables instead of querying only the `seasons` table. Do add `INNER JOIN` relationships on `T1.team_id = T2.match_winner`, `T1.Team_Id = T3.Team_Id`, and `T2.Season_Id = T4.Season_Id` instead of no joins. Do filter by `T1.Team_Name = 'Pune Warriors'` instead of `team = 'Pune Warriors'`. Do aggregate with `COUNT(T.Season_Year)` on grouped results instead of `COUNT(*)` without grouping. Do add a subquery with `GROUP BY T4.Season_Year` to count distinct seasons instead of counting all records. The amended query now correctly counts the number of distinct seasons where Pune Warriors participated as both match winners and through player matches.",
+      "Do remove `DISTINCT` from the count instead of keeping it, and do wrap the original query in a subquery `T` instead of counting directly. Do count `T.Season_Year` from the subquery instead of counting `DISTINCT T4.Season_Year` directly. The amended query now correctly counts the number of distinct seasons by removing the unnecessary DISTINCT within COUNT and using a subquery approach that matches the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "When answering about how many seasons a team participated in: count distinct season years rather than all rows.",
+      "When the question mentions \"Pune Warriors\": \"Pune Warriors\" actually means \"Team_Name = 'Pune Warriors'\" in the Team table.",
+      "When combining Team and Match tables: link rows where Team.Team_Id equals Match.Team_1 or Team.Team_Id equals Match.Team_2 to find matches involving the team.",
+      "When filtering for a specific team: use Team.Team_Name = 'Pune Warriors' exactly as specified with proper case and spacing.",
+      "When answering about how many seasons a team participated in, When the question mentions \"Pune Warriors\", When combining Team and Match tables, When filtering for a specific team, When counting distinct values: use COUNT(DISTINCT season_year) to ensure each season year is counted only once regardless of how many matches occurred in that season."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM seasons WHERE team = 'Pune Warriors';",
+      "SELECT COUNT(DISTINCT T4.Season_Year) \nFROM Team T1\nINNER JOIN Match T2 ON T1.Team_Id = T2.Match_Winner\nINNER JOIN Player_Match T3 ON T1.Team_Id = T3.Team_Id\nINNER JOIN Season T4 ON T2.Season_Id = T4.Season_Id\nWHERE T1.Team_Name = 'Pune Warriors'\nGROUP BY T4.Season_Year",
+      "SELECT COUNT(T.Season_Year) AS seasons_count\nFROM (\n    SELECT DISTINCT s.Season_Year\n    FROM Team t\n    INNER JOIN Match m ON t.Team_Id = m.Match_Winner\n    INNER JOIN Player_Match pm ON t.Team_Id = pm.Team_Id\n    INNER JOIN Season s ON m.Season_Id = s.Season_Id\n    WHERE t.Team_Name = 'Pune Warriors'\n    GROUP BY s.Season_Year\n) T"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(*) AS seasons_count\nFROM (\n    SELECT DISTINCT T4.Season_Year\n    FROM Team T1\n    INNER JOIN Match T2 ON T1.Team_Id = T2.Match_Winner\n    INNER JOIN Player_Match T3 ON T1.Team_Id = T3.Team_Id\n    INNER JOIN Season T4 ON T2.Season_Id = T4.Season_Id\n    WHERE T1.Team_Name = 'Pune Warriors'\n    GROUP BY T4.Season_Year\n) AS distinct_seasons"
+    ],
+    "id": "2025",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about seasons a team participated in: use a multi-table join structure with Team (T1), Match (T2), Player_Match (T3), and Season (T4) tables instead of a single table.",
+      "When combining tables for team participation: link rows where T1.team_id = T2.match_winner and T1.Team_Id = T3.Team_Id and T2.Season_Id = T4.Season_Id using inner joins.",
+      "When filtering for a specific team: use T1.Team_Name = 'Pune Warriors' exactly as specified.",
+      "When counting distinct seasons: use COUNT(T4.Season_Year) with GROUP BY T4.Season_Year to count unique season years.",
+      "When the question asks about seasons a team participated in, When combining tables for team participation, When filtering for a specific team, When counting distinct seasons, When organizing results for season counting: group by T4.Season_Year to ensure distinct season counting.",
+      "When counting distinct seasons for a specific team: first identify all seasons that team participated in, then count those seasons without using DISTINCT inside the COUNT function.",
+      "When the question asks about \"Pune Warriors\" participation: use the exact literal 'Pune Warriors' for the Team_Name condition.",
+      "When counting distinct seasons for a specific team, When the question asks about \"Pune Warriors\" participation, When counting seasons a team participated in: use a subquery approach to first get all distinct seasons the team was involved in, then count the results from that subquery."
+    ]
+  },
+  "31": {
+    "db_id": "tracking_software_problems",
+    "question": "Which problem id and log id are assigned to the staff named Rylan Homenick?",
+    "ground_truth": "SELECT DISTINCT T2.problem_id ,  T2.problem_log_id FROM staff AS T1 JOIN problem_log AS T2 ON T1.staff_id = T2.assigned_to_staff_id WHERE T1.staff_first_name = \"Rylan\" AND T1.staff_last_name = \"Homenick\"",
+    "amends": [
+      "Do select `T2.problem_id` and `T2.problem_log_id` instead of `problem_id` and `log_id`. Do add `DISTINCT` instead of omitting it. Do change the FROM source to `staff AS T1 JOIN problem_log AS T2` instead of just `staff`. Do add the join condition `ON T1.staff_id = T2.assigned_to_staff_id` instead of omitting it. Do change the WHERE filter to `T1.staff_first_name = \"Rylan\" AND T1.staff_last_name = \"Homenick\"` instead of `name = 'Rylan Homenick'`. The amended query now correctly joins staff with problem_log and filters by first and last name separately to match the intended behavior."
+    ],
+    "rules": [
+      "When selecting columns from multiple joined tables: explicitly qualify column references with table aliases (e.g., use t1.problem_id and t2.problem_log_id instead of unqualified problem_id and log_id).",
+      "When joining tables problems AS t1 and problem_log AS t2: link rows where t1.problem_id = t2.problem_id to establish the relationship between problems and their logs.",
+      "When filtering by staff name 'Rylan Homenick': split into separate conditions t1.reported_by_staff_id = 43 AND t1.closure_authorised_by_staff_id = 44 to properly reference the normalized staff IDs rather than using denormalized first_name and last_name fields.",
+      "When selecting columns from multiple joined tables, When joining tables problems AS t1 and problem_log AS t2, When filtering by staff name 'Rylan Homenick', When the question asks for problem id and log id: ensure the output order is t1.problem_id followed by t2.problem_log_id as implied by the question's phrasing."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT problem_id, log_id FROM staff WHERE name = 'Rylan Homenick';",
+      "SELECT DISTINCT T2.problem_id, T2.problem_log_id FROM staff AS T1 JOIN problem_log AS T2 ON T1.staff_id = T2.assigned_to_staff_id WHERE T1.staff_first_name = \"Rylan\" AND T1.staff_last_name = \"Homenick\""
+    ],
+    "rule_sql": [
+      "SELECT DISTINCT T2.problem_id, T2.problem_log_id\nFROM Staff AS T1\nJOIN Problem_Log AS T2 ON T1.staff_id = T2.assigned_to_staff_id\nWHERE T1.staff_first_name = 'Rylan' AND T1.staff_last_name = 'Homenick'"
+    ],
+    "id": "5363",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for \"problem id\" and \"log id\": select \"T2.problem_id\" and \"T2.problem_log_id\" instead of generic \"problem_id\" and \"log_id\".",
+      "When selecting from multiple tables to avoid duplicate results: use DISTINCT to return only unique combinations of the selected columns.",
+      "When combining staff and problem_log information: join \"staff AS T1\" with \"problem_log AS T2\" using the condition \"T1.staff_id = T2.assigned_to_staff_id\" to match staff members with their assigned problem logs.",
+      "When the question asks for \"problem id\" and \"log id\", When selecting from multiple tables to avoid duplicate results, When combining staff and problem_log information, When filtering by staff name \"Rylan Homenick\": use separate conditions \"T1.staff_first_name = 'Rylan'\" AND \"T1.staff_last_name = 'Homenick'\" instead of a single name field, matching the exact case and spelling."
+    ]
+  },
+  "32": {
+    "db_id": "hr_1",
+    "question": "Which job titles correspond to jobs with salaries over 9000?",
+    "ground_truth": "SELECT job_title FROM jobs WHERE min_salary  >  9000",
+    "amends": [
+      "Do filter on `min_salary > 9000` instead of `salary < 9000` to correctly identify jobs with minimum salary requirements above 9000 rather than those with current salaries below 9000. The amended query now matches RIGHT_SQL's behavior by using the appropriate salary threshold column and comparison operator."
+    ],
+    "rules": [
+      ", When the question asks for job titles: select only the \"job_title\" column from the \"jobs\" table.",
+      "When filtering for salaries over 9000: apply the condition \"min_salary > 9000\" to filter rows.",
+      "When the question asks for job titles, When filtering for salaries over 9000, When selecting columns: do not include \"salary\" in the output columns since it's not requested in the question about job titles."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT job_title FROM jobs WHERE salary < 9000;",
+      "SELECT JOB_TITLE FROM jobs WHERE MIN_SALARY > 9000;"
+    ],
+    "rule_sql": [
+      "SELECT job_title FROM jobs WHERE min_salary > 9000;"
+    ],
+    "id": "3442",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for jobs with salaries over 9000: use the \"min_salary\" column instead of \"salary\" column to filter for minimum salary requirements.",
+      "When filtering for salaries over 9000: use the comparison operator > (greater than) instead of < (less than) with the value 9000.",
+      "When the question asks for jobs with salaries over 9000, When filtering for salaries over 9000, When answering about job titles corresponding to salary conditions: ensure the output includes only \"job_title\" from the jobs table."
+    ]
+  },
+  "33": {
+    "db_id": "superhero",
+    "question": "What is the average height of a non-human superhero in Dark Horse Comics?",
+    "ground_truth": "SELECT AVG(T1.height_cm) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN race AS T3 ON T1.race_id = T3.id WHERE T2.publisher_name = 'Dark Horse Comics' AND T3.race != 'Human'",
+    "amends": [
+      "Do use table aliases `T1`, `T2`, and `T3` instead of direct table references. Do join `publisher AS T2` on `T1.publisher_id = T2.id` instead of filtering directly on `publisher`. Do join `race AS T3` on `T1.race_id = T3.id` instead of filtering directly on `species`. Do filter on `T2.publisher_name = 'Dark Horse Comics'` instead of `publisher = 'Dark Horse Comics'`. Do filter on `T3.race != 'Human'` instead of `species = 'Human'`. Do select `AVG(T1.height_cm)` instead of `AVG(height)`. The amended query now correctly joins related tables and uses proper column references to match the intended logic."
+    ],
+    "rules": [
+      "When selecting customer contact information: use columns \"customer_name\" and \"customer_phone\" from table \"Customers\" (aliased as t1) instead of generic \"name\" and \"phone\".",
+      "When identifying customers without address information: check for missing entries in the \"customer_address_history\" relationship table by verifying absence of records where \"t1.customer_id\" matches any entry in \"customer_address_history.customer_id\", rather than checking for null values directly in the main table.",
+      "When combining customer data across tables: use table aliases \"t1\" for \"Customers\" and \"t2\" for \"customer_address_history\" consistently throughout the query.",
+      "When selecting customer contact information, When identifying customers without address information, When combining customer data across tables, When filtering for customers without addresses: remove direct null checks on address fields and instead rely on the absence of matching records in the dedicated relationship table."
+    ],
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT AVG(height) FROM superheroes WHERE publisher = 'Dark Horse Comics' AND species = 'Human';",
+      "SELECT AVG(T1.height_cm) \nFROM superhero AS T1\nJOIN publisher AS T2 ON T1.publisher_id = T2.id\nJOIN race AS T3 ON T1.race_id = T3.id\nWHERE T2.publisher_name = 'Dark Horse Comics' \nAND T3.race != 'Human'"
+    ],
+    "rule_sql": [
+      "SELECT AVG(T1.height_cm) \nFROM superhero T1\nINNER JOIN publisher T2 ON T1.publisher_id = T2.id\nINNER JOIN race T3 ON T1.race_id = T3.id\nWHERE T2.publisher_name = 'Dark Horse Comics' \nAND T3.race != 'Human'"
+    ],
+    "amend_res": 1,
+    "id": "827",
+    "origin_dataset": "Bird_dev",
+    "original_rules": [
+      "failed to find schema"
+    ]
+  },
+  "34": {
+    "db_id": "customers_and_products_contacts",
+    "question": "Show names and phones of customers who do not have address information.",
+    "ground_truth": "SELECT customer_name ,  customer_phone FROM customers WHERE customer_id NOT IN (SELECT customer_id FROM customer_address_history)",
+    "amends": [
+      "Do select `customer_name` and `customer_phone` instead of `name` and `phone`. Do use a subquery filter with `customer_id NOT IN` instead of checking `address IS NOT NULL`. The amended query now correctly identifies customers without address history rather than those with non-null addresses, matching the intended behavior."
+    ],
+    "rules": [
+      "When the question mentions \"products\": use the exact table name \"Product\" instead of pluralized forms like \"products\".",
+      "When filtering by product ID: use the exact column name \"ProductID\" instead of generic identifiers like \"id\".",
+      "When joining tables: explicitly specify INNER JOIN instead of just JOIN to ensure only matching rows are included.",
+      "When selecting columns from joined tables: qualify them with explicit table aliases (e.g., t1.Name, t2.ListPrice) instead of unqualified column names.",
+      "When the question mentions \"products\", When filtering by product ID, When joining tables, When selecting columns from joined tables, When ordering results: order by specific columns (t2.ListPrice DESC) rather than unspecified columns to provide meaningful sorting."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT name, phone FROM customers WHERE address IS NOT NULL;",
+      "SELECT customer_name, customer_phone \nFROM Customers \nWHERE customer_id NOT IN (\n    SELECT customer_id \n    FROM Customer_Address_History\n)"
+    ],
+    "rule_sql": [
+      "SELECT customer_name, customer_phone FROM Customers WHERE customer_id NOT IN (SELECT customer_id FROM Customer_Address_History);"
+    ],
+    "id": "5656",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for customer names and phones: use the exact column tokens \"customer_name\" and \"customer_phone\" from the Customers table.",
+      "When identifying customers without address information: use a subquery filter with customer_id NOT IN to find customers missing from address history rather than checking for null addresses.",
+      "When the question asks for customer names and phones, When identifying customers without address information, When selecting from the Customers table: ensure the output columns are ordered as customer_name followed by customer_phone."
+    ]
+  },
+  "35": {
+    "db_id": "works_cycles",
+    "question": "What's Lynn N Tsoflias's job title?",
+    "ground_truth": "SELECT T2.JobTitle FROM Person AS T1 INNER JOIN Employee AS T2 ON T1.BusinessEntityID = T2.BusinessEntityID WHERE T1.FirstName = 'Lynn' AND T1.MiddleName = 'N' AND T1.LastName = 'Tsoflias'",
+    "amends": [
+      "Do join `Person AS T1` and `Employee AS T2` on `T1.BusinessEntityID = T2.BusinessEntityID` instead of querying only the `employees` table. Do select `T2.JobTitle` instead of `job_title`. Do add filter condition `T1.MiddleName = 'N'` instead of omitting it. Do reference `T1.FirstName` and `T1.LastName` instead of `first_name` and `last_name` directly from the employees table. The amended query now correctly joins the Person and Employee tables to retrieve the job title while including the necessary middle name filter, matching the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "When the question asks about countries within the most crowded cities: use Country as T1 and City as T2 with INNER JOIN on T1.Code = T2.CountryCode to link countries to their cities.",
+      "When filtering for the top 5 most crowded cities: order by T2.Population DESC and limit to 5 rows.",
+      "When counting languages per country: group results by T1.Name and count distinct T3.Language values from CountryLanguage as T3 joined on T1.Code = T3.CountryCode.",
+      "When determining which country has the most languages: order the grouped results by COUNT(T3.Language) DESC and take only the top result (LIMIT 1).",
+      "When the question asks about countries within the most crowded cities, When filtering for the top 5 most crowded cities, When counting languages per country, When determining which country has the most languages, When selecting output columns: return only T1.Name as the country identifier without language counts or other columns."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT job_title FROM employees WHERE first_name = 'Lynn' AND last_name = 'Tsoflias';",
+      "SELECT T2.JobTitle \nFROM Person AS T1 \nJOIN Employee AS T2 ON T1.BusinessEntityID = T2.BusinessEntityID \nWHERE T1.FirstName = 'Lynn' \nAND T1.MiddleName = 'N' \nAND T1.LastName = 'Tsoflias'"
+    ],
+    "rule_sql": [
+      "SELECT T2.JobTitle \nFROM Person T1\nJOIN Employee T2 ON T1.BusinessEntityID = T2.BusinessEntityID\nWHERE T1.FirstName = 'Lynn' \nAND T1.MiddleName = 'N' \nAND T1.LastName = 'Tsoflias'"
+    ],
+    "id": "6830",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about a person's job title: join Person as T1 and Employee as T2 on T1.BusinessEntityID = T2.BusinessEntityID to combine person and employment information.",
+      "When the question mentions a person's name: use T1.FirstName for first name, T1.MiddleName for middle name, and T1.LastName for last name instead of direct employee table fields.",
+      "When filtering for a specific person with middle initial: include T1.MiddleName = 'N' condition to match the exact middle initial.",
+      "When answering about a person's job title, When the question mentions a person's name, When filtering for a specific person with middle initial, When selecting job title information: use T2.JobTitle instead of job_title from the employee table."
+    ]
+  },
+  "45": {
+    "db_id": "video_games",
+    "question": "Calculate the number of game publisher IDs for games released in 1984.",
+    "ground_truth": "SELECT COUNT(T.game_publisher_id) FROM game_platform AS T WHERE T.release_year = 1984",
+    "amends": [
+      "Do select `COUNT(T.game_publisher_id)` instead of `COUNT(*)` to count specific non-null values rather than all rows. Do use `FROM game_platform AS T` instead of `FROM games` to query from the correct table containing the release_year field. Do keep the filter `WHERE T.release_year = 1984` unchanged as it correctly identifies the target year. The amended query now correctly counts game publisher entries from the appropriate table for the specified year, matching the intended behavior."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM games WHERE release_year = 1984;",
+      "SELECT COUNT(T.game_publisher_id) FROM game_platform AS T WHERE T.release_year = 1984"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(T.game_publisher_id) FROM game_platform T WHERE T.release_year = 1984 AND T.game_publisher_id IS NOT NULL"
+    ],
+    "id": "3457",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting game publisher IDs for games released in a specific year: count the non-null values of T.game_publisher_id instead of counting all rows.",
+      "When the question asks about games released in a specific year: use the game_platform table (aliased as T) instead of the games table, as it contains the release_year field.",
+      "When counting game publisher IDs for games released in a specific year, When the question asks about games released in a specific year, When filtering by release year 1984: use the exact condition T.release_year = 1984 to identify the target year."
+    ]
+  },
+  "46": {
+    "db_id": "retail_complains",
+    "question": "What is the average number of stars given by Oregon clients in their reviews?",
+    "ground_truth": "SELECT CAST(SUM(T3.Stars) AS REAL) / COUNT(T3.Stars) AS average FROM state AS T1 INNER JOIN district AS T2 ON T1.StateCode = T2.state_abbrev INNER JOIN reviews AS T3 ON T2.district_id = T3.district_id WHERE T1.State = 'Oregon'",
+    "amends": [
+      "Do add explicit table joins with `state AS T1 INNER JOIN district AS T2 ON T1.StateCode = T2.state_abbrev INNER JOIN reviews AS T3 ON T2.district_id = T3.district_id` instead of querying `reviews` directly without proper relationships. Do use `T1.State = 'Oregon'` instead of `client_state = 'Oregon'` to filter by the correct state column. Do calculate average as `CAST(SUM(T3.Stars) AS REAL) / COUNT(T3.Stars) AS average` instead of using the `AVG` aggregate function. Do add proper table aliases `T1`, `T2`, and `T3` instead of referencing columns without table qualification. The amended query now correctly joins through the district relationship to calculate average stars for Oregon state."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT AVG(stars) FROM reviews WHERE client_state = 'Oregon';",
+      "SELECT CAST(SUM(T3.Stars) AS REAL) / COUNT(T3.Stars) AS average\nFROM state AS T1 \nINNER JOIN district AS T2 ON T1.StateCode = T2.state_abbrev \nINNER JOIN reviews AS T3 ON T2.district_id = T3.district_id\nWHERE T1.State = 'Oregon'"
+    ],
+    "rule_sql": [
+      "SELECT CAST(SUM(T3.Stars) AS REAL) / COUNT(T3.Stars) AS average\nFROM state T1\nINNER JOIN district T2 ON T1.StateCode = T2.state_abbrev\nINNER JOIN reviews T3 ON T2.district_id = T3.district_id\nWHERE T1.State = 'Oregon'"
+    ],
+    "id": "313",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about average number of stars given by Oregon clients: make sure the output order: average.",
+      "When the question mentions \"Oregon clients\": \"Oregon\" actually means T1.State = 'Oregon' in schema.",
+      "When combining tables for shared entities: link rows where T1.StateCode = T2.state_abbrev and T2.district_id = T3.district_id; keep only matching pairs (inner match).",
+      "When calculating average stars: compute CAST(SUM(T3.Stars) AS REAL) / COUNT(T3.Stars) as average instead of using AVG aggregate function.",
+      "When answering about average number of stars given by Oregon clients, When the question mentions \"Oregon clients\", When combining tables for shared entities, When calculating average stars, When referring to table roles: use T1 for state table, T2 for district table, and T3 for reviews table as established in the amends."
+    ]
+  },
+  "47": {
+    "db_id": "driving_school",
+    "question": "When did Carole Bernhard first become a customer?",
+    "ground_truth": "SELECT date_became_customer FROM Customers WHERE first_name = \"Carole\" AND last_name = \"Bernhard\";",
+    "amends": [
+      "Do select `date_became_customer` instead of `MIN(order_date)` as the target column. Do reference the table as `Customers` instead of `customers` with proper case sensitivity. Do use double quotes `\"Carole\"` and `\"Bernhard\"` instead of single quotes for string literals. Do remove the `MIN` aggregate function since we're selecting a single column value instead of calculating a minimum. The amended query now correctly retrieves the customer's signup date rather than attempting to find the minimum order date, matching the intended behavior of the right SQL."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT MIN(order_date) FROM customers WHERE first_name = 'Carole' AND last_name = 'Bernhard';",
+      "SELECT date_became_customer FROM Customers WHERE first_name = \"Carole\" AND last_name = \"Bernhard\";"
+    ],
+    "rule_sql": [
+      "SELECT date_became_customer FROM Customers WHERE first_name = \"Carole\" AND last_name = \"Bernhard\";"
+    ],
+    "id": "6669",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks about when someone became a customer: select the exact column \"date_became_customer\" instead of order-related dates.",
+      "When referencing the Customers table: use the exact identifier \"Customers\" with proper case sensitivity.",
+      "When using string literals for names: use double quotes exactly as \"Carole\" and \"Bernhard\" instead of single quotes.",
+      "When the question asks about when someone became a customer, When referencing the Customers table, When using string literals for names, When selecting a single date value: do not use aggregate functions like MIN since we're retrieving the actual column value."
+    ]
+  },
+  "48": {
+    "db_id": "talkingdata",
+    "question": "For the event which happened at 23:33:34 on 2016/5/6, how many installed apps were involved?",
+    "ground_truth": "SELECT COUNT(T1.event_id) FROM app_events AS T1 INNER JOIN events AS T2 ON T1.event_id = T2.event_id WHERE SUBSTR(T2.`timestamp`, 1, 10) = '2016-05-06' AND T1.is_installed = '1'",
+    "amends": [
+      "Do select `COUNT(T1.event_id)` from specific column instead of `COUNT(*)` from all rows. Do use `app_events AS T1` and `events AS T2` tables with an `INNER JOIN` on `T1.event_id = T2.event_id` instead of querying only the `installed_apps` table. Do add a WHERE clause with `SUBSTR(T2.timestamp, 1, 10) = '2016-05-06'` for date filtering and `T1.is_installed = '1'` for installation status instead of the simple `event_time = '2016/5/6 23:33:34'` exact timestamp match. Do use proper date format '2016-05-06' instead of '2016/5/6' and extract only the date portion instead of the full timestamp. The amended query now correctly counts installed app events for the specified date by joining relevant tables and applying proper filtering conditions."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 0,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM installed_apps WHERE event_time = '2016/5/6 23:33:34';",
+      "SELECT COUNT(T1.event_id) \nFROM app_events AS T1 \nINNER JOIN events AS T2 ON T1.event_id = T2.event_id \nWHERE SUBSTR(T2.timestamp, 1, 10) = '2016-05-06' \nAND T1.is_installed = 1"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(T1.event_id) \nFROM app_events T1 \nINNER JOIN events T2 ON T1.event_id = T2.event_id \nWHERE SUBSTR(T2.timestamp, 1, 10) = '2016-05-06' \nAND T2.timestamp LIKE '%23:33:34%' \nAND T1.is_installed = 1"
+    ],
+    "id": "1128",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting installed apps for a specific event: use COUNT(T1.event_id) instead of COUNT(*) to count specific events.",
+      "When combining app_events and events tables: link rows where T1.event_id = T2.event_id using an inner join.",
+      "When filtering by date from timestamp: use SUBSTR(T2.timestamp, 1,",
+      "= '2016-05-06' to extract and match the date portion.",
+      "When checking installation status: use T1.is_installed = '1' to filter for installed apps.",
+      "When counting installed apps for a specific event, When combining app_events and events tables, When filtering by date from timestamp, = '2016-05-06' to extract and match the date portion., When checking installation status, When handling date formats: use '2016-05-06' format instead of '2016/5/6' for proper date matching."
+    ]
+  },
+  "49": {
+    "db_id": "food_inspection",
+    "question": "Between 2014 to 2016, what is the average inpsection score of the establishment owned by Yiu Tim Chan in 808 Pacific Ave, San Francisco?",
+    "ground_truth": "SELECT AVG(T1.score) FROM inspections AS T1 INNER JOIN businesses AS T2 ON T1.business_id = T2.business_id WHERE STRFTIME('%Y', T1.`date`) BETWEEN '2014' AND '2016' AND T2.owner_name = 'Yiu Tim Chan' AND T2.address = '808 Pacific Ave' AND T2.city = 'San Francisco'",
+    "amends": [
+      "Do join `businesses AS T2` on `T1.business_id = T2.business_id` instead of querying only the `inspections` table. Do filter by `STRFTIME('%Y', T1.date)` between '2014' and '2016' instead of filtering by exact date range on the raw date field. Do reference `T2.owner_name` and `T2.address` from the joined businesses table instead of using those fields directly from inspections. Do add `T2.city = 'San Francisco'` instead of including city in the address string. Do qualify the aggregate as `AVG(T1.score)` instead of just `AVG(score)`. The amended query now correctly joins the necessary tables and uses proper date filtering by year while maintaining the correct business location criteria."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT AVG(score) \nFROM inspections \nWHERE owner_name = 'Yiu Tim Chan' \nAND address = '808 Pacific Ave, San Francisco' \nAND date BETWEEN '2014-01-01' AND '2016-12-31';",
+      "SELECT AVG(T1.score) \nFROM inspections AS T1\nJOIN businesses AS T2 ON T1.business_id = T2.business_id\nWHERE STRFTIME('%Y', T1.date) BETWEEN '2014' AND '2016'\nAND T2.owner_name = 'Yiu Tim Chan'\nAND T2.address = '808 Pacific Ave'\nAND T2.city = 'San Francisco'"
+    ],
+    "rule_sql": [
+      "SELECT AVG(T1.score) \nFROM inspections T1\nINNER JOIN businesses T2 ON T1.business_id = T2.business_id\nWHERE T2.owner_name = 'Yiu Tim Chan'\nAND T2.address = '808 Pacific Ave'\nAND T2.city = 'San Francisco'\nAND STRFTIME('%Y', T1.date) BETWEEN '2014' AND '2016'"
+    ],
+    "id": "8467",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about average inspection scores: make sure the output order: AVG(T1.score).",
+      "When the question mentions \"owner\" and \"address\": \"owner_name\" actually means \"T2.owner_name in schema\" and \"address\" actually means \"T2.address in schema\".",
+      "When the question mentions a date range between 2014 to 2016: filter by STRFTIME('%Y', T1.date) between '2014' and '2016' instead of exact date ranges.",
+      "When the question specifies \"San Francisco\": add T2.city = 'San Francisco' as a separate condition.",
+      "When combining inspections and businesses tables: link rows where T1.business_id = T2.business_id and keep only matching pairs (inner match).",
+      "When choosing identifier delimiters: do not replace double quotes with backticks or unquoted forms.",
+      "When answering about average inspection scores, When the question mentions \"owner\" and \"address\", When the question mentions a date range between 2014 to 2016, When the question specifies \"San Francisco\", When combining inspections and businesses tables, When choosing identifier delimiters, When handling text literals: do not change case, spacing, or punctuation for values like 'Yiu Tim Chan', '808 Pacific Ave, San Francisco', or 'San Francisco'."
+    ]
+  },
+  "50": {
+    "db_id": "swimming",
+    "question": "List all the event names by year from the most recent to the oldest.",
+    "ground_truth": "SELECT name FROM event ORDER BY YEAR DESC",
+    "amends": [
+      "Do select `name` instead of `event_name` and `year`. Do reference table `event` instead of `events`. Do order by `YEAR DESC` instead of `year ASC`. Do remove the `year` column from the SELECT list instead of including it. The amended query now correctly selects only event names from the event table in descending year order."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT event_name, year FROM events ORDER BY year ASC;",
+      "SELECT name FROM event ORDER BY year DESC;"
+    ],
+    "rule_sql": [
+      "SELECT name FROM event ORDER BY Year DESC;"
+    ],
+    "id": "5603",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for \"event names\": use the exact column token \"name\" from the event table.",
+      "When the question asks to list from \"most recent to the oldest\" by year: order the results by \"YEAR\" in descending order (DESC).",
+      "When the question asks for \"event names by year\" but only wants names in output: exclude the \"year\" column from the final output selection.",
+      "When the question asks for \"event names\", When the question asks to list from \"most recent to the oldest\" by year, When the question asks for \"event names by year\" but only wants names in output, When referencing the events table: use the exact table name \"event\" (not \"events\")."
+    ]
+  },
+  "51": {
+    "db_id": "music_4",
+    "question": "Return names of songs in volumes that are by artists that are at least 32 years old.",
+    "ground_truth": "SELECT T2.Song FROM artist AS T1 JOIN volume AS T2 ON T1.Artist_ID  =  T2.Artist_ID WHERE T1.age  >=  32",
+    "amends": [
+      "Do reference the `songs` table as `T2` with column `Song` instead of `s.name` from `songs s`. Do use `artist AS T1` instead of `artists a` and `volume AS T2` instead of `volumes v`. Do change the join order to `artist AS T1 JOIN volume AS T2` instead of `songs s JOIN volumes v JOIN artists a`. Do use the join condition `T1.Artist_ID = T2.Artist_ID` instead of `s.volume_id = v.id` and `v.artist_id = a.id`. Do change the filter to `T1.age >= 32` instead of `a.age > 32`. The amended query now correctly retrieves songs from artists aged 32 or older by properly joining artist and volume tables."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT s.name \nFROM songs s\nJOIN volumes v ON s.volume_id = v.id\nJOIN artists a ON v.artist_id = a.id\nWHERE a.age > 32;",
+      "SELECT T2.Song \nFROM artist AS T1 \nJOIN volume AS T2 ON T1.Artist_ID = T2.Artist_ID \nWHERE T1.Age >= 32"
+    ],
+    "rule_sql": [
+      "SELECT T2.Song FROM artist AS T1 INNER JOIN volume AS T2 ON T1.Artist_ID = T2.Artist_ID WHERE T1.Age >= 32"
+    ],
+    "id": "6172",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for song names: use the exact column token \"Song\" from table T2.",
+      "When combining artist and volume tables: link rows where T1.Artist_ID = T2.Artist_ID and keep only matching pairs (inner match).",
+      "When filtering for artists that are at least 32 years old: use the condition T1.age >= 32 (inclusive of 32).",
+      "When the question asks for song names, When combining artist and volume tables, When filtering for artists that are at least 32 years old, When referencing tables: use artist as T1 and volume as T2 with their exact identifier tokens."
+    ]
+  },
+  "52": {
+    "db_id": "works_cycles",
+    "question": "Which seasonal discount had the highest discount percentage?",
+    "ground_truth": "SELECT Description FROM SpecialOffer WHERE Type = 'Seasonal Discount' ORDER BY DiscountPct DESC LIMIT 1",
+    "amends": [
+      "Do select `Description` instead of `season, MAX(discount_percentage)` and change the source table to `SpecialOffer` instead of `seasonal_discounts`. Do add a WHERE filter for `Type = 'Seasonal Discount'` instead of omitting it, and remove the aggregate function `MAX` instead of keeping it. Do add ORDER BY `DiscountPct DESC` instead of omitting ordering, and add LIMIT 1 instead of omitting row limiting. The amended query now correctly retrieves the description of the top seasonal discount by percentage rather than attempting to find maximum discounts across seasons without proper filtering."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT season, MAX(discount_percentage) FROM seasonal_discounts;",
+      "SELECT Description FROM SpecialOffer WHERE Type = 'Seasonal Discount' ORDER BY DiscountPct DESC LIMIT 1;"
+    ],
+    "rule_sql": [
+      "SELECT Description FROM SpecialOffer WHERE Type = 'Seasonal Discount' ORDER BY DiscountPct DESC LIMIT 1;"
+    ],
+    "id": "7051",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about \"seasonal discount\": filter for rows where \"Type\" equals 'Seasonal Discount' exactly.",
+      "When the question asks for the \"highest discount percentage\": order rows by \"DiscountPct\" in descending order and keep only the first row.",
+      "When the question asks \"which seasonal discount\": output the \"Description\" column instead of season or discount percentage values.",
+      "When the question asks about \"seasonal discount\", When the question asks for the \"highest discount percentage\", When the question asks \"which seasonal discount\", When selecting from the database: use table \"SpecialOffer\" instead of \"seasonal_discounts\" as the source table."
+    ]
+  },
+  "60": {
+    "db_id": "beer_factory",
+    "question": "Among the users that permit the company to send regular emails to them, how many of them had made a transaction with a Visa card in July, 2014?",
+    "ground_truth": "SELECT COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN `transaction` AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.SubscribedToEmailList = 'TRUE' AND T2.CreditCardType = 'Visa' AND STRFTIME('%Y-%m', T2.TransactionDate) = '2014-07'",
+    "amends": [
+      "Do count `T1.CustomerID` instead of `COUNT(*)` to avoid counting nulls. Do use table aliases `customers AS T1` and `transaction AS T2` instead of `users u` and `transactions t`. Do join on `T1.CustomerID = T2.CustomerID` instead of `u.user_id = t.user_id` with corrected column references. Do filter with `T1.SubscribedToEmailList = 'TRUE'` instead of `u.email_permission = 1` using proper boolean semantics. Do filter with `T2.CreditCardType = 'Visa'` instead of `t.card_type = 'Visa'` with corrected column name. Do use `STRFTIME('%Y-%m', T2.TransactionDate) = '2014-07'` for precise date matching instead of `LIKE '2014-07%'` pattern matching. The amended query now correctly counts subscribed Visa customers for July 2014 with proper date handling and column references."
+    ],
+    "rules": [
+      "When counting customers: count distinct T1.CustomerID instead of all rows to avoid duplicate counts.",
+      "When combining customer and transaction data: link rows where T1.CustomerID = T2.CustomerID using an inner match.",
+      "When filtering by email permission status: use T1.SubscribedToEmailList = 'TRUE' instead of email_permission = 1 to use the proper boolean string representation.",
+      "When filtering by credit card type: use T2.CreditCardType = 'Visa' instead of card_type = 'Visa' to reference the correct table alias and column.",
+      "When counting customers, When combining customer and transaction data, When filtering by email permission status, When filtering by credit card type, When filtering by date range for July 2014: apply strftime('%Y-%m', T2.TransactionDate) = '2014-07' to extract year-month from the date field rather than assuming a separate month column exists."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) \nFROM users u\nJOIN transactions t ON u.user_id = t.user_id\nWHERE u.email_permission = 1\nAND t.card_type = 'Visa'\nAND t.transaction_date LIKE '2014-07%';",
+      "SELECT COUNT(T1.CustomerID) \nFROM customers AS T1 \nJOIN \"transaction\" AS T2 ON T1.CustomerID = T2.CustomerID \nWHERE T1.SubscribedToEmailList = 'TRUE' \nAND T2.CreditCardType = 'Visa' \nAND STRFTIME('%Y-%m', T2.TransactionDate) = '2014-07'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(DISTINCT T1.CustomerID) \nFROM customers AS T1 \nJOIN \"transaction\" AS T2 ON T1.CustomerID = T2.CustomerID \nWHERE T1.SubscribedToEmailList = 'TRUE' \nAND T2.CreditCardType = 'Visa' \nAND STRFTIME('%Y-%m', T2.TransactionDate) = '2014-07'"
+    ],
+    "id": "5230",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting customers: count T1.CustomerID instead of all columns to avoid counting null values.",
+      "When referring to users and transactions tables: use aliases customers AS T1 and transaction AS T2 respectively.",
+      "When joining customers and transaction tables: link rows where T1.CustomerID = T2.CustomerID.",
+      "When filtering for email permission: use T1.SubscribedToEmailList = 'TRUE' instead of numeric values.",
+      "When filtering for Visa card transactions: use T2.CreditCardType = 'Visa' with exact case.",
+      "When counting customers, When referring to users and transactions tables, When joining customers and transaction tables, When filtering for email permission, When filtering for Visa card transactions, When filtering for July 2014 transactions: use STRFTIME('%Y-%m', T2.TransactionDate) = '2014-07' for precise month-year matching instead of pattern matching."
+    ]
+  },
+  "61": {
+    "db_id": "retails",
+    "question": "What are the top 2 order keys of the item with the highest amount of extended price?",
+    "ground_truth": "SELECT l_orderkey FROM lineitem ORDER BY l_extendedprice DESC LIMIT 2",
+    "amends": [
+      "Do reference column `l_orderkey` instead of `orderkey` in the SELECT list. Do reference column `l_extendedprice` instead of `extendedprice` in the ORDER BY clause. The amended query now correctly matches the intended behavior by using the proper column names from the lineitem table schema."
+    ],
+    "rules": [
+      "When the question asks for \"order keys\": use the exact identifier \"T1.l_orderkey\" from the schema.",
+      "When combining data from multiple tables: perform an INNER JOIN between \"lineitem AS T1\" and \"orders AS T2\" where \"T1.l_orderkey = T2.o_orderkey\" to link related records.",
+      "When finding the item with the highest amount of extended price: filter rows where \"T1.l_extendedprice\" equals the maximum value of \"l_extendedprice\" from the \"lineitem\" table.",
+      "When the question asks for \"top 2\" results: limit the output to exactly 2 rows after applying all filters and joins.",
+      "When the question asks for \"order keys\", When combining data from multiple tables, When finding the item with the highest amount of extended price, When the question asks for \"top 2\" results, When selecting columns: only include \"T1.l_orderkey\" in the output since it's the specific column requested for order keys."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT orderkey FROM lineitem ORDER BY extendedprice DESC LIMIT 2;",
+      "SELECT l_orderkey\nFROM lineitem\nORDER BY l_extendedprice DESC\nLIMIT 2;"
+    ],
+    "rule_sql": [
+      "SELECT l_orderkey FROM lineitem ORDER BY l_extendedprice DESC LIMIT 2"
+    ],
+    "id": "6369",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks for \"order keys\": use the exact column name \"l_orderkey\" from the lineitem table.",
+      "When the question asks about \"extended price\": use the exact column name \"l_extendedprice\" from the lineitem table.",
+      "When the question asks for \"order keys\", When the question asks about \"extended price\", When the question asks for \"top 2\" items by a column value: rank rows by the specified column in descending order and keep the first 2 rows."
+    ]
+  },
+  "62": {
+    "db_id": "pets_1",
+    "question": "How many dog pets are raised by female students?",
+    "ground_truth": "SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  'F' AND T3.pettype  =  'dog'",
+    "amends": [
+      "Do join `has_pet` as an intermediate table between `students` and `pets` instead of directly joining `pets` to `students`. Do use `T1.stuid = T2.stuid` for the student join condition instead of `p.owner_id = s.student_id`. Do use `T2.petid = T3.petid` for the pet join condition instead of missing this relationship. Do reference `T1.sex` instead of `s.gender` for the gender filter. Do reference `T3.pettype` instead of `p.pet_type` for the pet type filter. Do use value 'F' instead of 'female' for the gender condition. The amended query now correctly models the many-to-many relationship between students and pets through the has_pet junction table and matches the right SQL's behavior."
+    ],
+    "rules": [
+      "When joining student and has_pet tables: link rows where T1.stuid equals T2.stuid exactly as shown in the amends (T1.stuid = T2.stuid).",
+      "When joining has_pet and pets tables: link rows where T2.petid equals T3.petid exactly as shown in the amends (T2.petid = T3.petid).",
+      "When filtering for female students: use T1.sex = 'F' with exact literal 'F' (not 'female').",
+      "When filtering for dog pets: use T3.pettype = 'dog' with exact literal 'dog'.",
+      "When joining student and has_pet tables, When joining has_pet and pets tables, When filtering for female students, When filtering for dog pets, When counting dog pets raised by female students: count the number of rows that satisfy both conditions after proper joins and filters."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM pets p JOIN students s ON p.owner_id = s.student_id WHERE p.pet_type = 'dog' AND s.gender = 'female';",
+      "SELECT COUNT(*) \nFROM Student T1\nJOIN Has_Pet T2 ON T1.StuID = T2.StuID\nJOIN Pets T3 ON T2.PetID = T3.PetID\nWHERE T1.Sex = 'F' AND T3.PetType = 'dog'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(*) \nFROM Student T1\nJOIN Has_Pet T2 ON T1.StuID = T2.StuID\nJOIN Pets T3 ON T2.PetID = T3.PetID\nWHERE T1.Sex = 'F' AND T3.PetType = 'dog'"
+    ],
+    "id": "54",
+    "origin_dataset": "Spider_dev",
+    "original_rules": [
+      "When the question asks about dog pets raised by female students: use the has_pet table as an intermediate junction table between students and pets instead of directly joining pets to students.",
+      "When joining students and has_pet tables: link rows where T1.stuid = T2.stuid exactly.",
+      "When joining has_pet and pets tables: link rows where T2.petid = T3.petid exactly.",
+      "When filtering by gender: use T1.sex = 'F' instead of 'female'.",
+      "When the question asks about dog pets raised by female students, When joining students and has_pet tables, When joining has_pet and pets tables, When filtering by gender, When filtering by pet type: use T3.pettype = 'dog' instead of p.pet_type."
+    ]
+  },
+  "63": {
+    "db_id": "disney",
+    "question": "What are the names of the characters voiced by Frank Welker?",
+    "ground_truth": "SELECT character FROM `voice-actors` WHERE 'voice-actor' = 'Frank Welker'",
+    "amends": [
+      "Do reference the `character` column instead of `name` from the correct table source. Do use the table `voice-actors` instead of `characters` as the data source. Do apply the filter on the correct column `voice-actor` instead of `voice_actor` while maintaining the same literal value comparison. The amended query now correctly retrieves character names associated with Frank Welker from the appropriate table structure.",
+      "Do use backticks `voice-actors` instead of double quotes \"voice-actors\" for the table identifier, and do use single quotes 'voice-actor' instead of double quotes \"voice-actor\" for the column identifier to maintain proper SQL syntax and string literal handling. The amended query now correctly uses consistent quoting conventions and matches the RIGHT_SQL's behavior.",
+      "Do use the correct column name `voice-actor` in the WHERE clause instead of the incorrect column name `voice-actor` with backticks, which was mistakenly written as `voice-actor` without proper escaping. This ensures the query correctly filters records where the voice-actor column equals 'Frank Welker' rather than attempting to compare a string literal to another string literal. The amended query now matches the intended behavior of filtering by the voice-actor column value.",
+      "Do use the correct column name `voice-actor` in the WHERE clause instead of the incorrect column name `voice-actor` (with a space instead of a hyphen). This change ensures the query properly filters records where the voice-actor column equals 'Frank Welker' rather than attempting to filter on a non-existent column. The amended query now correctly matches the intended behavior of selecting characters associated with Frank Welker.",
+      "Do use the correct column name `voice-actor` in the WHERE clause instead of the incorrect column name `voice-actor` (which appears identical but may have different character encoding or case sensitivity). The predicate remains the same comparison to the literal value 'Frank Welker', but the column reference is now properly identified to match the intended filtering logic. This amendment ensures the query correctly filters records based on the voice-actor column rather than potentially referencing a non-existent or differently named column. The amended query now matches RIGHT_SQL's behavior by using the proper column identifier."
+    ],
+    "rules": [],
+    "amend_res": 0,
+    "rule_res": 0,
+    "amend_sql": [
+      "SELECT name FROM characters WHERE voice_actor = 'Frank Welker';",
+      "SELECT character FROM \"voice-actors\" WHERE \"voice-actor\" = 'Frank Welker'",
+      "SELECT character FROM `voice-actors` WHERE `voice-actor` = 'Frank Welker'",
+      "SELECT character FROM `voice-actors` WHERE `voice-actor` = 'Frank Welker'",
+      "SELECT character FROM `voice-actors` WHERE `voice-actor` = 'Frank Welker'",
+      "SELECT character FROM `voice-actors` WHERE `voice-actor` = 'Frank Welker'"
+    ],
+    "rule_sql": [],
+    "id": "4642",
+    "origin_dataset": "Bird_train",
+    "original_rules": []
+  },
+  "64": {
+    "db_id": "car_retails",
+    "question": "How many employees are there in Sydney?",
+    "ground_truth": "SELECT COUNT(employeeNumber) FROM employees WHERE officeCode = ( SELECT officeCode FROM offices WHERE city = 'Sydney' )",
+    "amends": [
+      "Do count `employeeNumber` instead of `*` to exclude null values. Do change the WHERE filter to use `officeCode = (subquery)` instead of direct `city = 'Melbourne'` to properly reference the office relationship. Do add a correlated subquery `SELECT officeCode FROM offices WHERE city = 'Sydney'` instead of omitting the offices table join logic. The amended query now correctly counts employees based on their office location relationship rather than assuming city is stored directly in the employees table."
+    ],
+    "rules": [
+      "for filtering by location: use \"t2.city\" from the offices table instead of \"location\" from the employees table",
+      "for combining employee and office data: perform an inner join where \"t1.officecode\" equals \"t2.officecode\" to link employees to their corresponding offices",
+      "for filtering by location, for combining employee and office data, for counting employees in a specific location: count the number of rows where the joined result shows \"t2.city\" is equal to 'Sydney'"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM employees WHERE city = 'Melbourne';",
+      "SELECT COUNT(employeeNumber) FROM employees WHERE officeCode = (SELECT officeCode FROM offices WHERE city = 'Sydney')"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(employeeNumber) FROM employees WHERE officeCode IN (SELECT officeCode FROM offices WHERE city = 'Sydney');"
+    ],
+    "id": "1548",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting employees: count using the exact token \"employeeNumber\" instead of counting all rows to exclude null values.",
+      "When filtering employees by city: use the office relationship through \"officeCode\" instead of direct city comparison, since city is not stored in the employees table.",
+      "When the question mentions \"Sydney\": use the exact literal 'Sydney' in the subquery condition to match offices in that city.",
+      "When counting employees, When filtering employees by city, When the question mentions \"Sydney\", When combining employee and office data: use a correlated subquery that selects \"officeCode\" from offices where city equals 'Sydney' to properly reference the office relationship."
+    ]
+  },
+  "65": {
+    "db_id": "apartment_rentals",
+    "question": "Show the total number of rooms of the apartments in the building with short name \"Columbus Square\".",
+    "ground_truth": "SELECT sum(T2.room_count) FROM Apartment_Buildings AS T1 JOIN Apartments AS T2 ON T1.building_id  =  T2.building_id WHERE T1.building_short_name  =  \"Columbus Square\"",
+    "amends": [
+      "Do select `sum(T2.room_count)` instead of `COUNT(*)` to calculate total room count rather than apartment count. Do join `Apartment_Buildings AS T1` and `Apartments AS T2` instead of querying only `apartments` to access building information. Do use `ON T1.building_id = T2.building_id` to properly relate buildings to their apartments. Do filter on `T1.building_short_name = \"Columbus Square\"` instead of `building_name = 'Columbus Square'` to use the correct column name and table reference. The amended query now correctly calculates total room count for the specified building by joining the appropriate tables and using the proper aggregation."
+    ],
+    "rules": [
+      "When calculating total room count from apartment data: use sum(T2.room_count) instead of counting rows to aggregate actual room values.",
+      "When joining apartment buildings and apartments tables: link rows where T1.building_id = T2.building_id to properly associate apartments with their buildings.",
+      "When filtering by building short name: reference T1.building_short_name instead of just building_short_name to specify the correct table source.",
+      "When calculating total room count from apartment data, When joining apartment buildings and apartments tables, When filtering by building short name, When the question mentions \"building with short name 'Columbus Square'\": filter using the exact literal \"Columbus Square\" with double quotes around the value."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM apartments WHERE building_name = 'Columbus Square';",
+      "SELECT SUM(CAST(T2.room_count AS INTEGER)) AS total_rooms\nFROM Apartment_Buildings AS T1\nJOIN Apartments AS T2 ON T1.building_id = T2.building_id\nWHERE T1.building_short_name = 'Columbus Square'"
+    ],
+    "rule_sql": [
+      "SELECT SUM(CAST(T2.room_count AS INTEGER)) AS total_rooms\nFROM Apartment_Buildings AS T1\nJOIN Apartments AS T2 ON T1.building_id = T2.building_id\nWHERE T1.building_short_name = 'Columbus Square';"
+    ],
+    "id": "1242",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When calculating total room count for apartments: use sum(T2.room_count) instead of counting rows.",
+      "When accessing building information for apartments: join Apartment_Buildings AS T1 and Apartments AS T2 using T1.building_id = T2.building_id.",
+      "When filtering by building short name \"Columbus Square\": use T1.building_short_name = \"Columbus Square\" instead of building_name.",
+      "When calculating total room count for apartments, When accessing building information for apartments, When filtering by building short name \"Columbus Square\", When answering about total number of rooms in a building: ensure the query combines building and apartment data through proper table joining."
+    ]
+  },
+  "66": {
+    "db_id": "local_govt_in_alabama",
+    "question": "Which services type had both successful and failure event details?",
+    "ground_truth": "SELECT T1.service_type_code FROM services AS T1 JOIN EVENTS AS T2 ON T1.service_id  =  T2.service_id WHERE T2.event_details  =  'Success' INTERSECT SELECT T1.service_type_code FROM services AS T1 JOIN EVENTS AS T2 ON T1.service_id  =  T2.service_id WHERE T2.event_details  =  'Fail'",
+    "amends": [
+      "Do select `service_type_code` from the `services` table instead of `service_type` from `events`. Do join `services AS T1` with `EVENTS AS T2` on `T1.service_id = T2.service_id` instead of querying only the `events` table. Do use `INTERSECT` to find services with both 'Success' and 'Fail' events instead of the impossible condition `event_details = 'successful' AND event_details = 'failure'`. Do filter for `event_details = 'Success'` in one branch and `event_details = 'Fail'` in the other instead of the contradictory single filter. The amended query now correctly identifies services that have experienced both successful and failed events by using an intersection of two properly joined queries."
+    ],
+    "rules": [],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT service_type FROM events WHERE event_details = 'successful' AND event_details = 'failure'",
+      "SELECT T1.Service_Type_Code\nFROM Services AS T1\nJOIN Events AS T2 ON T1.Service_ID = T2.Service_ID\nWHERE T2.Event_Details = 'Success'\nINTERSECT\nSELECT T1.Service_Type_Code\nFROM Services AS T1\nJOIN Events AS T2 ON T1.Service_ID = T2.Service_ID\nWHERE T2.Event_Details = 'Fail'"
+    ],
+    "rule_sql": [
+      "SELECT T1.service_type_code\nFROM Services AS T1\nJOIN Events AS T2 ON T1.service_id = T2.service_id\nWHERE T2.event_details = 'Success'\nINTERSECT\nSELECT T1.service_type_code\nFROM Services AS T1\nJOIN Events AS T2 ON T1.service_id = T2.service_id\nWHERE T2.event_details = 'Fail'"
+    ],
+    "id": "2150",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about service types with both successful and failure events: select \"service_type_code\" from the \"services\" table as T1.",
+      "When combining services and events tables: join T1 (services) with T2 (events) where T1.\"service_id\" = T2.\"service_id\" and keep only matching pairs.",
+      "When finding services with both success and failure events: use INTERSECT to combine results from services with T2.\"event_details\" = 'Success' and services with T2.\"event_details\" = 'Fail'.",
+      "When filtering for successful events: use exact literal 'Success' for T2.\"event_details\".",
+      "When answering about service types with both successful and failure events, When combining services and events tables, When finding services with both success and failure events, When filtering for successful events, When filtering for failure events: use exact literal 'Fail' for T2.\"event_details\"."
+    ]
+  },
+  "67": {
+    "db_id": "music_platform_2",
+    "question": "List the authors who created review for podcast titled 'Pop Rocket' in 2016 with rating less than 5.",
+    "ground_truth": "SELECT T2.author_id FROM podcasts AS T1 INNER JOIN reviews AS T2 ON T2.podcast_id = T1.podcast_id WHERE T1.title = 'Pop Rocket' AND T2.created_at LIKE '2016-%' AND T2.rating < 5",
+    "amends": [
+      "Do select `T2.author_id` instead of `author_name` and change the source tables to use `podcasts AS T1` and `reviews AS T2` instead of just `authors`. Do use `INNER JOIN` on `T2.podcast_id = T1.podcast_id` instead of querying a single table. Do change the filter to `T1.title = 'Pop Rocket'` instead of `podcast_title = 'Pop Rocket'` and use `T2.created_at LIKE '2016-%'` for year filtering instead of `year = 2016`. Do change the rating condition to `T2.rating < 5` instead of `rating >= 5`. The amended query now correctly joins the podcasts and reviews tables to find authors with low ratings for the specified podcast in 2016, matching the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "When the question asks for authors who created reviews: select \"T2.author_id\" from the \"reviews\" table instead of \"author_name\" from a non-existent \"reviews\" table.",
+      "When combining data about podcasts and reviews: join \"podcasts AS T1\" with \"reviews AS T2\" where \"T2.podcast_id = T1.podcast_id\" to link related records.",
+      "When filtering for a specific podcast title: use \"T1.title = 'Pop Rocket'\" exactly as specified.",
+      "When filtering by year 2016: extract the year from \"T2.created_at\" using \"strftime('%Y', T2.created_at) = '2016'\" instead of a direct year field.",
+      "When the question asks for authors who created reviews, When combining data about podcasts and reviews, When filtering for a specific podcast title, When filtering by year 2016, When filtering for ratings less than 5: apply the condition \"rating < 5\" to the joined table structure."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT author_name FROM authors WHERE podcast_title = 'Pop Rocket' AND year = 2016 AND rating >= 5;",
+      "SELECT T2.author_id\nFROM podcasts AS T1\nINNER JOIN reviews AS T2 ON T2.podcast_id = T1.podcast_id\nWHERE T1.title = 'Pop Rocket'\nAND T2.created_at LIKE '2016-%'\nAND T2.rating < 5"
+    ],
+    "rule_sql": [
+      "SELECT DISTINCT T2.author_id\nFROM reviews T2\nJOIN podcasts T1 ON T2.podcast_id = T1.podcast_id\nWHERE T1.title = 'Pop Rocket'\nAND T2.created_at LIKE '2016-%'\nAND T2.rating < 5"
+    ],
+    "id": "7575",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about authors who created reviews: use the \"reviews\" table (T2) as the main source and join with \"podcasts\" table (T1) using T2.podcast_id = T1.podcast_id.",
+      "When filtering for podcast title 'Pop Rocket': use T1.title = 'Pop Rocket' exactly as specified.",
+      "When filtering for year 2016: use T2.created_at LIKE '2016-%' to match dates from that year.",
+      "When filtering for rating less than 5: use T2.rating < 5 (strictly less than 5).",
+      "When the question asks about authors who created reviews, When filtering for podcast title 'Pop Rocket', When filtering for year 2016, When filtering for rating less than 5, When selecting author information: use T2.author_id instead of author_name from the authors table."
+    ]
+  },
+  "75": {
+    "db_id": "soccer_2016",
+    "question": "Who among the players won both \"Man of the Series\" and \"Orange Cap\" in the same season?",
+    "ground_truth": "SELECT T1.Player_Name FROM Player AS T1 INNER JOIN Season AS T2 ON T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap",
+    "amends": [
+      "Do use `INNER JOIN` between `Player` and `Season` tables instead of querying only the `players` table. Do join on the correct relationship `T1.Player_Id = T2.Man_of_the_Series` instead of the incorrect join condition `T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap`. Do reference the joined table columns `T2.Man_of_the_Series` and `T2.Orange_Cap` instead of filtering on literal string values 'Yes'. Do remove the incorrect `season = 'same'` filter instead of keeping it, as the season logic is handled through the join. Do use proper table aliases `T1` and `T2` instead of direct table references. The amended query now correctly identifies players who were both man of the series and orange cap winners through proper table relationships instead of incorrect literal value comparisons.",
+      "Do use a single combined join condition `T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap` instead of separate join and WHERE clauses. Do remove the explicit WHERE filter `T2.Man_of_the_Series = T2.Orange_Cap` instead of keeping it as a separate condition. The amended query now correctly combines the join and filter logic into a single efficient condition that matches the RIGHT_SQL's behavior.",
+      "Do use a single equality comparison `T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap` in the JOIN condition instead of two separate conditions `T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap`. The amended query now correctly joins when the player ID equals both the Man_of_the_Series and Orange_Cap values simultaneously, matching the intended logic.",
+      "Do use a single equality comparison `T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap` instead of two separate join conditions `T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap`. The amended query now correctly joins when the player is both Man of the Series and Orange Cap holder in the same season, matching the intended logic.",
+      "Do use a single equality comparison `T1.Player_Id = T2.Man_of_the_Series = T2.Orange_Cap` in the JOIN condition instead of two separate conditions `T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap`. This change ensures the query correctly joins when the same player holds both the Man of the Series and Orange Cap awards simultaneously, rather than finding players who hold either award separately. The amended query now matches RIGHT_SQL's behavior by properly identifying players who achieved both honors in the same season."
+    ],
+    "rules": [
+      "When the question asks about players winning specific awards: select distinct player names from the joined result instead of selecting all columns.",
+      "When combining award data across different tables: perform an INNER JOIN between seasons table (as T1) and players table (as T2) where T1.Man_of_the_Series equals T2.Player_Id.",
+      "When filtering for Orange Cap winners: add another INNER JOIN to the players table (as T3) where T1.Orange_Cap equals T3.Player_Id.",
+      "When ensuring players won both awards in the same season: group by T2.Player_Name and only include groups having exactly 2 distinct season records (using HAVING COUNT(DISTINCT T1.Season_Year) =",
+      "When the question asks about players winning specific awards, When combining award data across different tables, When filtering for Orange Cap winners, When ensuring players won both awards in the same season, instead of checking for duplicate rows)., When handling season-specific awards: remove any WHERE clause that filters for specific award types since the join conditions already handle this logic through proper table relationships."
+    ],
+    "amend_res": 0,
+    "rule_res": 0,
+    "amend_sql": [
+      "SELECT player_name \nFROM players \nWHERE man_of_series = 'Yes' AND orange_cap = 'Yes' \nAND season = 'same'",
+      "SELECT T1.Player_Name\nFROM Player T1\nINNER JOIN Season T2 ON T1.Player_Id = T2.Man_of_the_Series\nWHERE T2.Man_of_the_Series = T2.Orange_Cap",
+      "SELECT T1.Player_Name\nFROM Player T1\nINNER JOIN Season T2 ON T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap",
+      "SELECT T1.Player_Name\nFROM Player T1\nINNER JOIN Season T2 ON T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap",
+      "SELECT T1.Player_Name\nFROM Player T1\nINNER JOIN Season T2 ON T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap",
+      "SELECT T1.Player_Name\nFROM Player T1\nINNER JOIN Season T2 ON T1.Player_Id = T2.Man_of_the_Series AND T1.Player_Id = T2.Orange_Cap"
+    ],
+    "rule_sql": [],
+    "id": "1943",
+    "origin_dataset": "Bird_train",
+    "original_rules": []
+  },
+  "76": {
+    "db_id": "olympics",
+    "question": "How many athletes took part in the Olympic games held in Barcelona?",
+    "ground_truth": "SELECT COUNT(T1.person_id) FROM games_competitor AS T1 INNER JOIN games_city AS T2 ON T1.games_id = T2.games_id INNER JOIN city AS T3 ON T2.city_id = T3.id WHERE T3.city_name = 'Barcelona'",
+    "amends": [
+      "Do select `COUNT(T1.person_id)` from the `games_competitor` table instead of `COUNT(*)` from the `athletes` table. Do add joins with `games_city` on `T1.games_id = T2.games_id` and `city` on `T2.city_id = T3.id` instead of querying a single table. Do filter on `T3.city_name = 'Barcelona'` instead of `city = 'Barcelona'` to properly reference the city name through the joined relationships. The amended query now correctly counts competitors who participated in Barcelona games by traversing the proper table relationships instead of incorrectly counting athletes from a city field that may not contain the intended semantic meaning."
+    ],
+    "rules": [
+      "When counting athletes/competitors: count distinct person_id values from the games_competitor table instead of counting all rows.",
+      "When relating games to cities: use the games_city association table to connect games to cities through city_id relationships.",
+      "When filtering by city name 'Barcelona': first find the city_id where city_name equals 'Barcelona' exactly, then use that ID to filter games_city records.",
+      "When counting athletes/competitors, When relating games to cities, When filtering by city name 'Barcelona', When combining data across normalized tables: link games_competitor to games_city through their relationship keys (games_id) rather than assuming direct location access on athlete entities."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM athletes WHERE city = 'Barcelona';",
+      "SELECT COUNT(T1.person_id) \nFROM games_competitor T1\nJOIN games_city T2 ON T1.games_id = T2.games_id\nJOIN city T3 ON T2.city_id = T3.id\nWHERE T3.city_name = 'Barcelona'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(DISTINCT T1.person_id) \nFROM games_competitor T1\nINNER JOIN games_city T2 ON T1.games_id = T2.games_id\nINNER JOIN city T3 ON T2.city_id = T3.id\nWHERE T3.city_name = 'Barcelona'"
+    ],
+    "id": "5042",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting athletes who participated in Olympic games: use COUNT(T1.person_id) from the games_competitor table instead of COUNT(*) from the athletes table.",
+      "When the question mentions \"Barcelona\": \"Barcelona\" actually means T3.city_name = 'Barcelona' in the city table.",
+      "When counting athletes who participated in Olympic games, When the question mentions \"Barcelona\", When combining games_competitor, games_city, and city tables: link rows where T1.games_id = T2.games_id and T2.city_id = T3.id; keep only matching pairs (inner match)."
+    ]
+  },
+  "77": {
+    "db_id": "hospital_1",
+    "question": "Find the number of patients who are not using the medication of Procrastin-X.",
+    "ground_truth": "SELECT count(*) FROM patient WHERE SSN NOT IN ( SELECT T1.patient FROM Prescribes AS T1 JOIN Medication AS T2 ON T1.Medication  =  T2.Code WHERE T2.name  =  'Procrastin-X' )",
+    "amends": [
+      "Do use `patient` as the table name instead of `patients`. Do add a subquery with `Prescribes` and `Medication` tables joined on `T1.Medication = T2.Code` instead of directly filtering on a medication column. Do filter with `T2.name = 'Procrastin-X'` in the subquery instead of `medication = 'Procrastin-X'` in the main WHERE clause. Do use `SSN NOT IN` to exclude patients who have been prescribed the medication instead of counting all patients with that medication. The amended query now correctly counts patients who have never been prescribed Procrastin-X, matching the intended behavior."
+    ],
+    "rules": [
+      "When referencing the medication table: use the exact identifier \"medication\" (not \"medications\") and select only the \"name\" column.",
+      "When filtering for the specific medication 'Procrastin-X': use double quotes around the literal value exactly as shown ('Procrastin-X').",
+      "When checking if medications are not equal to a specific drug: compare against the actual medication name field (medication.name) rather than treating it as a boolean flag.",
+      "When referencing the medication table, When filtering for the specific medication 'Procrastin-X', When checking if medications are not equal to a specific drug, When counting patients not using a specific medication: ensure the subquery correctly identifies medications by their name before correlating with patient prescriptions."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM patients WHERE medication = 'Procrastin-X';",
+      "SELECT COUNT(*) \nFROM Patient \nWHERE SSN NOT IN (\n    SELECT DISTINCT Patient \n    FROM Prescribes \n    JOIN Medication ON Prescribes.Medication = Medication.Code \n    WHERE Medication.Name = 'Procrastin-X'\n)"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(*) \nFROM patient \nWHERE SSN NOT IN (\n    SELECT p.Patient \n    FROM Prescribes p \n    JOIN Medication m ON p.Medication = m.Code \n    WHERE m.Name = 'Procrastin-X'\n)"
+    ],
+    "id": "3992",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks about patients who are not using a specific medication: use the table name \"patient\" instead of \"patients\".",
+      "When filtering for medication 'Procrastin-X': join \"Prescribes\" and \"Medication\" tables where T1.Medication = T2.Code and filter with T2.name = 'Procrastin-X' instead of using a medication column directly.",
+      "When counting patients who have never been prescribed a specific medication: use SSN NOT IN (subquery) to exclude patients who have been prescribed that medication rather than counting patients with that medication.",
+      "When the question asks about patients who are not using a specific medication, When filtering for medication 'Procrastin-X', When counting patients who have never been prescribed a specific medication, When handling the medication name 'Procrastin-X': preserve the exact case and spelling as 'Procrastin-X'."
+    ]
+  },
+  "78": {
+    "db_id": "chicago_crime",
+    "question": "At which district did the multiple homicide case number JB120039 occurred?",
+    "ground_truth": "SELECT T1.district_no, T1.district_name FROM District AS T1 INNER JOIN Crime AS T2 ON T1.district_no = T2.district_no WHERE T2.case_number = 'JB120039' GROUP BY T1.district_no, T1.district_name",
+    "amends": [
+      "Do select `T1.district_no` and `T1.district_name` instead of just `district`. Do join `District AS T1` with `Crime AS T2` using `INNER JOIN` on `T1.district_no = T2.district_no` instead of querying only the `cases` table. Do filter on `T2.case_number = 'JB120039'` instead of filtering on both `case_number` and `crime_type`. Do add `GROUP BY T1.district_no, T1.district_name` instead of omitting grouping. Do remove the `crime_type = 'homicide'` filter instead of keeping it. The amended query now correctly retrieves district information by joining the appropriate tables and grouping the results."
+    ],
+    "rules": [
+      "When the question asks about district information for a specific case: select both T1.district_no and T1.district_name instead of just district.",
+      "When joining tables to find district information for a specific case: use INNER JOIN between District AS T1 and Crime AS T2 on T1.district_no = T2.district_no instead of querying only one table.",
+      "When filtering by case number 'JB120039': apply the filter condition T2.case_number = 'JB120039' to the joined Crime table T2.",
+      "When the question asks about district information for a specific case, When joining tables to find district information for a specific case, When filtering by case number 'JB120039', When retrieving district information for a specific case: add DISTINCT modifier to eliminate duplicate results."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT district FROM cases WHERE case_number = 'JB120039' AND crime_type = 'homicide';",
+      "SELECT T1.district_no, T1.district_name\nFROM District AS T1\nINNER JOIN Crime AS T2 ON T1.district_no = T2.district_no\nWHERE T2.case_number = 'JB120039'\nGROUP BY T1.district_no, T1.district_name"
+    ],
+    "rule_sql": [
+      "SELECT T1.district_no, T1.district_name\nFROM District AS T1\nINNER JOIN Crime AS T2 ON T1.district_no = T2.district_no\nWHERE T2.case_number = 'JB120039'\nGROUP BY T1.district_no, T1.district_name"
+    ],
+    "id": "8393",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about district information for a specific case: select both T1.district_no and T1.district_name instead of just district.",
+      "When joining tables to find district information for a case: use INNER JOIN between District AS T1 and Crime AS T2 on T1.district_no = T2.district_no.",
+      "When filtering for a specific case number: use T2.case_number = 'JB120039' exactly as specified.",
+      "When grouping district results: use GROUP BY T1.district_no, T1.district_name to ensure proper aggregation.",
+      "When the question asks about district information for a specific case, When joining tables to find district information for a case, When filtering for a specific case number, When grouping district results, When the question does not specify crime type: do not include crime_type = 'homicide' filter in the query."
+    ]
+  },
+  "79": {
+    "db_id": "soccer_2",
+    "question": "Find the name and training hours of players whose hours are below 1500.",
+    "ground_truth": "SELECT pName ,  HS FROM Player WHERE HS  <  1500",
+    "amends": [
+      "Do select `pName` and `HS` instead of `name` and `training_hours`. Do use table `Player` instead of `players`. Do apply filter `HS < 1500` instead of `training_hours > 1500`. The amended query now correctly selects the specified columns from the proper table with the appropriate filter condition."
+    ],
+    "rules": [],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT name, training_hours FROM players WHERE training_hours > 1500;",
+      "SELECT pName, HS FROM Player WHERE HS < 1500;"
+    ],
+    "rule_sql": [
+      "SELECT pName, HS FROM Player WHERE HS < 1500"
+    ],
+    "id": "4956",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When the question asks for \"name\" and \"training hours\": use columns \"pName\" and \"HS\" from table \"Player\" respectively.",
+      "When filtering for players whose hours are below 1500: apply condition HS < 1500.",
+      "When the question asks for \"name\" and \"training hours\", When filtering for players whose hours are below 1500, When selecting from the players table: use table \"Player\" instead of \"players\"."
+    ]
+  },
+  "80": {
+    "db_id": "driving_school",
+    "question": "List lesson id of all lessons taught by staff with first name as Janessa, last name as Sawayn and nickname containing letter 's'.",
+    "ground_truth": "SELECT T1.lesson_id FROM Lessons AS T1 JOIN Staff AS T2 ON T1.staff_id = T2.staff_id WHERE T2.first_name = \"Janessa\" AND T2.last_name = \"Sawayn\" AND nickname LIKE \"%s%\";",
+    "amends": [
+      "Do join `Lessons AS T1` with `Staff AS T2` on `T1.staff_id = T2.staff_id` instead of querying only the `lessons` table without proper joins. Do reference columns `T2.first_name`, `T2.last_name`, and `nickname` from the Staff table instead of incorrectly using `staff_first_name`, `staff_last_name`, and `staff_nickname` from the Lessons table. Do use double quotes for string literals instead of single quotes. The amended query now correctly joins tables to access staff information and matches the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "When joining Staff and Lessons tables: link rows where T1.staff_id equals T2.staff_id exactly as shown (T1.staff_id = T2.staff_id) and keep only matching pairs (inner match).",
+      "When filtering for staff with first name Janessa: use exact literal 'Janessa' with column T1.first_name.",
+      "When filtering for staff with last name Sawayn: use exact literal 'Sawayn' with column T1.last_name.",
+      "When filtering for nickname containing letter 's': use pattern '%s%' with column T1.nickname (not T2.nickname).",
+      "When selecting lesson identifiers: reference T2.lesson_id from the joined Lessons table (not just lesson_id without source specification).",
+      "When joining Staff and Lessons tables, When filtering for staff with first name Janessa, When filtering for staff with last name Sawayn, When filtering for nickname containing letter 's', When selecting lesson identifiers, When combining conditions: ensure all three filters (first_name, last_name, nickname) are applied together to find matching staff members."
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT lesson_id FROM lessons WHERE staff_first_name = 'Janessa' AND staff_last_name = 'Sawayn' AND staff_nickname LIKE '%s%';",
+      "SELECT T1.lesson_id FROM Lessons AS T1 JOIN Staff AS T2 ON T1.staff_id = T2.staff_id WHERE T2.first_name = \"Janessa\" AND T2.last_name = \"Sawayn\" AND T2.nickname LIKE \"%s%\""
+    ],
+    "rule_sql": [
+      "SELECT T1.lesson_id\nFROM Lessons AS T1\nJOIN Staff AS T2 ON T1.staff_id = T2.staff_id\nWHERE T2.first_name = \"Janessa\"\nAND T2.last_name = \"Sawayn\"\nAND T2.nickname LIKE '%s%'"
+    ],
+    "id": "6700",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about lessons taught by specific staff: join table \"Lessons\" as T1 with table \"Staff\" as T2 on T1.staff_id = T2.staff_id to access staff information.",
+      "When the question mentions \"first name as Janessa\": use column T2.first_name with exact literal value \"Janessa\" (double quotes).",
+      "When the question mentions \"last name as Sawayn\": use column T2.last_name with exact literal value \"Sawayn\" (double quotes).",
+      "When the question mentions \"nickname containing letter 's'\": use column T2.nickname with pattern matching condition containing lowercase 's'.",
+      "When answering about lessons taught by specific staff, When the question mentions \"first name as Janessa\", When the question mentions \"last name as Sawayn\", When the question mentions \"nickname containing letter 's'\", When selecting output: return lesson_id from T1 table."
+    ]
+  },
+  "81": {
+    "db_id": "european_football_2",
+    "question": "What is the highest overall rating received by Dorlan Pabon?",
+    "ground_truth": "SELECT MAX(t2.overall_rating) FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t1.player_name = 'Dorlan Pabon'",
+    "amends": [
+      "Do use `MAX(t2.overall_rating)` instead of `MIN(rating)` for the aggregate function and column reference. Do join `Player AS t1` and `Player_Attributes AS t2` with `INNER JOIN` on `t1.player_api_id = t2.player_api_id` instead of querying only `player_ratings` table. Do reference `t1.player_name` in the WHERE clause instead of `player_name` alone. The amended query now correctly retrieves the maximum overall rating for the specified player by properly joining the relevant tables."
+    ],
+    "rules": [
+      "for joining tables: combine university_year AS T1 with university AS T2 on T1.university_id = T2.id, then combine with country AS T3 on T3.id = T2.country_id to access country information.",
+      "for filtering by year range: apply WHERE T1.year BETWEEN 2011 AND 2016 to select only records from 2011 through 2016 inclusive.",
+      "for identifying universities with high international student participation: filter with WHERE T1.pct_international_students > 50 to include only universities where more than 50% of students are international.",
+      "for selecting distinct countries: use SELECT DISTINCT T3.country_name to return unique country names rather than potentially duplicate entries.",
+      "for joining tables, for filtering by year range, for identifying universities with high international student participation, for selecting distinct countries, for organizing results: maintain the query structure that processes university-year data through proper table relationships before returning country information."
+    ],
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT MIN(rating) FROM player_ratings WHERE player_name = 'Dorlan Pabon';",
+      "SELECT MAX(t2.overall_rating) AS highest_rating\nFROM Player AS t1\nINNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id\nWHERE t1.player_name = 'Dorlan Pabon';"
+    ],
+    "rule_sql": [
+      "SELECT MAX(t2.overall_rating) AS highest_overall_rating\nFROM Player t1\nINNER JOIN Player_Attributes t2 ON t1.player_api_id = t2.player_api_id\nWHERE t1.player_name = 'Dorlan Pabon';"
+    ],
+    "amend_res": 1,
+    "id": "1100",
+    "origin_dataset": "Bird_dev",
+    "original_rules": [
+      "failed to find schema"
+    ]
+  },
+  "90": {
+    "db_id": "music_platform_2",
+    "question": "What is the name of the podcast in which a commentor left a comment with the title 'Long time listener, calling it quits?' Include the URL of the podcast as well.",
+    "ground_truth": "SELECT podcast_id, itunes_url FROM podcasts WHERE podcast_id = ( SELECT podcast_id FROM reviews WHERE title = 'Long time listener, calling it quits' )",
+    "amends": [
+      "Do select `podcast_id` and `itunes_url` instead of `podcast_name` and `url`. Do use a subquery in the WHERE clause to filter by `podcast_id` from the `reviews` table where `title` matches the condition instead of directly filtering on `comment_title` in the `podcasts` table. Do reference `title` instead of `comment_title` and ensure the subquery correctly correlates the podcast ID from reviews to the main query. The amended query now correctly retrieves podcast information based on review titles rather than attempting to filter on a non-existent column in the podcasts table.",
+      "Do use `=` instead of `IN` for the subquery predicate since it returns a single value. Do remove the question mark from the literal string filter `'Long time listener, calling it quits'` instead of `'Long time listener, calling it quits?'` to match the exact title value. The amended query now correctly uses equality comparison for a single-value subquery result and matches the exact review title filter."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT podcast_name, url FROM podcasts WHERE comment_title = 'Long time listener, calling it quits';",
+      "SELECT podcast_id, itunes_url FROM podcasts WHERE podcast_id IN (SELECT podcast_id FROM reviews WHERE title = 'Long time listener, calling it quits?')",
+      "SELECT podcast_id, itunes_url FROM podcasts WHERE podcast_id = (SELECT podcast_id FROM reviews WHERE title = 'Long time listener, calling it quits')"
+    ],
+    "rule_sql": [
+      "SELECT podcast_id, itunes_url FROM podcasts WHERE podcast_id = (SELECT podcast_id FROM reviews WHERE title = 'Long time listener, calling it quits');"
+    ],
+    "id": "7586",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks for podcast name and URL: select \"podcast_id\" and \"itunes_url\" instead of \"podcast_name\" and \"url\".",
+      "When filtering by comment title 'Long time listener, calling it quits?': use a subquery that references \"title\" from the \"reviews\" table instead of \"comment_title\".",
+      "When the question asks for podcast name and URL, When filtering by comment title 'Long time listener, calling it quits?', When linking podcasts to reviews: correlate using \"podcast_id\" between the main query and subquery to ensure correct podcast information is retrieved based on review titles.",
+      "When the question asks for a podcast name and URL where a comment has a specific title: select the podcast name and URL from the podcasts table.",
+      "When filtering for a specific review title: use the exact literal string 'Long time listener, calling it quits' without the question mark to match the stored value.",
+      "When the subquery returns a single podcast_id value: use equality comparison (=) instead of IN for the predicate.",
+      "When the question asks for a podcast name and URL where a comment has a specific title, When filtering for a specific review title, When the subquery returns a single podcast_id value, When combining podcasts and reviews tables: link them using podcast_id equality to find podcasts that have reviews with the specified title."
+    ]
+  },
+  "91": {
+    "db_id": "professional_basketball",
+    "question": "For team who has more home won than home lost more than 80%, list the team name and the offense points.",
+    "ground_truth": "SELECT name, o_pts FROM teams WHERE CAST((homeWon - homeLost) AS REAL) * 100 / games > 80",
+    "amends": [
+      "Do select `name` and `o_pts` instead of `team_name` and `offense_points`. Do use the formula `CAST((homeWon - homeLost) AS REAL) * 100 / games > 80` instead of `home_won > home_lost AND (home_won / (home_won + home_lost)) > 0.8`, which calculates a win percentage based on net wins relative to total games rather than a simple win ratio. Do reference columns `homeWon`, `homeLost`, and `games` instead of `home_won` and `home_lost`. The amended query now correctly calculates a win percentage threshold and matches the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT team_name, offense_points \nFROM teams \nWHERE home_won > home_lost \nAND (home_won / (home_won + home_lost)) > 0.8;",
+      "SELECT name, o_pts FROM teams WHERE CAST((homeWon - homeLost) AS REAL) * 100 / games > 80;"
+    ],
+    "rule_sql": [
+      "SELECT name, o_pts FROM teams WHERE CAST((homeWon - homeLost) AS REAL) * 100 / games > 80;"
+    ],
+    "id": "2789",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks for \"team name\": use column \"name\" from table \"teams\" instead of \"team_name\".",
+      "When the question asks for \"offense points\": use column \"o_pts\" from table \"teams\" instead of \"offense_points\".",
+      "When calculating win percentage based on home wins and losses: use the formula CAST((homeWon - homeLost) AS REAL) * 100 / games > 80 instead of home_won > home_lost AND (home_won / (home_won + home_lost)) > 0.8.",
+      "When the question asks for \"team name\", When the question asks for \"offense points\", When calculating win percentage based on home wins and losses, When referencing home win and loss statistics: use columns \"homeWon\", \"homeLost\", and \"games\" from table \"teams\" instead of \"home_won\" and \"home_lost\"."
+    ]
+  },
+  "92": {
+    "db_id": "books",
+    "question": "How many books were published in Japanese?",
+    "ground_truth": "SELECT COUNT(T2.book_id) FROM book_language AS T1 INNER JOIN book AS T2 ON T1.language_id = T2.language_id WHERE T1.language_name = 'Japanese'",
+    "amends": [
+      "Do join `book_language AS T1` with `book AS T2` on `T1.language_id = T2.language_id` instead of querying only the `books` table. Do filter on `T1.language_name = 'Japanese'` instead of `language = 'Japanese'`. Do count `T2.book_id` instead of `COUNT(*)` to accurately count books in the specified language. The amended query now correctly joins the language and book tables to count books by language name rather than assuming a language column exists in the books table, matching the RIGHT_SQL's behavior."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM books WHERE language = 'Japanese';",
+      "SELECT COUNT(T2.book_id) \nFROM book_language AS T1 \nJOIN book AS T2 ON T1.language_id = T2.language_id \nWHERE T1.language_name = 'Japanese'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(T2.book_id) AS book_count\nFROM book_language AS T1\nJOIN book AS T2 ON T1.language_id = T2.language_id\nWHERE T1.language_name = 'Japanese';"
+    ],
+    "id": "5972",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about books published in a specific language: join book_language as T1 with book as T2 on T1.language_id = T2.language_id to link language information with books.",
+      "When filtering for Japanese language: use T1.language_name = 'Japanese' exactly as specified, not a generic language column.",
+      "When the question asks about books published in a specific language, When filtering for Japanese language, When counting books: count T2.book_id instead of all rows to accurately count books in the specified language."
+    ]
+  },
+  "93": {
+    "db_id": "products_gen_characteristics",
+    "question": "How many distinct characteristic names does the product \"cumin\" have?",
+    "ground_truth": "SELECT count(DISTINCT t3.characteristic_name) FROM products AS t1 JOIN product_characteristics AS t2 ON t1.product_id  =  t2.product_id JOIN CHARACTERISTICS AS t3 ON t2.characteristic_id  =  t3.characteristic_id WHERE t1.product_name  =  \"sesame\"",
+    "amends": [
+      "Do use `count(DISTINCT t3.characteristic_name)` instead of `COUNT(*)` to count distinct characteristics rather than all rows. Do join `products AS t1` instead of querying only the characteristics table to properly relate products to their characteristics. Do add `JOIN product_characteristics AS t2 ON t1.product_id = t2.product_id` instead of omitting this intermediate relationship table. Do add `JOIN CHARACTERISTICS AS t3 ON t2.characteristic_id = t3.characteristic_id` instead of directly querying the characteristics table without proper joins. Do filter on `t1.product_name = \"sesame\"` instead of `product_name = 'cumin'` to query for the correct product. The amended query now correctly counts distinct characteristics for the specified product by properly navigating the relationship tables."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM characteristics WHERE product_name = 'cumin';",
+      "SELECT COUNT(DISTINCT t3.characteristic_name) \nFROM products AS t1\nJOIN product_characteristics AS t2 ON t1.product_id = t2.product_id\nJOIN characteristics AS t3 ON t2.characteristic_id = t3.characteristic_id\nWHERE t1.product_name = 'sesame'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(DISTINCT t3.characteristic_name) \nFROM products AS t1\nJOIN product_characteristics AS t2 ON t1.product_id = t2.product_id\nJOIN characteristics AS t3 ON t2.characteristic_id = t3.characteristic_id\nWHERE t1.product_name = \"sesame\""
+    ],
+    "id": "5556",
+    "origin_dataset": "Spider_train",
+    "original_rules": [
+      "When answering about distinct characteristic names for a product: use count(DISTINCT t3.characteristic_name) instead of COUNT(*) to count distinct characteristics rather than all rows.",
+      "When the question mentions a product name: join products AS t1 instead of querying only the characteristics table to properly relate products to their characteristics.",
+      "When combining products and characteristics tables: add JOIN product_characteristics AS t2 ON t1.product_id = t2.product_id to include the intermediate relationship table.",
+      "When linking characteristics to products: add JOIN CHARACTERISTICS AS t3 ON t2.characteristic_id = t3.characteristic_id to properly connect through the relationship table.",
+      "When answering about distinct characteristic names for a product, When the question mentions a product name, When combining products and characteristics tables, When linking characteristics to products, When filtering for a specific product: use t1.product_name = \"sesame\" instead of product_name = 'cumin' to query for the correct product."
+    ]
+  },
+  "94": {
+    "db_id": "genes",
+    "question": "For the pairs of genes both from the class ATPases, what is the average expression correlation score?",
+    "ground_truth": "SELECT AVG(T2.Expression_Corr) FROM Genes AS T1 INNER JOIN Interactions AS T2 ON T1.GeneID = T2.GeneID1 WHERE T1.Class = 'ATPases'",
+    "amends": [
+      "Do use table `Genes` aliased as `T1` and `Interactions` aliased as `T2` instead of `gene_expression_correlations`. Do perform an `INNER JOIN` on `T1.GeneID = T2.GeneID1` instead of querying a single table. Do select `AVG(T2.Expression_Corr)` instead of `AVG(correlation_score)`. Do filter on `T1.Class = 'ATPases'` instead of filtering both `gene1_class` and `gene2_class` with the same value. Do remove the redundant second class filter condition instead of keeping duplicate filtering logic. The amended query now correctly calculates average expression correlations for ATPases genes through proper table relationships."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT AVG(correlation_score) \nFROM gene_expression_correlations \nWHERE gene1_class = 'ATPases' AND gene2_class = 'ATPases';",
+      "SELECT AVG(T2.Expression_Corr) \nFROM Genes T1\nINNER JOIN Interactions T2 ON T1.GeneID = T2.GeneID1\nWHERE T1.Class = 'ATPases'"
+    ],
+    "rule_sql": [
+      "SELECT AVG(T2.Expression_Corr) \nFROM Genes T1\nINNER JOIN Interactions T2 ON T1.GeneID = T2.GeneID1\nWHERE T1.Class = 'ATPases'"
+    ],
+    "id": "2497",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about average expression correlation score for genes from class ATPases: use table \"Genes\" aliased as T1 and table \"Interactions\" aliased as T2.",
+      "When combining T1 and T2 for shared entities: link rows where T1.GeneID = T2.GeneID1 and keep only matching pairs (inner match).",
+      "When filtering for genes from class ATPases: use condition T1.Class = 'ATPases' exactly as specified.",
+      "When computing the average expression correlation: calculate AVG(T2.Expression_Corr) as the final result.",
+      "When answering about average expression correlation score for genes from class ATPases, When combining T1 and T2 for shared entities, When filtering for genes from class ATPases, When computing the average expression correlation, When the question mentions pairs of genes both from class ATPases: recognize that this requires filtering only the gene class once through T1, not both gene1_class and gene2_class."
+    ]
+  },
+  "95": {
+    "db_id": "olympics",
+    "question": "How many female competitors were from Iran?",
+    "ground_truth": "SELECT COUNT(T2.person_id) FROM noc_region AS T1 INNER JOIN person_region AS T2 ON T1.id = T2.region_id INNER JOIN person AS T3 ON T2.person_id = T3.id WHERE T1.region_name = 'Iran' AND T3.gender = 'F'",
+    "amends": [
+      "Do use explicit table joins with `noc_region AS T1 INNER JOIN person_region AS T2 ON T1.id = T2.region_id INNER JOIN person AS T3 ON T2.person_id = T3.id` instead of querying a single `competitors` table. Do filter by `T1.region_name = 'Iran'` instead of `country = 'Iran'` and `T3.gender = 'F'` instead of `gender = 'Male'`. Do count specific column `COUNT(T2.person_id)` instead of `COUNT(*)` to avoid counting null values. The amended query now correctly joins the necessary tables to establish the proper relationships between regions and persons, ensuring accurate counting of female individuals from Iran."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM competitors WHERE country = 'Iran' AND gender = 'Male';",
+      "SELECT COUNT(T2.person_id) \nFROM noc_region AS T1 \nINNER JOIN person_region AS T2 ON T1.id = T2.region_id \nINNER JOIN person AS T3 ON T2.person_id = T3.id \nWHERE T1.region_name = 'Iran' AND T3.gender = 'F'"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(DISTINCT T2.person_id) \nFROM noc_region T1\nJOIN person_region T2 ON T1.id = T2.region_id\nJOIN person T3 ON T2.person_id = T3.id\nWHERE T1.region_name = 'Iran' AND T3.gender = 'F'"
+    ],
+    "id": "5067",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When answering about \"female competitors from Iran\": make sure the output order: count of female competitors from Iran.",
+      "When the question mentions \"Iran\": \"Iran\" actually means \"T1.region_name = 'Iran'\" in schema.",
+      "When the question mentions \"female\": \"female\" actually means \"T3.gender = 'F'\" in schema.",
+      "When combining tables for shared entities: link rows where T1.id = T2.region_id and T2.person_id = T3.id; keep only matching pairs (inner match).",
+      "When answering about \"female competitors from Iran\", When the question mentions \"Iran\", When the question mentions \"female\", When combining tables for shared entities, When the question asks for \"count of competitors\": compute the number of rows using the canonical key token T2.person_id to avoid counting null values."
+    ]
+  },
+  "96": {
+    "db_id": "hockey",
+    "question": "How many wins does the team have whose goaltender have the most number of successfully stopping the other team from scoring during the entire game?",
+    "ground_truth": "SELECT SUM(W) FROM Goalies GROUP BY tmID ORDER BY SUM(SHO) DESC LIMIT 1",
+    "amends": [
+      "Do use `SUM(W)` instead of `wins` and change the aggregation approach from a subquery to a main query with GROUP BY. Do move from a WHERE clause with subquery to a GROUP BY clause with `tmID` instead of filtering by `team_id`. Do add `ORDER BY SUM(SHO) DESC` instead of ordering by `saves DESC` in the subquery. Do change the table reference from `teams` and `goaltenders` to `Goalies` instead of using separate tables. Do remove the subquery structure entirely instead of using nested SELECT statements. The amended query now correctly aggregates wins by team and orders by shutouts to identify the top team, matching the RIGHT_SQL's behavior.",
+      "Do use `Goalies` as the FROM source instead of `Teams` with a subquery. Do remove the WHERE clause filtering by `tmID` from a subquery instead of keeping it. Do add GROUP BY `tmID` instead of omitting it. Do add ORDER BY `SUM(SHO) DESC` instead of omitting it. Do add LIMIT 1 instead of omitting it. The amended query now correctly calculates wins directly from the Goalies table rather than incorrectly attempting to filter Teams based on a subquery result."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 0,
+    "amend_sql": [
+      "SELECT wins FROM teams WHERE team_id = (SELECT team_id FROM goaltenders ORDER BY saves DESC LIMIT 1);",
+      "SELECT SUM(W) AS wins \nFROM Teams \nWHERE tmID = (\n    SELECT tmID \n    FROM Goalies \n    GROUP BY tmID \n    ORDER BY SUM(SHO) DESC \n    LIMIT 1\n)",
+      "SELECT SUM(W) AS wins \nFROM Goalies \nGROUP BY tmID \nORDER BY SUM(SHO) DESC \nLIMIT 1"
+    ],
+    "rule_sql": [
+      "SELECT SUM(t.W) AS wins\nFROM Teams t\nJOIN Goalies g ON t.tmID = g.tmID AND t.year = g.year\nGROUP BY t.tmID\nORDER BY SUM(g.SHO) DESC\nLIMIT 1;"
+    ],
+    "id": "7377",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When the question asks about wins for a team: use SUM(W) instead of wins column directly.",
+      "When identifying teams by goaltender performance: group results by tmID instead of filtering with a subquery.",
+      "When determining the team with goaltenders who best prevent scoring: order by SUM(SHO) DESC instead of saves DESC.",
+      "When working with team and goaltender data: use the Goalies table instead of separate teams and goaltenders tables.",
+      "When the question asks about wins for a team, When identifying teams by goaltender performance, When determining the team with goaltenders who best prevent scoring, When working with team and goaltender data, When aggregating team statistics: use a main query with GROUP BY instead of subquery structures.",
+      "When answering about \"wins for the team whose goaltender has the most shutouts\": make sure the output order: wins count first.",
+      "When the question mentions \"goaltender have the most number of successfully stopping the other team from scoring\": this actually means \"goaltenders with the highest SUM(SHO) in schema\".",
+      "When the question asks for \"wins\" for a specific team: use the exact column \"W\" from the Teams table.",
+      "When combining Teams and Goalies tables: link rows where Teams.tmID = Goalies.tmID and keep only matching pairs (inner match).",
+      "When finding the team with goaltenders having the most shutouts: group by tmID, order by SUM(SHO) DESC, and keep only the first 1 row.",
+      "When answering about \"wins for the team whose goaltender has the most shutouts\", When the question mentions \"goaltender have the most number of successfully stopping the other team from scoring\", When the question asks for \"wins\" for a specific team, When combining Teams and Goalies tables, When finding the team with goaltenders having the most shutouts, When counting wins: compute the sum of W for the identified team."
+    ]
+  },
+  "97": {
+    "db_id": "retails",
+    "question": "How many kinds of items are returned in order no.5?",
+    "ground_truth": "SELECT COUNT(l_linenumber) FROM lineitem WHERE l_orderkey = 5 AND l_returnflag = 'R'",
+    "amends": [
+      "Do select `COUNT(l_linenumber)` instead of `COUNT(*)` to count specific non-null values. Do query from `lineitem` table instead of `items` table as the correct data source. Do filter on `l_orderkey = 5` instead of `order_id = 5` using the proper column name for order identification. Do add `l_returnflag = 'R'` filter instead of omitting it to only count returned line items. The amended query now correctly counts returned line items for order 5, matching the intended behavior."
+    ],
+    "rules": [
+      "batch processing error"
+    ],
+    "amend_res": 1,
+    "rule_res": 1,
+    "amend_sql": [
+      "SELECT COUNT(*) FROM items WHERE order_id = 5;",
+      "SELECT COUNT(l_linenumber) FROM lineitem WHERE l_orderkey = 5 AND l_returnflag = 'R';"
+    ],
+    "rule_sql": [
+      "SELECT COUNT(l_linenumber) FROM lineitem WHERE l_orderkey = 5 AND l_returnflag = 'R'"
+    ],
+    "id": "6330",
+    "origin_dataset": "Bird_train",
+    "original_rules": [
+      "When counting items in the database: use the \"lineitem\" table instead of \"items\" table as the correct data source.",
+      "When identifying an order by number: use \"l_orderkey = 5\" instead of \"order_id = 5\" for the proper column name.",
+      "When counting returned line items: use \"COUNT(l_linenumber)\" instead of \"COUNT(*)\" to count specific non-null values.",
+      "When counting items in the database, When identifying an order by number, When counting returned line items, When filtering for returned items: add \"l_returnflag = 'R'\" to only count returned line items."
+    ]
+  }
+}

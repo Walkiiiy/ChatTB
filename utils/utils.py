@@ -407,4 +407,44 @@ def mergejson(inputPaths,outputPath):
         merged.update(data)
     with open(outputPath,'w',encoding='utf-8') as f:
         json.dump(merged,f,indent=4)
-mergejson(['/home/ubuntu/walkiiiy/ChatTB/Bird_train/tokenizedDB.json','/home/ubuntu/walkiiiy/ChatTB/Spider_train/tokenizedDB.json'],'/home/ubuntu/walkiiiy/ChatTB/Database_train/tokenizedDB_train.json')
+# mergejson(['/home/ubuntu/walkiiiy/ChatTB/Bird_train/tokenizedDB.json','/home/ubuntu/walkiiiy/ChatTB/Spider_train/tokenizedDB.json'],'/home/ubuntu/walkiiiy/ChatTB/Database_train/tokenizedDB_train.json')
+import json
+import random
+from collections import OrderedDict
+
+def shuffle_json_keys(input_file, output_file=None):
+    """
+    打乱JSON文件中顶级键的顺序
+    
+    Args:
+        input_file: 输入JSON文件路径
+        output_file: 输出JSON文件路径，如果为None则覆盖原文件
+    
+    Returns:
+        打乱后的JSON数据
+    """
+    # 读取JSON文件
+    with open(input_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # 如果是字典，打乱键的顺序
+    if isinstance(data, dict):
+        keys = list(data.keys())
+        random.shuffle(keys)
+        
+        # 创建新的有序字典（保持打乱后的顺序）
+        shuffled_data = OrderedDict()
+        for key in keys:
+            shuffled_data[key] = data[key]
+        
+        data = dict(shuffled_data)  # 转换为普通字典
+    
+    # 写入输出文件
+    output_path = output_file if output_file else input_file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    
+    return data
+
+# 使用示例
+shuffled_data = shuffle_json_keys('condensed_rules_all.json', 'rules_shuffled.json')
