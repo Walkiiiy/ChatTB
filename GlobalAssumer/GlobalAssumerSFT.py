@@ -425,6 +425,10 @@ def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruc
     print(f"Loading rules from: {rules_json_path}")
     print(f"Database root path: {db_root_path}")
     
+    schema_path = os.path.join(db_root_path,  "schema.json")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema_all = json.load(f)
+
     for item in iter_rules_items(rules_json_path):
         question = item.get("question", "").strip()
         db_id = item.get("db_id", "").strip()
@@ -437,22 +441,25 @@ def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruc
         # Skip samples without rules if requested
         if skip_no_rules and not rule_list:
             continue
-            
         # Generate schema information if database exists
-        schema = ""
-        if db_id:
-            db_path = os.path.join(db_root_path, db_id, f"{db_id}.sqlite")
-            if os.path.exists(db_path):
-                try:
-                    schema = schema_helper.generate_schema_info(
-                        db_path, 
-                        num_rows=(schema_rows if schema_rows > 0 else None)
-                    )
-                except Exception as e:
-                    print(f"Warning: Failed to generate schema for {db_id}: {e}")
-                    raise e# make it immidiate error
-                    schema = ""
-        
+        # schema = ""
+        # if db_id:
+        #     db_path = os.path.join(db_root_path, db_id, f"{db_id}.sqlite")
+        #     if os.path.exists(db_path):
+        #         try:
+        #             schema = schema_helper.generate_schema_info(
+        #                 db_path, 
+        #                 num_rows=(schema_rows if schema_rows > 0 else None)
+        #             )
+        #         except Exception as e:
+        #             print(f"Warning: Failed to generate schema for {db_id}: {e}")
+        #             raise e# make it immidiate error
+        #             schema = ""
+        if db_id in schema_all:
+            schema = schema_all[db_id]
+        else:
+            print(f"Warning: Schema not found for {db_id}")
+            schema = ""
         # Build the training prompt
         text = build_io_pair(instruction, schema, question, rule_list)
         if max_prompt_length is not None and len(text) > max_prompt_length:
