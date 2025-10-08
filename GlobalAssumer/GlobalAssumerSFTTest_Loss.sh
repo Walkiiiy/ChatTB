@@ -6,9 +6,9 @@
 #     --max_samples 100
 
 python GlobalAssumer/GlobalAssumerSFTTest_Loss_SFTonly.py \
-    --fine_tuned_models /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_Cleaned/checkpoint-8000 \
+    --fine_tuned_models /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed10.7/checkpoint-500 \
     --test_data /home/ubuntu/walkiiiy/ChatTB/Bird_dev/condensed_rules.json \
-    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_Cleaned/LossTest_8000_Bird_dev \
+    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed10.7/LossTest_500_Bird_dev \
     --max_samples 100
 
 # python AssumerSFTTest_Loss.py \

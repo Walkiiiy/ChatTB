@@ -19,11 +19,11 @@
 
 python GlobalAssumer/GlobalAssumerSFTTest_LocalModelSQL.py \
     --base_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Qwen3-8B \
-    --adapter_path /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_Cleaned/checkpoint-10000 \
+    --adapter_path /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed10.7/checkpoint-1000 \
     --sql_model /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Arctic-Text2SQL-R1-7B\
     --dataset /home/ubuntu/walkiiiy/ChatTB/Bird_dev/condensed_rules.json \
     --db_root_path /home/ubuntu/walkiiiy/ChatTB/Bird_dev/database \
-    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed_Cleaned/SQL_test_10000_Bird_dev_ArcticSQL \
+    --output_dir /home/ubuntu/walkiiiy/ChatTB/Process_model/models--Assumer_Mixed10.7/SQL_test_1000_Bird_dev_ArcticSQL \
     --num_samples 100
     
 # python GlobalAssumer/GlobalAssumerSFTTest_LocalModelSQL_SFTonly.py \

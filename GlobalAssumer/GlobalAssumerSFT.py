@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--instruction", type=str, 
                        default="Analyze the question and schema, output only the rules that apply.",
                        help="Instruction prompt for the model")
-    parser.add_argument("--db_root_path", type=str, default="/home/ubuntu/walkiiiy/ChatTB/Database_train", 
+    parser.add_argument("--db_root_path", type=str, default="Database_train", 
                        help="Root directory containing database files (<db_id>/<db_id>.sqlite)")
     parser.add_argument("--schema_rows", type=int, default=0, 
                        help="Number of sample rows to include per table in schema (0 to disable)")
@@ -240,49 +240,7 @@ def load_tokenizer(model_name: str, trust_remote_code: bool) -> AutoTokenizer:
     return tokenizer
 
 
-def load_model(model_name: str, bnb_config: Optional[BitsAndBytesConfig], bf16: bool, tf32: bool, trust_remote_code: bool) -> AutoModelForCausalLM:
-    """
-    Load the causal language model with optional quantization and precision settings.
-    
-    Args:
-        model_name (str): Path to the model directory
-        bnb_config (Optional[BitsAndBytesConfig]): Quantization configuration for QLoRA
-        bf16 (bool): Whether to use bfloat16 precision
-        tf32 (bool): Whether to use TensorFloat-32 precision
-        trust_remote_code (bool): Whether to trust remote code from model hub
-        
-    Returns:
-        AutoModelForCausalLM: Loaded model with specified configurations
-        
-    Note:
-        - bf16: Reduces memory usage while maintaining training stability
-        - tf32: Improves performance on Ampere GPUs (RTX 30xx, A100, etc.)
-        - device_map="auto": Automatically distributes model across available GPUs
-    """
-    # Enable TensorFloat-32 if requested (for Ampere GPUs)
-    torch.backends.cuda.matmul.allow_tf32 = bool(tf32)
-    
-    # Set dtype for model loading
-    dtype = torch.bfloat16 if bf16 else None
-    
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        quantization_config=bnb_config,  # Apply quantization if specified
-        torch_dtype=dtype,               # Set precision
-        device_map="auto",               # Auto-distribute across GPUs
-        trust_remote_code=trust_remote_code,
-    )
-    
-    # Clear any default generation config that might include sampling parameters
-    # This prevents warnings when using deterministic generation
-    if hasattr(model, 'generation_config') and model.generation_config is not None:
-        # Reset generation config to remove sampling parameters
-        model.generation_config.temperature = None
-        model.generation_config.top_p = None
-        model.generation_config.top_k = None
-        model.generation_config.do_sample = False
-    
-    return model
+
 
 
 def normalize_chat_example(example: dict, chat_field: str, tokenizer: AutoTokenizer, apply_template: bool) -> Dict[str, str]:
@@ -428,7 +386,8 @@ def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruc
     schema_path = os.path.join(db_root_path,  "schema.json")
     with open(schema_path, "r", encoding="utf-8") as f:
         schema_all = json.load(f)
-
+    
+    no_schema_db=[]
     for item in iter_rules_items(rules_json_path):
         question = item.get("question", "").strip()
         db_id = item.get("db_id", "").strip()
@@ -458,15 +417,15 @@ def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruc
         if db_id in schema_all:
             schema = schema_all[db_id]
         else:
-            print(f"Warning: Schema not found for {db_id}")
-            schema = ""
+            no_schema_db.append(db_id)
+            continue
         # Build the training prompt
         text = build_io_pair(instruction, schema, question, rule_list)
         if max_prompt_length is not None and len(text) > max_prompt_length:
             print(f"Warning: Text length {len(text)} exceeds max_prompt_length {max_prompt_length}")
             continue
         samples.append({"text": text})
-
+    print('no_schema_db:',no_schema_db)
     print(f"Generated {len(samples)} training samples")
     return samples
 
@@ -474,16 +433,6 @@ def get_prompts_from_rules(max_prompt_length: int, rules_json_path: str, instruc
 from datasets import Dataset
 from dataclasses import dataclass
 from typing import Any, Dict
-
-
-def load_local_json_dataset(_: str):
-    """
-    Placeholder function for loading JSON datasets (disabled).
-    
-    Raises:
-        NotImplementedError: Always raises since this functionality is disabled
-    """
-    raise NotImplementedError("Dataset loading disabled. Use --rules_file to generate prompts.")
 
 
 def build_lora_config(args: argparse.Namespace) -> LoraConfig:

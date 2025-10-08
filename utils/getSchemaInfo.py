@@ -8,7 +8,7 @@ def get_schema_info(db_path, num_rows=None):
 
 if __name__ == "__main__":
     db_root_path = "/home/ubuntu/walkiiiy/ChatTB/Database_train"
-    output_path = "/home/ubuntu/walkiiiy/ChatTB/Database_train/train_schema.json"
+    output_path = "/home/ubuntu/walkiiiy/ChatTB/Database_train/schema.json"
     res = {}
     for db_path in os.listdir(db_root_path):
         if not os.path.exists(os.path.join(db_root_path, db_path, f"{db_path}.sqlite")):
